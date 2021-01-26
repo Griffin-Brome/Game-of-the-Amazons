@@ -34,7 +34,7 @@ public class COSC322Test extends GamePlayer {
 	public static void main(String[] args) {
 		HumanPlayer p1 = new HumanPlayer();
 		HumanPlayer p2 = new HumanPlayer();
-		
+
 		COSC322Test player = new COSC322Test(args[0], args[1]);
 
 		if (player.getGameGUI() == null) {
@@ -90,22 +90,23 @@ public class COSC322Test extends GamePlayer {
 		// see the method GamePlayer.handleGameMessage() in the game-client-api
 		// document.
 		try {
-			switch(messageType) {
+			switch (messageType) {
 			case GameMessage.GAME_STATE_BOARD:
-	            gamegui.setGameState((ArrayList<Integer>) msgDetails.get(AmazonsGameMessage.GAME_STATE)
-	                    );
-	            break;
-	        case GameMessage.GAME_ACTION_MOVE:
-	            gamegui.updateGameState(msgDetails);
-	            break;
+				gamegui.setGameState((ArrayList<Integer>) msgDetails.get(AmazonsGameMessage.GAME_STATE));
+				break;
+			case GameMessage.GAME_ACTION_START:
+				System.out.printf("Starting Game\n%s", msgDetails);
+				break;
+			case GameMessage.GAME_ACTION_MOVE:
+				gamegui.updateGameState(msgDetails);
+				break;
 			}
-	
-			
+
 		} catch (Exception e) {
 			System.out.println("Something went wrong handling a game message from the server:");
 			e.printStackTrace();
 		}
-		
+
 		return false;
 	}
 

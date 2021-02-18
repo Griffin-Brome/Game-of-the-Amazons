@@ -97,7 +97,7 @@ public class GameBoard {
 
 		if (this.coords.get(queenPosCurr) == WHITE_QUEEN) {
 
-//			System.out.println("\nMoving White Queen from " + queenPosCurr);
+			System.out.println("\nMoving White Queen from " + queenPosCurr);
 			boardMatrix[queenPosCurr.get(1)][queenPosCurr.get(0)] = BLANK;
 			boardMatrix[queenPosNext.get(1)][queenPosNext.get(0)] = WHITE_QUEEN;
 			

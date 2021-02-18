@@ -111,7 +111,7 @@ public class AmazonsAIPlayer extends GamePlayer {
 			queen.add(move.get(3));
 
 			ArrayList<ArrayList<Integer>> possibleArrows = gameBoard.getPossibleMoves(newPos);
-			if (!possibleArrows.isEmpty()) {
+//			if (!possibleArrows.isEmpty()) {
 				ArrayList<Integer> arrowMove = randomMove(possibleArrows);
 				arrowPos.add(arrowMove.get(0)); // arrow position
 				arrowPos.add(arrowMove.get(1));
@@ -141,9 +141,9 @@ public class AmazonsAIPlayer extends GamePlayer {
 					e.printStackTrace();
 				}
 				
-			} else {
-				System.out.println("No more places to put arrows.");
-			}
+//			} else {
+//				System.out.println("No more places to put arrows.");
+//			}
 		} else {
 			String player = isWhitePlayer ? "White Player" : "Black Player";
 			System.out.println("Game over... " + player);

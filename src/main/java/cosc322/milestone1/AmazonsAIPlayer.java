@@ -21,13 +21,14 @@ import ygraph.ai.smartfox.games.amazons.HumanPlayer;
  */
 public class AmazonsAIPlayer extends GamePlayer {
 
+	public boolean isWhitePlayer;
 	private GameClient gameClient = null;
 	private BaseGameGUI gamegui = null;
 	private GameBoard gameBoard = null;
 
 	private String userName = null;
 	private String passwd = null;
-	private boolean isWhitePlayer;
+	
 
 	public AmazonsAIPlayer(String userName, String passwd) {
 		this.userName = userName;
@@ -97,11 +98,11 @@ public class AmazonsAIPlayer extends GamePlayer {
 	}
 	
 	public void move() {
-//		gameBoard.getPossibleMoves(this);
+		gameBoard.getPossibleMoves(this);
 		makeRandomMove();
 	}
 
-	// Will need a class / function ~> getPossibleMoves(queen, board) or something
+	// Will need a class / function 
 	public void makeRandomMove() {
 		//
 	}

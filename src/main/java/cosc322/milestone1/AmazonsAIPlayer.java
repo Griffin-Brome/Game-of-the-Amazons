@@ -28,26 +28,44 @@ public class AmazonsAIPlayer extends GamePlayer {
 	private String passwd = null;
 
 	public AmazonsAIPlayer(String userName, String passwd) {
-		this.userName = userName;
-		this.passwd = passwd;
-		this.isWhitePlayer = false;
-		this.gamegui = new BaseGameGUI(this);
-		this.gameBoard = new GameBoard();
+		setUserName(userName);
+		this.passwd = passwd; 							//TODO create setter
+		this.isWhitePlayer = false; 					//TODO create setter
+		this.gamegui = new BaseGameGUI(this); 	//TODO create setter
+		this.gameBoard = new GameBoard(); 				//TODO create setter
 	}
 
 	@Override
 	public void onLogin() {
 		System.out.println("Login successfull!\n");
 
-		this.userName = this.getGameClient().getUserName();
+		String uname = gameClient.getUserName();
+		setUserName(uname);
 		if (this.getGameGUI() != null) {
 			this.getGameGUI().setRoomInformation(this.getGameClient().getRoomList());
-
+		} else {
+			System.err.println("Error: Could not load game UI");
+			return; // Break out of program
 		}
 
 		// auto join
 //		this.gameClient.joinRoom(this.gameClient.getRoomList().get(0).getName());
 
+	}
+
+	/**
+	 * Sets the players username
+	 *
+	 * @param userName Must not be null, further constraints may need to be added
+	 *
+	 */
+	public void setUserName(String userName) {
+		if (userName.isEmpty()) {
+			System.err.println("Error: Username cannot be empty");
+			return;
+		} else {
+			this.userName = userName;
+		}
 	}
 
 	@SuppressWarnings("unchecked")
@@ -65,7 +83,7 @@ public class AmazonsAIPlayer extends GamePlayer {
 
 			case GameMessage.GAME_ACTION_START:
 				this.handleStart(msgDetails);
-				break;
+			break;
 
 			case GameMessage.GAME_ACTION_MOVE:
 				gameBoard.updateBoard(msgDetails);
@@ -95,6 +113,9 @@ public class AmazonsAIPlayer extends GamePlayer {
 		}
 	}
 
+	/**
+	 * TODO docstring
+	 */
 	public void move() {
 		ArrayList<Integer> queen = new ArrayList<>();
 		ArrayList<Integer> newPos = new ArrayList<>();

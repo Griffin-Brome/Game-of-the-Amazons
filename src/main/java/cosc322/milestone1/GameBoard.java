@@ -1,5 +1,6 @@
 package cosc322.milestone1;
 
+import java.lang.reflect.Array;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -33,10 +34,10 @@ import ygraph.ai.smartfox.games.amazons.AmazonsGameMessage;
 public class GameBoard {
 
 	// Encoding on game state from server :
-	private final byte ARROW = 3;
-	private final byte BLACK_QUEEN = 2;
-	private final byte WHITE_QUEEN = 1;
-	private final byte BLANK = 0;
+	private final int ARROW = 3;
+	private final int BLACK_QUEEN = 2;
+	private final int WHITE_QUEEN = 1;
+	private final int BLANK = 0;
 
 	private ArrayList<Integer> gameState;
 	private final byte ROWS = 11;
@@ -71,51 +72,74 @@ public class GameBoard {
 	 * Updates the coordinates HashMap and matrix
 	 * Prints some debugging statements
 	 * 
-	 * @param msgDetails
 	 */
 	@SuppressWarnings("unchecked")
 	public void updateBoard(ArrayList<Integer> queenPosCurr, ArrayList<Integer> queenPosNext, ArrayList<Integer> arrowPos) {
-		
-		if (this.coords.get(queenPosCurr) == BLACK_QUEEN) {
-			System.out.println("\nMoving Black Queen from " + queenPosCurr);
-			boardMatrix[queenPosCurr.get(1)][queenPosCurr.get(0)] = BLANK;
-			boardMatrix[queenPosNext.get(1)][queenPosNext.get(0)] = BLACK_QUEEN;
-						
-			for(int i = 0; i < blackQueens.size(); i++) {
-				if(blackQueens.get(i).get(0)==queenPosCurr.get(0)&&blackQueens.get(i).get(1)==queenPosCurr.get(1)) {
-					blackQueens.remove(i);	
-				}
-			}
-			
-			if (this.coords.get(queenPosNext) == BLANK) {
-				System.out.println("\nTo a blank spot at " + queenPosNext);
-				blackQueens.add(queenPosNext);
-			} else {
-				System.out.println("Not a blank spot.");
+		moveQueen(queenPosCurr, queenPosNext);
+		shootArrow(arrowPos);
+	}
+
+	/**
+	 * Moves queen from position A to B
+	 *
+	 * @param currPos TODO
+	 *
+	 * @param endPos TODO
+	 */
+	private void moveQueen(ArrayList<Integer> currPos, ArrayList<Integer> endPos) {
+		// Check if new position is a valid state
+		if (!isValid(endPos)) {
+			System.err.println("Cannot move to these coordinates");
+		} else {
+			// Determine inhabitant of tile
+			int tileOccupant = coords.get(currPos);
+			switch (tileOccupant) {
+				case BLACK_QUEEN:
+					System.out.println("\nMoving Black Queen from " + currPos);
+					boardMatrix[currPos.get(1)][currPos.get(0)] = BLANK;
+					boardMatrix[endPos.get(1)][endPos.get(0)] = BLACK_QUEEN;
+
+					blackQueens.remove(currPos);
+
+					System.out.println("\nTo a blank spot at " + endPos);
+					blackQueens.add(endPos);
+					break;
+				case WHITE_QUEEN:
+					System.out.println("\nMoving White Queen from " + currPos);
+					boardMatrix[currPos.get(1)][currPos.get(0)] = BLANK;
+					boardMatrix[endPos.get(1)][endPos.get(0)] = WHITE_QUEEN;
+
+					whiteQueens.remove(currPos);
+					System.out.println("\nTo a blank spot at " + endPos);
+					whiteQueens.add(endPos);
+					break;
+				default:
+					System.err.println("Selected tile does not contain a queen");
+					return;
 			}
 		}
+	}
 
-		if (this.coords.get(queenPosCurr) == WHITE_QUEEN) {
+	/**
+	 *
+	 * @param pos position to check
+	 * @return whether or not the tile is occupied
+	 */
+	private boolean isValid(ArrayList<Integer> pos) {
+		return coords.get(pos) == 0;
+	}
 
-			System.out.println("\nMoving White Queen from " + queenPosCurr);
-			boardMatrix[queenPosCurr.get(1)][queenPosCurr.get(0)] = BLANK;
-			boardMatrix[queenPosNext.get(1)][queenPosNext.get(0)] = WHITE_QUEEN;
-			
-			for(int i = 0; i < whiteQueens.size(); i++) {
-				if(whiteQueens.get(i).get(0)==queenPosCurr.get(0)&&whiteQueens.get(i).get(1)==queenPosCurr.get(1)) {
-					whiteQueens.remove(i);	
-				}
-			}
-			
-			if (this.coords.get(queenPosNext) == BLANK) {
-				System.out.println("\nTo a blank spot at " + queenPosNext);
-				whiteQueens.add(queenPosNext);
-			} else {
-				System.out.println("Not a blank spot.");
-			}
-		}
 
-		if (this.coords.get(arrowPos) == BLANK) {
+	/**
+	 * Shoots an arrow at the position
+     *
+	 * @param arrowPos Coords to shoot arrow at
+	 */
+	private void shootArrow(ArrayList<Integer> arrowPos) {
+	    if (!isValid(arrowPos)) {
+	    	System.err.println("Selected tile is occupied");
+	    	return;
+		} else {
 			System.out.println("\nPlacing Arrow at a blank spot at " + arrowPos + "\n");
 			boardMatrix[arrowPos.get(1)][arrowPos.get(0)] = ARROW;
 			arrows.add(arrowPos);

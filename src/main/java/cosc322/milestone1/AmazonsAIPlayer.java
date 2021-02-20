@@ -78,7 +78,8 @@ public class AmazonsAIPlayer extends GamePlayer {
 			// set gui/board
 			case GameMessage.GAME_STATE_BOARD:
 				gamegui.setGameState((ArrayList<Integer>) msgDetails.get(AmazonsGameMessage.GAME_STATE));
-				gameBoard.setBoardState((ArrayList<Integer>) msgDetails.get(AmazonsGameMessage.GAME_STATE));
+				gameBoard.setBoardState((ArrayList<Integer>) msgDetails.get(AmazonsGameMessage.GAME_STATE),
+						false);
 				break;
 
 			case GameMessage.GAME_ACTION_START:

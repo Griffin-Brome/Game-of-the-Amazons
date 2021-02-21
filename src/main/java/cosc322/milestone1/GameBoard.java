@@ -171,22 +171,22 @@ public class GameBoard {
 			for (int x = 1; x < COLS; x++) {
 				
 				// positions from server are passed as y,x ...
-				ArrayList<Integer> coords = new ArrayList<Integer>(Arrays.asList(y, x));
-				int currentTile = gameState.get(pos);
-				this.coords.put(coords, currentTile);
+				ArrayList<Integer> position = new ArrayList<Integer>(Arrays.asList(y, x));
+				int occupant = gameState.get(pos);
+				this.coords.put(position, occupant);
 				
 				this.boardMatrix[x][y] = gameState.get(pos).byteValue();
 
 				// add to appropriate list of pieces
-                switch (currentTile) {
+                switch (occupant) {
 					case BLACK_QUEEN:
-						blackQueens.add(coords);
+						blackQueens.add(position);
 						break;
 					case WHITE_QUEEN:
-						whiteQueens.add(coords);
+						whiteQueens.add(position);
 						break;
 					case ARROW:
-						arrows.add(coords);
+						arrows.add(position);
 				}
 				pos++;
 			}

@@ -33,7 +33,7 @@ public class COSC322Test extends GamePlayer {
 	 */
 	public static void main(String[] args) {
 		HumanPlayer p1 = new HumanPlayer();
-		HumanPlayer p2 = new HumanPlayer();
+//		HumanPlayer p2 = new HumanPlayer();
 
 		COSC322Test player = new COSC322Test(args[0], args[1]);
 
@@ -44,8 +44,8 @@ public class COSC322Test extends GamePlayer {
 			java.awt.EventQueue.invokeLater(new Runnable() {
 				public void run() {
 					p1.Go();
-					p2.Go();
-					player.Go();
+//					p2.Go();
+//					player.Go();
 				}
 			});
 		}

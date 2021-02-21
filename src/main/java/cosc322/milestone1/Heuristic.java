@@ -33,9 +33,11 @@ public class Heuristic {
      * @return
      */
     public static int territory(byte direction, int moveCount, byte[] currPos) {
+        // do this the state-space search way (like Djikstra) with priority queue ordering by moveCount
         for (byte dir : directions) {
             byte[] newPos = newPosition(dir, currPos);
             if (!isValidPosition(newPos)) continue;
+            if(isVisited(newPos)) continue;
             if (dir == direction)
                 territory(dir, moveCount, newPos);
             else

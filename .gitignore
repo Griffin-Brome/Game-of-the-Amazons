@@ -1,4 +1,11 @@
+#IDE
 .idea
+.vscode
+
+#META
+.metadata
+*.iml
+.settings
 
 target/
 pom.xml.tag

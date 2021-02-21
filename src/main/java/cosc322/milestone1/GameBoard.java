@@ -34,10 +34,10 @@ import ygraph.ai.smartfox.games.amazons.AmazonsGameMessage;
 public class GameBoard {
 
 	// Encoding on game state from server :
-	private final int ARROW = 3;
-	private final int BLACK_QUEEN = 2;
-	private final int WHITE_QUEEN = 1;
-	private final int BLANK = 0;
+	private final byte ARROW = 3;
+	private final byte BLACK_QUEEN = 2;
+	private final byte WHITE_QUEEN = 1;
+	private final byte BLANK = 0;
 
 	private ArrayList<Integer> gameState;
 	private final byte ROWS = 11;

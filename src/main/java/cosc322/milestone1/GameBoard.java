@@ -104,9 +104,11 @@ public class GameBoard {
 					break;
 				default:
 					System.err.println("Selected tile does not contain a queen -> " + currPos + " - " + getOccupant(currPos));
+					System.out.println("white");
 					for(byte[] wQueen : whiteQueens) {
 						System.out.println(Arrays.toString(wQueen));
 					}
+					System.out.println("black");
 					for(byte[] bQueen : blackQueens) {
 						System.out.println(Arrays.toString(bQueen));
 					}
@@ -136,10 +138,10 @@ public class GameBoard {
 	 * @param piece
 	 */
 	public void updateMatrix(ArrayList<Integer> currPos, ArrayList<Integer> endPos, byte piece) {
-		int currY = currPos.get(0) > 0 ? currPos.get(0) -1 : currPos.get(0);
-		int currX = currPos.get(1) > 0 ? currPos.get(1) -1 : currPos.get(1);
-		int endY  = endPos.get(0) > 0 ? endPos.get(0) -1 : endPos.get(0);
-		int endX  = endPos.get(1) > 0 ? endPos.get(1) -1 : endPos.get(1);
+		int currY = currPos.get(0) -1;
+		int currX = currPos.get(1) -1;
+		int endY  = endPos.get(0) -1;
+		int endX  = endPos.get(1) -1;
 		
 		boardMatrix[currX][currY] = BLANK;
 		boardMatrix[endX][endY] = piece;	
@@ -156,19 +158,26 @@ public class GameBoard {
 	public void updatePieces(ArrayList<Integer> currPos, ArrayList<Integer> endPos, byte piece) {
 		switch(piece) {
 		case BLACK_QUEEN:
-			blackQueens.remove(new byte[] {currPos.get(0).byteValue(), currPos.get(1).byteValue()});
+
+			for(int i = 0; i < blackQueens.size(); i++) 
+				if(blackQueens.get(i)[0] == currPos.get(0) && blackQueens.get(i)[1] == currPos.get(1)) 
+					blackQueens.remove(i);
+				
 			blackQueens.add(new byte[] {endPos.get(0).byteValue(), endPos.get(1).byteValue()});
 			break;
 		case WHITE_QUEEN:
-			whiteQueens.remove(new byte[] {currPos.get(0).byteValue(), currPos.get(1).byteValue()});
+			
+			for(int i = 0; i < whiteQueens.size(); i++) 
+				if(whiteQueens.get(i)[0] == currPos.get(0) && whiteQueens.get(i)[1] == currPos.get(1)) 
+					whiteQueens.remove(i);
+			
 			whiteQueens.add(new byte[] {endPos.get(0).byteValue(), endPos.get(1).byteValue()});
 			break;
 		case ARROW: 
+			arrows.add(new byte[] {endPos.get(0).byteValue(), endPos.get(1).byteValue()});
 			break;
 		}
-		
-//		coords.remove(currPos);
-//		coords.put(endPos, (int) piece);
+
 	}
 	
 
@@ -179,8 +188,8 @@ public class GameBoard {
 	 * @return whether or not the tile is occupied
 	 */
 	private boolean isValid(ArrayList<Integer> pos) {
-		int y = pos.get(0) > 0 ? pos.get(0) -1 : pos.get(0);
-		int x = pos.get(1) > 0 ? pos.get(1) -1 : pos.get(1);
+		int y = pos.get(0) -1;
+		int x = pos.get(1) -1;
 		return boardMatrix[x][y] == BLANK;
 	}
 
@@ -196,8 +205,8 @@ public class GameBoard {
 	    	return;
 		} else {
 			System.out.println("\nPlacing Arrow at a blank spot at " + arrowPos + "\n");
-			int x = arrowPos.get(1) > 0 ? arrowPos.get(1) - 1  : arrowPos.get(1);
-			int y = arrowPos.get(0) > 0 ? arrowPos.get(0) - 1  : arrowPos.get(0);
+			int x = arrowPos.get(1) -1;
+			int y = arrowPos.get(0) -1;
 			boardMatrix[x][y] = ARROW;
 			arrows.add(new byte[] {arrowPos.get(0).byteValue(), arrowPos.get(1).byteValue()});
 		}
@@ -314,88 +323,77 @@ public class GameBoard {
 		byte y = (byte) (pos[0] - 1);
 		byte x = (byte) (pos[1] - 1);
 
-		// go right
-//		System.out.printf("Right from %s\n", pos);
 		while (++x < COLS && isBlank(boardMatrix[x][y])) {
 			byte[] newPos = new byte[4];
-//				System.out.printf("Board: %d,  y:%d, x:%d\n", boardMatrix[x][y], y, x);
 			addMove(pos, moves, y, x, newPos);
 		}
 		
-		y = (byte) (pos[0] > 0 ? pos[0] -1 : pos[0]);
-		x = (byte) (pos[1] > 0 ? pos[1] -1 : pos[1]);
+		y = (byte) (pos[0] -1);
+		x = (byte) (pos[1] -1);
 
 		// go left
-//		System.out.printf("Left from %s\n", pos);
 		while (--x > 0 && isBlank(boardMatrix[x][y])) {
 			byte[] newPos = new byte[4];
-//				System.out.printf("Board: %d,  y:%d, x:%d\n", boardMatrix[x][y], y, x);
 			addMove(pos, moves, y, x, newPos);
 		}
 	
-		y = (byte) (pos[0] > 0 ? pos[0] -1 : pos[0]);
-		x = (byte) (pos[1] > 0 ? pos[1] -1 : pos[1]);
+		
+		y = (byte) (pos[0] -1);
+		x = (byte) (pos[1] -1);
 		
 		// go up
-//		System.out.printf("Up from %s\n", pos);
 		while (++y < COLS && isBlank(boardMatrix[x][y])) {
 			byte[] newPos = new byte[4];
-//				System.out.printf("Board: %d,  y:%d, x:%d\n", boardMatrix[x][y], y, x);
 			addMove(pos, moves, y, x, newPos);
 		}
 		
-		y = (byte) (pos[0] > 0 ? pos[0] -1 : pos[0]);
-		x = (byte) (pos[1] > 0 ? pos[1] -1 : pos[1]);
+		
+		y = (byte) (pos[0] -1);
+		x = (byte) (pos[1] -1);
 
 		// go down
-//		System.out.printf("Down from %s\n", pos);
 		while (--y > 0 && isBlank(boardMatrix[x][y])) {
 			byte[] newPos = new byte[4];
-//				System.out.printf("Board: %d,  y:%d, x:%d\n", boardMatrix[x][y], y, x);
 			addMove(pos, moves, y, x, newPos);
 		}
 		
-		y = (byte) (pos[0] > 0 ? pos[0] -1 : pos[0]);
-		x = (byte) (pos[1] > 0 ? pos[1] -1 : pos[1]);
+		
+		y = (byte) (pos[0] -1);
+		x = (byte) (pos[1] -1);
 
 		// go diagonal up right
-//		System.out.printf("Diag up right from %s\n", pos);
 		while (++y < ROWS && ++x < COLS && isBlank(boardMatrix[x][y])) {
 			byte[] newPos = new byte[4];
-//				System.out.printf("Board: %d,  y:%d, x:%d\n", boardMatrix[x][y], y, x);
 			addMove(pos, moves, y, x, newPos);
 		}
 		
-		y = (byte) (pos[0] > 0 ? pos[0] -1 : pos[0]);
-		x = (byte) (pos[1] > 0 ? pos[1] -1 : pos[1]);
+		
+		y = (byte) (pos[0] -1);
+		x = (byte) (pos[1] -1);
 		
 		// go diagonal up left
-//		System.out.printf("Diag up left from %s\n", pos);
 		while (++y < ROWS && --x > 0 && isBlank(boardMatrix[x][y])) {
 			byte[] newPos = new byte[4];
-//				System.out.printf("Board: %d,  y:%d, x:%d\n", boardMatrix[x][y], y, x);
 			addMove(pos, moves, y, x, newPos);
 		}
 		
-		y = (byte) (pos[0] > 0 ? pos[0] -1 : pos[0]);
-		x = (byte) (pos[1] > 0 ? pos[1] -1 : pos[1]);
+		
+		y = (byte) (pos[0] -1);
+		x = (byte) (pos[1] -1);
 		
 		// go diagonal down left
-//		System.out.printf("Diag down left from %s\n", pos);
 		while (--y > 0 && --x > 0 && isBlank(boardMatrix[x][y])) {
 			byte[] newPos = new byte[4];
-//				System.out.printf("Board: %d,  y:%d, x:%d\n", boardMatrix[x][y], y, x);
 			addMove(pos, moves, y, x, newPos);
 		}
 		
-		y = (byte) (pos[0] > 0 ? pos[0] -1 : pos[0]);
-		x = (byte) (pos[1] > 0 ? pos[1] -1 : pos[1]);
+		
+		y = (byte) (pos[0] -1);
+		x = (byte) (pos[1] -1);
 		
 		// go diagonal down right
-//		System.out.printf("Diag down right from %s\n", pos);
 		while (--y > 0 && ++x < COLS && isBlank(boardMatrix[x][y])) {
 			byte[] newPos = new byte[4];
-//				System.out.printf("Board: %d,  y:%d, x:%d\n", boardMatrix[x][y], y, x);
 			addMove(pos, moves, y, x, newPos);
 		}
 		return moves;

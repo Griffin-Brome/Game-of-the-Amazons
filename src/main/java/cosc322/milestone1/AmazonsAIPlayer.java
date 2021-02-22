@@ -145,15 +145,15 @@ public class AmazonsAIPlayer extends GamePlayer {
 					gamegui.updateGameState(queen, newPos, arrowPos);
 					gameClient.sendMoveMessage(queen, newPos, arrowPos);
 
-//					System.out.println("Current Board Matrix:\n------------------------------");
-//					byte[][] matrix = gameBoard.getMatrix();
-//					for (int y = gameBoard.ROWS - 1; y >= 0; y--) {
-//						for (int x = 0; x < gameBoard.COLS; x++) {
-//							System.out.printf("%d, ", matrix[x][y]);
-//						}
-//						System.out.println("");
-//					}
-//
+					System.out.println("Current Board Matrix:\n------------------------------");
+					byte[][] matrix = gameBoard.getMatrix();
+					for (int y = gameBoard.ROWS - 1; y >= 0; y--) {
+						for (int x = 0; x < gameBoard.COLS; x++) {
+							System.out.printf("%d, ", matrix[x][y]);
+						}
+						System.out.println("");
+					}
+
 //					System.out.println("white");
 //					for (byte[] wQueen : gameBoard.getWhiteQueens()) {
 //						System.out.println(Arrays.toString(wQueen));
@@ -168,7 +168,7 @@ public class AmazonsAIPlayer extends GamePlayer {
 //					for (byte[] arrow : gameBoard.getArrows()) {
 //						System.out.println(Arrays.toString(arrow));
 //					}
-//					
+					
 					try {
 						TimeUnit.SECONDS.sleep(2);
 					} catch (InterruptedException e) {
@@ -181,6 +181,7 @@ public class AmazonsAIPlayer extends GamePlayer {
 				} else {
 					String player = isWhitePlayer ? "White Player" : "Black Player";
 					System.out.println(player + " No more places to put arrows.");
+					break;
 				}
 
 			} else {

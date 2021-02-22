@@ -30,12 +30,29 @@ public class AmazonsAIPlayer extends GamePlayer {
 
 	public AmazonsAIPlayer(String userName, String passwd) {
 		setUserName(userName);
-		this.passwd = passwd; 							//TODO create setter
-		this.isWhitePlayer = false; 					//TODO create setter
-		this.gamegui = new BaseGameGUI(this); 	//TODO create setter
-		this.gameBoard = new GameBoard(); 				//TODO create setter
+		
+		setPassword(passwd);
+		setIsWhitePlayer(false);
+		setGameGUI(new BaseGameGUI(this));
+		setGameBoard(new GameBoard());
 	}
 
+	public void setPassword(String pw) {
+		this.passwd = pw;
+	}
+	
+	public void setIsWhitePlayer(boolean isWhitePlayer) {
+		this.isWhitePlayer = isWhitePlayer;
+	}
+	
+	public void setGameGUI(BaseGameGUI gui) {
+		this.gamegui = gui;
+	}
+	
+	public void setGameBoard(GameBoard board) {
+		this.gameBoard = board;
+	}
+	
 	@Override
 	public void onLogin() {
 		System.out.println("Login successfull!\n");
@@ -79,13 +96,12 @@ public class AmazonsAIPlayer extends GamePlayer {
 			// set gui/board
 			case GameMessage.GAME_STATE_BOARD:
 				gamegui.setGameState((ArrayList<Integer>) msgDetails.get(AmazonsGameMessage.GAME_STATE));
-				gameBoard.setBoardState((ArrayList<Integer>) msgDetails.get(AmazonsGameMessage.GAME_STATE),
-						false);
+				gameBoard.setBoardState((ArrayList<Integer>) msgDetails.get(AmazonsGameMessage.GAME_STATE), false);
 				break;
 
 			case GameMessage.GAME_ACTION_START:
 				this.handleStart(msgDetails);
-			break;
+				break;
 
 			case GameMessage.GAME_ACTION_MOVE:
 				gameBoard.updateBoard(msgDetails);
@@ -124,12 +140,12 @@ public class AmazonsAIPlayer extends GamePlayer {
 		ArrayList<Integer> arrowPos = new ArrayList<>();
 		boolean valid = false;
 
-		ArrayList<byte[]> possibleMoves = gameBoard.getPossibleMoves(isWhitePlayer);
-		if (!possibleMoves.isEmpty()) {
+		do {
 
-			do {
-				
-				byte[] move = randomMove(possibleMoves); 
+			ArrayList<byte[]> possibleMoves = gameBoard.getPossibleMoves(isWhitePlayer);
+			if (!possibleMoves.isEmpty()) {
+
+				byte[] move = randomMove(possibleMoves);
 				newPos.add((int) move[0]); // new pos
 				newPos.add((int) move[1]);
 				queen.add((int) move[2]); // queen being moved y, x
@@ -145,42 +161,45 @@ public class AmazonsAIPlayer extends GamePlayer {
 					gamegui.updateGameState(queen, newPos, arrowPos);
 					gameClient.sendMoveMessage(queen, newPos, arrowPos);
 
-					System.out.println("Current Board Matrix:\n------------------------------");
-					byte[][] matrix = gameBoard.getMatrix();
-					for (int y = gameBoard.ROWS - 1; y >= 0; y--) {
-						for (int x = 0; x < gameBoard.COLS; x++) {
-							System.out.printf("%d, ", matrix[x][y]);
-						}
-						System.out.println("");
-					}
+//					System.out.println("Current Board Matrix:\n------------------------------");
+//					byte[][] matrix = gameBoard.getMatrix();
+//					for (int y = gameBoard.ROWS - 1; y >= 0; y--) {
+//						for (int x = 0; x < gameBoard.COLS; x++) {
+//							System.out.printf("%d, ", matrix[x][y]);
+//						}
+//						System.out.println("");
+//					}
 
-
-					for(byte[] wQueen : gameBoard.getWhiteQueens()) {
-						System.out.println(Arrays.toString(wQueen));
-					}
-					for(byte[] bQueen : gameBoard.getBlackQueens()) {
-						System.out.println(Arrays.toString(bQueen));
-					}
-					for(byte[] arrow : gameBoard.getArrows()) {
-						System.out.println(Arrays.toString(arrow));
-					}
+//					for (byte[] wQueen : gameBoard.getWhiteQueens()) {
+//						System.out.println(Arrays.toString(wQueen));
+//					}
+//					for (byte[] bQueen : gameBoard.getBlackQueens()) {
+//						System.out.println(Arrays.toString(bQueen));
+//					}
+//					for (byte[] arrow : gameBoard.getArrows()) {
+//						System.out.println(Arrays.toString(arrow));
+//					}
+//					
 					try {
 						TimeUnit.SECONDS.sleep(1);
 					} catch (InterruptedException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
-					
-					valid=true;
-					
+
+					valid = true;
+
 				} else {
-					System.out.println("No more places to put arrows.");
+					String player = isWhitePlayer ? "White Player" : "Black Player";
+					System.out.println(player + " No more places to put arrows.");
 				}
-			} while (!valid);
-		} else {
-			String player = isWhitePlayer ? "White Player" : "Black Player";
-			System.out.println("Game over... " + player);
-		}
+
+			} else {
+				String player = isWhitePlayer ? "White Player" : "Black Player";
+				System.out.println("Game over... " + player);
+				valid = true;
+			}
+		} while (!valid);
 	}
 
 	// Will need a class / function

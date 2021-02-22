@@ -116,8 +116,9 @@ public class GameBoard {
 	 * @return
 	 */
 	public int getOccupant(ArrayList<Integer> pos) {
-		int y = pos.get(0) > 0 ? pos.get(0) - 1 : pos.get(0);
-		int x = pos.get(1) > 0 ? pos.get(1) - 1 : pos.get(1);
+		System.out.println("pos -> " + pos);
+		int y = pos.get(0) -1;
+		int x = pos.get(1) -1;
 		return boardMatrix[x][y];
 	}
 	
@@ -304,8 +305,8 @@ public class GameBoard {
 	 */
 	public ArrayList<byte[]> getPossibleMoves(byte[] pos) {
 		ArrayList<byte[]> moves = new ArrayList<>();
-		byte y = (byte) (pos[0] > 0 ? pos[0] -1 : pos[0]);
-		byte x = (byte) (pos[1] > 0 ? pos[1] -1 : pos[1]);
+		byte y = (byte) (pos[0] - 1);
+		byte x = (byte) (pos[1] - 1);
 
 		// go right
 //		System.out.printf("Right from %s\n", pos);
@@ -395,10 +396,10 @@ public class GameBoard {
 	}
 
 	private void addMove(byte[] pos, ArrayList<byte[]> moves, byte y, byte x, byte[] newPos) {
-		newPos[0] = y;
-		newPos[1] = x;
-		newPos[2] = pos[0]; // queen original position
-		newPos[3] = pos[1];
+		newPos[0] = (byte) (y + 1);
+		newPos[1] = (byte) (x + 1);
+		newPos[2] = (byte) (pos[0]); // queen original position
+		newPos[3] = (byte) (pos[1]);
 		moves.add(newPos);
 	}
 

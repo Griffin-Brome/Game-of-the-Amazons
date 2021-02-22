@@ -1,6 +1,7 @@
 package cosc322.milestone1;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -123,22 +124,22 @@ public class AmazonsAIPlayer extends GamePlayer {
 		ArrayList<Integer> arrowPos = new ArrayList<>();
 		boolean valid = false;
 
-		// Should have a check if pieces are already blocked in?
-		ArrayList<ArrayList<Integer>> possibleMoves = gameBoard.getPossibleMoves(isWhitePlayer);
+		ArrayList<byte[]> possibleMoves = gameBoard.getPossibleMoves(isWhitePlayer);
 		if (!possibleMoves.isEmpty()) {
 
 			do {
-				ArrayList<Integer> move = randomMove(possibleMoves);
-				newPos.add(move.get(0)); // new pos
-				newPos.add(move.get(1));
-				queen.add(move.get(2)); // queen being moved y, x
-				queen.add(move.get(3));
+				
+				byte[] move = randomMove(possibleMoves); 
+				newPos.add((int) move[0]); // new pos
+				newPos.add((int) move[1]);
+				queen.add((int) move[2]); // queen being moved y, x
+				queen.add((int) move[3]);
 
-				ArrayList<ArrayList<Integer>> possibleArrows = gameBoard.getPossibleMoves(newPos);
+				ArrayList<byte[]> possibleArrows = gameBoard.getPossibleMoves(move);
 				if (!possibleArrows.isEmpty()) {
-					ArrayList<Integer> arrowMove = randomMove(possibleArrows);
-					arrowPos.add(arrowMove.get(0)); // arrow position
-					arrowPos.add(arrowMove.get(1));
+					byte[] arrowMove = randomMove(possibleArrows);
+					arrowPos.add((int) arrowMove[0]); // arrow position
+					arrowPos.add((int) arrowMove[1]);
 
 					gameBoard.updateBoard(queen, newPos, arrowPos);
 					gamegui.updateGameState(queen, newPos, arrowPos);
@@ -146,18 +147,23 @@ public class AmazonsAIPlayer extends GamePlayer {
 
 					System.out.println("Current Board Matrix:\n------------------------------");
 					byte[][] matrix = gameBoard.getMatrix();
-					for (int row = 0; row < 11; row++) {
-						for (int col = 0; col < 11; col++) {
-							System.out.printf("%d, ", matrix[row][col]);
+					for (int y = gameBoard.ROWS - 1; y >= 0; y--) {
+						for (int x = 0; x < gameBoard.COLS; x++) {
+							System.out.printf("%d, ", matrix[x][y]);
 						}
 						System.out.println("");
 					}
 
-					System.out.println("");
-					System.out.println("black: " + gameBoard.getBlackQueens());
-					System.out.println("white: " + gameBoard.getWhiteQueens());
-					System.out.println("arrows: " + gameBoard.getArrows());
 
+					for(byte[] wQueen : gameBoard.getWhiteQueens()) {
+						System.out.println(Arrays.toString(wQueen));
+					}
+					for(byte[] bQueen : gameBoard.getBlackQueens()) {
+						System.out.println(Arrays.toString(bQueen));
+					}
+					for(byte[] arrow : gameBoard.getArrows()) {
+						System.out.println(Arrays.toString(arrow));
+					}
 					try {
 						TimeUnit.SECONDS.sleep(1);
 					} catch (InterruptedException e) {
@@ -178,7 +184,7 @@ public class AmazonsAIPlayer extends GamePlayer {
 	}
 
 	// Will need a class / function
-	public ArrayList<Integer> randomMove(ArrayList<ArrayList<Integer>> positions) {
+	public byte[] randomMove(ArrayList<byte[]> positions) {
 		int idx = (int) (Math.random() * positions.size());
 		return positions.get(idx);
 	}

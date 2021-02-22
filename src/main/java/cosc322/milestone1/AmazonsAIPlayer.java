@@ -36,22 +36,6 @@ public class AmazonsAIPlayer extends GamePlayer {
 		setGameGUI(new BaseGameGUI(this));
 		setGameBoard(new GameBoard());
 	}
-
-	public void setPassword(String pw) {
-		this.passwd = pw;
-	}
-	
-	public void setIsWhitePlayer(boolean isWhitePlayer) {
-		this.isWhitePlayer = isWhitePlayer;
-	}
-	
-	public void setGameGUI(BaseGameGUI gui) {
-		this.gamegui = gui;
-	}
-	
-	public void setGameBoard(GameBoard board) {
-		this.gameBoard = board;
-	}
 	
 	@Override
 	public void onLogin() {
@@ -181,7 +165,7 @@ public class AmazonsAIPlayer extends GamePlayer {
 //					}
 //					
 					try {
-						TimeUnit.SECONDS.sleep(1);
+						TimeUnit.SECONDS.sleep(2);
 					} catch (InterruptedException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -236,6 +220,22 @@ public class AmazonsAIPlayer extends GamePlayer {
 
 	public boolean handleMessage(String type) {
 		return true;
+	}
+	
+	public void setPassword(String pw) {
+		this.passwd = pw;
+	}
+	
+	public void setIsWhitePlayer(boolean isWhitePlayer) {
+		this.isWhitePlayer = isWhitePlayer;
+	}
+	
+	public void setGameGUI(BaseGameGUI gui) {
+		this.gamegui = gui;
+	}
+	
+	public void setGameBoard(GameBoard board) {
+		this.gameBoard = board;
 	}
 
 }

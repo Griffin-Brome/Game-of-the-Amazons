@@ -103,7 +103,13 @@ public class GameBoard {
 					
 					break;
 				default:
-					System.err.println("Selected tile does not contain a queen");
+					System.err.println("Selected tile does not contain a queen -> " + currPos + " - " + getOccupant(currPos));
+					for(byte[] wQueen : whiteQueens) {
+						System.out.println(Arrays.toString(wQueen));
+					}
+					for(byte[] bQueen : blackQueens) {
+						System.out.println(Arrays.toString(bQueen));
+					}
 					return;
 			}
 		}

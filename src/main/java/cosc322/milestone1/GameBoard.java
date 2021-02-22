@@ -104,13 +104,13 @@ public class GameBoard {
 					break;
 				default:
 					System.err.println("Selected tile does not contain a queen -> " + currPos + " - " + getOccupant(currPos));
-					System.out.println("white");
+					System.err.println("white");
 					for(byte[] wQueen : whiteQueens) {
-						System.out.println(Arrays.toString(wQueen));
+						System.err.println(Arrays.toString(wQueen));
 					}
-					System.out.println("black");
+					System.err.println("black");
 					for(byte[] bQueen : blackQueens) {
-						System.out.println(Arrays.toString(bQueen));
+						System.err.println(Arrays.toString(bQueen));
 					}
 					return;
 			}
@@ -124,7 +124,6 @@ public class GameBoard {
 	 * @return
 	 */
 	public int getOccupant(ArrayList<Integer> pos) {
-		System.out.println("pos -> " + pos);
 		int y = pos.get(0) -1;
 		int x = pos.get(1) -1;
 		return boardMatrix[x][y];
@@ -159,17 +158,21 @@ public class GameBoard {
 		switch(piece) {
 		case BLACK_QUEEN:
 
-			for(int i = 0; i < blackQueens.size(); i++) 
-				if(blackQueens.get(i)[0] == currPos.get(0) && blackQueens.get(i)[1] == currPos.get(1)) 
+			for(int i = 0; i < blackQueens.size(); i++) { 
+				if(blackQueens.get(i)[0] == currPos.get(0) && blackQueens.get(i)[1] == currPos.get(1)) { 
 					blackQueens.remove(i);
+				}
+			}
 				
 			blackQueens.add(new byte[] {endPos.get(0).byteValue(), endPos.get(1).byteValue()});
 			break;
 		case WHITE_QUEEN:
 			
-			for(int i = 0; i < whiteQueens.size(); i++) 
-				if(whiteQueens.get(i)[0] == currPos.get(0) && whiteQueens.get(i)[1] == currPos.get(1)) 
+			for(int i = 0; i < whiteQueens.size(); i++) {
+				if(whiteQueens.get(i)[0] == currPos.get(0) && whiteQueens.get(i)[1] == currPos.get(1)) { 
 					whiteQueens.remove(i);
+				}
+			}
 			
 			whiteQueens.add(new byte[] {endPos.get(0).byteValue(), endPos.get(1).byteValue()});
 			break;

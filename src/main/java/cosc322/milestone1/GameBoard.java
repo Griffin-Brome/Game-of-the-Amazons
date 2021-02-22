@@ -8,25 +8,25 @@ import java.util.Map;
 import ygraph.ai.smartfox.games.amazons.AmazonsGameMessage;
 
 /**
- * gameState from server comes in an integer ArrayList like this :
+ * gameState from server stored in matrix : 
  * 
- *0       0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
- *1 	  0, 0, 0, 0, 1, 0, 0, 2, 0, 0, 0, 
- *2		  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
- *3		  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
- *4    	  0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 2, 
- *5		  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
- *6		  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
- *7		  0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 2, 
- *8		  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
- *9		  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
- *10      0, 0, 0, 0, 1, 0, 0, 2, 0, 0, 0,
- * x
- * pos y     1  2  3  4  5  6  7  8  9  10
+ *9 	  0, 0, 0, 2, 0, 0, 2, 0, 0, 0, 
+ *8		  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
+ *7		  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
+ *6    	  2, 0, 0, 0, 0, 0, 0, 0, 0, 2, 
+ *5		  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
+ *4 	  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
+ *3		  1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 
+ *2		  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
+ *1		  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
+ *0       0, 0, 0, 1, 0, 0, 1, 0, 0, 0,
+ *y
+ *pos x   0  1  2  3  4  5  6  7  8  9
  * 
  * Where 1 represents white queen, 2 represents black queen and 3 are arrows.
  * 
  * Also positions sent from the server are (y, x).
+ * They're stored as byte arrays in respective arraylists in that format.
  * 
  */
 public class GameBoard {
@@ -40,9 +40,7 @@ public class GameBoard {
 	private ArrayList<Integer> gameState;
 	public final int ROWS = 10;
 	public final int COLS = 10;
-
-	// HashMap mapping board positions passed from server to gamestate integer
-//	private HashMap<ArrayList<Integer>, Integer> coords;
+	
 	private byte[][] boardMatrix;
 
 	private ArrayList<byte[]> arrows;
@@ -50,7 +48,6 @@ public class GameBoard {
 	private ArrayList<byte[]> blackQueens;
 
 	public GameBoard() {
-//		coords = new HashMap<>();
 		boardMatrix = new byte[ROWS][COLS];
 		whiteQueens = new ArrayList<>();
 		blackQueens = new ArrayList<>();
@@ -112,12 +109,25 @@ public class GameBoard {
 		}
 	}
 	
+	/**
+	 * Removed the coordinates hasmap in favor of this function that checks the matrix directly. 
+	 * 
+	 * @param pos
+	 * @return
+	 */
 	public int getOccupant(ArrayList<Integer> pos) {
 		int y = pos.get(0) > 0 ? pos.get(0) - 1 : pos.get(0);
 		int x = pos.get(1) > 0 ? pos.get(1) - 1 : pos.get(1);
 		return boardMatrix[x][y];
 	}
 	
+	/**
+	 * Update the matrix based on the arraylist positions received from the server
+	 * 
+	 * @param currPos
+	 * @param endPos
+	 * @param piece
+	 */
 	public void updateMatrix(ArrayList<Integer> currPos, ArrayList<Integer> endPos, byte piece) {
 		int currY = currPos.get(0) > 0 ? currPos.get(0) -1 : currPos.get(0);
 		int currX = currPos.get(1) > 0 ? currPos.get(1) -1 : currPos.get(1);
@@ -128,6 +138,14 @@ public class GameBoard {
 		boardMatrix[endX][endY] = piece;	
 	}
 	
+	/**
+	 * Update the arraylists with the new positions from the server. 
+	 * May actually be better to leave them as arraylists to keep from converting back and forth.
+	 * 
+	 * @param currPos
+	 * @param endPos
+	 * @param piece
+	 */
 	public void updatePieces(ArrayList<Integer> currPos, ArrayList<Integer> endPos, byte piece) {
 		switch(piece) {
 		case BLACK_QUEEN:
@@ -148,6 +166,7 @@ public class GameBoard {
 	
 
 	/**
+	 * Check if position is empty on board
 	 *
 	 * @param pos position to check
 	 * @return whether or not the tile is occupied
@@ -155,7 +174,7 @@ public class GameBoard {
 	private boolean isValid(ArrayList<Integer> pos) {
 		int y = pos.get(0) > 0 ? pos.get(0) -1 : pos.get(0);
 		int x = pos.get(1) > 0 ? pos.get(1) -1 : pos.get(1);
-		return boardMatrix[x][y] == 0;
+		return boardMatrix[x][y] == BLANK;
 	}
 
 
@@ -181,16 +200,10 @@ public class GameBoard {
 	 * A lot of this will not be necessary but I am not sure what will end up being
 	 * best/easiest/most efficient to use during actual searches so :
 	 * 
-	 * - A HashMap of the piece coordinates on the board. These are stored in the
-	 * same format that positions are passed from the server. -> coords
-	 * 
-	 * - A simple 11x11 matrix representation of the gameState ArrayList ->
+	 * - A simple 10x10 matrix representation of the gameState ArrayList ->
 	 * boardMatrix
 	 * 
 	 * - the actual ArrayList -> gameState
-	 * 
-	 * 
-	 * To be replaced by the recursive method - updated anyway for the time being
 	 * 
 	 * @param gameState - from server
 	 * @param showBoard - Whether or not to output the matrix representation to the console
@@ -282,6 +295,13 @@ public class GameBoard {
 		return moves;
 	}
 
+	/**
+	 * Likely to be replaced with the recursive approach but updated nonetheless.
+	 * Simply moves in all 8 directions from a position and checks for possible moves.
+	 * 
+	 * @param pos
+	 * @return
+	 */
 	public ArrayList<byte[]> getPossibleMoves(byte[] pos) {
 		ArrayList<byte[]> moves = new ArrayList<>();
 		byte y = (byte) (pos[0] > 0 ? pos[0] -1 : pos[0]);

@@ -1,7 +1,5 @@
 package cosc322.milestone1;
 
-import java.lang.reflect.Array;
-import java.util.List;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -10,25 +8,25 @@ import java.util.Map;
 import ygraph.ai.smartfox.games.amazons.AmazonsGameMessage;
 
 /**
- * gameState from server comes in an integer ArrayList like this :
+ * gameState from server stored in matrix : 
  * 
- *0       0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
- *1 	  0, 0, 0, 0, 1, 0, 0, 2, 0, 0, 0, 
- *2		  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
- *3		  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
- *4    	  0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 2, 
- *5		  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
- *6		  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
- *7		  0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 2, 
- *8		  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
- *9		  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
- *10      0, 0, 0, 0, 1, 0, 0, 2, 0, 0, 0,
- * x
- * pos y     1  2  3  4  5  6  7  8  9  10
+ *9 	  0, 0, 0, 2, 0, 0, 2, 0, 0, 0, 
+ *8		  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
+ *7		  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
+ *6    	  2, 0, 0, 0, 0, 0, 0, 0, 0, 2, 
+ *5		  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
+ *4 	  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
+ *3		  1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 
+ *2		  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
+ *1		  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
+ *0       0, 0, 0, 1, 0, 0, 1, 0, 0, 0,
+ *y
+ *pos x   0  1  2  3  4  5  6  7  8  9
  * 
  * Where 1 represents white queen, 2 represents black queen and 3 are arrows.
  * 
  * Also positions sent from the server are (y, x).
+ * They're stored as byte arrays in respective arraylists in that format.
  * 
  */
 public class GameBoard {
@@ -40,21 +38,17 @@ public class GameBoard {
 	private final byte BLANK = 0;
 
 	private ArrayList<Integer> gameState;
-	private final byte ROWS = 11;
-	private final int COLS = 11;
-
-	// HashMap mapping board positions passed from server to gamestate integer
-	private HashMap<ArrayList<Integer>, Integer> coords;
+	public final int ROWS = 10;
+	public final int COLS = 10;
+	
 	private byte[][] boardMatrix;
 
-	private ArrayList<ArrayList<Integer>> arrows;
-	private ArrayList<ArrayList<Integer>> whiteQueens;
-	private ArrayList<ArrayList<Integer>> blackQueens;
+	private ArrayList<byte[]> arrows;
+	private ArrayList<byte[]> whiteQueens;
+	private ArrayList<byte[]> blackQueens;
 
 	public GameBoard() {
-		coords = new HashMap<>();
 		boardMatrix = new byte[ROWS][COLS];
-
 		whiteQueens = new ArrayList<>();
 		blackQueens = new ArrayList<>();
 		arrows = new ArrayList<>();
@@ -92,41 +86,114 @@ public class GameBoard {
 			System.err.println("Cannot move to these coordinates");
 		} else {
 			// Determine inhabitant of tile
-			int tileOccupant = coords.get(currPos);
+			int tileOccupant = getOccupant(currPos);
 			switch (tileOccupant) {
 				case BLACK_QUEEN:
-					System.out.println("\nMoving Black Queen from " + currPos);
-					boardMatrix[currPos.get(1)][currPos.get(0)] = BLANK;
-					boardMatrix[endPos.get(1)][endPos.get(0)] = BLACK_QUEEN;
+//					System.out.println("\nMoving Black Queen from " + currPos);
+					updateMatrix(currPos, endPos, BLACK_QUEEN);
+					updatePieces(currPos, endPos, BLACK_QUEEN);
+//					System.out.println("\nTo a blank spot at " + endPos);
 
-					blackQueens.remove(currPos);
-
-					System.out.println("\nTo a blank spot at " + endPos);
-					blackQueens.add(endPos);
 					break;
 				case WHITE_QUEEN:
-					System.out.println("\nMoving White Queen from " + currPos);
-					boardMatrix[currPos.get(1)][currPos.get(0)] = BLANK;
-					boardMatrix[endPos.get(1)][endPos.get(0)] = WHITE_QUEEN;
-
-					whiteQueens.remove(currPos);
-					System.out.println("\nTo a blank spot at " + endPos);
-					whiteQueens.add(endPos);
+//					System.out.println("\nMoving White Queen from " + currPos);
+					updateMatrix(currPos, endPos, WHITE_QUEEN);
+					updatePieces(currPos, endPos, WHITE_QUEEN);
+//					System.out.println("\nTo a blank spot at " + endPos);
+					
 					break;
 				default:
-					System.err.println("Selected tile does not contain a queen");
+					System.err.println("Selected tile does not contain a queen -> " + currPos + " - " + getOccupant(currPos));
+					System.err.println("white");
+					for(byte[] wQueen : whiteQueens) {
+						System.err.println(Arrays.toString(wQueen));
+					}
+					System.err.println("black");
+					for(byte[] bQueen : blackQueens) {
+						System.err.println(Arrays.toString(bQueen));
+					}
 					return;
 			}
 		}
 	}
+	
+	/**
+	 * Removed the coordinates hasmap in favor of this function that checks the matrix directly. 
+	 * 
+	 * @param pos
+	 * @return
+	 */
+	public int getOccupant(ArrayList<Integer> pos) {
+		int y = pos.get(0) -1;
+		int x = pos.get(1) -1;
+		return boardMatrix[x][y];
+	}
+	
+	/**
+	 * Update the matrix based on the arraylist positions received from the server
+	 * 
+	 * @param currPos
+	 * @param endPos
+	 * @param piece
+	 */
+	public void updateMatrix(ArrayList<Integer> currPos, ArrayList<Integer> endPos, byte piece) {
+		int currY = currPos.get(0) -1;
+		int currX = currPos.get(1) -1;
+		int endY  = endPos.get(0) -1;
+		int endX  = endPos.get(1) -1;
+		
+		boardMatrix[currX][currY] = BLANK;
+		boardMatrix[endX][endY] = piece;	
+	}
+	
+	/**
+	 * Update the arraylists with the new positions from the server. 
+	 * May actually be better to leave them as arraylists to keep from converting back and forth.
+	 * 
+	 * @param currPos
+	 * @param endPos
+	 * @param piece
+	 */
+	public void updatePieces(ArrayList<Integer> currPos, ArrayList<Integer> endPos, byte piece) {
+		switch(piece) {
+		case BLACK_QUEEN:
+
+			for(int i = 0; i < blackQueens.size(); i++) { 
+				if(blackQueens.get(i)[0] == currPos.get(0) && blackQueens.get(i)[1] == currPos.get(1)) { 
+					blackQueens.remove(i);
+				}
+			}
+				
+			blackQueens.add(new byte[] {endPos.get(0).byteValue(), endPos.get(1).byteValue()});
+			break;
+		case WHITE_QUEEN:
+			
+			for(int i = 0; i < whiteQueens.size(); i++) {
+				if(whiteQueens.get(i)[0] == currPos.get(0) && whiteQueens.get(i)[1] == currPos.get(1)) { 
+					whiteQueens.remove(i);
+				}
+			}
+			
+			whiteQueens.add(new byte[] {endPos.get(0).byteValue(), endPos.get(1).byteValue()});
+			break;
+		case ARROW: 
+			arrows.add(new byte[] {endPos.get(0).byteValue(), endPos.get(1).byteValue()});
+			break;
+		}
+
+	}
+	
 
 	/**
+	 * Check if position is empty on board
 	 *
 	 * @param pos position to check
 	 * @return whether or not the tile is occupied
 	 */
 	private boolean isValid(ArrayList<Integer> pos) {
-		return coords.get(pos) == 0;
+		int y = pos.get(0) -1;
+		int x = pos.get(1) -1;
+		return boardMatrix[x][y] == BLANK;
 	}
 
 
@@ -140,9 +207,11 @@ public class GameBoard {
 	    	System.err.println("Selected tile is occupied");
 	    	return;
 		} else {
-			System.out.println("\nPlacing Arrow at a blank spot at " + arrowPos + "\n");
-			boardMatrix[arrowPos.get(1)][arrowPos.get(0)] = ARROW;
-			arrows.add(arrowPos);
+//			System.out.println("\nPlacing Arrow at a blank spot at " + arrowPos + "\n");
+			int x = arrowPos.get(1) -1;
+			int y = arrowPos.get(0) -1;
+			boardMatrix[x][y] = ARROW;
+			arrows.add(new byte[] {arrowPos.get(0).byteValue(), arrowPos.get(1).byteValue()});
 		}
 	}
 
@@ -150,10 +219,7 @@ public class GameBoard {
 	 * A lot of this will not be necessary but I am not sure what will end up being
 	 * best/easiest/most efficient to use during actual searches so :
 	 * 
-	 * - A HashMap of the piece coordinates on the board. These are stored in the
-	 * same format that positions are passed from the server. -> coords
-	 * 
-	 * - A simple 11x11 matrix representation of the gameState ArrayList ->
+	 * - A simple 10x10 matrix representation of the gameState ArrayList ->
 	 * boardMatrix
 	 * 
 	 * - the actual ArrayList -> gameState
@@ -167,47 +233,61 @@ public class GameBoard {
 
 		// update coordinates of pieces
 		int pos = 12;
-		for (int y = ROWS - 1; y > 0; y--) {
-			for (int x = 1; x < COLS; x++) {
+		for (int y = ROWS; y > 0; y--) {
+			for (int x = 1; x < COLS+1; x++) {
 				
 				// positions from server are passed as y,x ...
 				ArrayList<Integer> position = new ArrayList<Integer>(Arrays.asList(y, x));
 				int occupant = gameState.get(pos);
-				this.coords.put(position, occupant);
-				
-				this.boardMatrix[x][y] = gameState.get(pos).byteValue();
 
 				// add to appropriate list of pieces
+				byte [] bytePos = new byte[]{position.get(0).byteValue(), position.get(1).byteValue()};
                 switch (occupant) {
 					case BLACK_QUEEN:
-						blackQueens.add(position);
+						blackQueens.add(bytePos);
 						break;
 					case WHITE_QUEEN:
-						whiteQueens.add(position);
+						whiteQueens.add(bytePos);
 						break;
 					case ARROW:
-						arrows.add(position);
+						arrows.add(bytePos);
 				}
 				pos++;
 			}
 			pos++;
 		}
 
+		// update matrix ..
+		pos = 12;
+		for(int y = ROWS-1; y >= 0; y--) {
+			for(int x = 0; x < COLS; x++) {
+				this.boardMatrix[x][y] = gameState.get(pos++).byteValue();
+			}
+			pos++;
+		}
+		
+
 		if (showBoard) {
 			System.out.println("\nCurrent Board Matrix from Server:\n------------------------------------------");
-			for (int row = 0; row < ROWS; row++) {
-				for (int col = 0; col < COLS; col++) {
-					System.out.printf("%d, ", this.boardMatrix[row][col]);
+			for (int y = 0; y < ROWS; y++) {
+				for (int x = 0; x < COLS; x++) {
+					System.out.printf("(%d,%d) => %d, ", x, y, this.boardMatrix[x][y]);
 				}
 				System.out.println("");
 			}
 
 			/* lists of pieces */
 
-			System.out.println("whitequeens :" + whiteQueens);
-			System.out.println("blackqueens" + blackQueens);
-			System.out.println("arrows" + arrows);
 
+			for(byte[] wQueen : whiteQueens) {
+				System.out.println(Arrays.toString(wQueen));
+			}
+			for(byte[] bQueen : blackQueens) {
+				System.out.println(Arrays.toString(bQueen));
+			}
+			for(byte[] arrow : arrows) {
+				System.out.println(Arrays.toString(arrow));
+			}
 		}
 	}
 
@@ -219,14 +299,14 @@ public class GameBoard {
 		this.gameState = gameState;
 	}
 
-	public ArrayList<ArrayList<Integer>> getPossibleMoves(boolean isWhitePlayer) {
-		ArrayList<ArrayList<Integer>> moves = new ArrayList<>();
+	public ArrayList<byte[]> getPossibleMoves(boolean isWhitePlayer) {
+		ArrayList<byte[]> moves = new ArrayList<>();
 		if (isWhitePlayer) {
-			for (ArrayList<Integer> queenPos : whiteQueens) {
+			for (byte[] queenPos : whiteQueens) {
 				moves.addAll(getPossibleMoves(queenPos));
 			}
 		} else {
-			for (ArrayList<Integer> queenPos : blackQueens) {
+			for (byte[] queenPos : blackQueens) {
 				moves.addAll(getPossibleMoves(queenPos));
 			}
 		}
@@ -234,97 +314,100 @@ public class GameBoard {
 		return moves;
 	}
 
-	public ArrayList<ArrayList<Integer>> getPossibleMoves(ArrayList<Integer> pos) {
-		ArrayList<ArrayList<Integer>> moves = new ArrayList<>();
-		int y = pos.get(0);
-		int x = pos.get(1);
+	/**
+	 * Likely to be replaced with the recursive approach but updated nonetheless.
+	 * Simply moves in all 8 directions from a position and checks for possible moves.
+	 * 
+	 * @param pos
+	 * @return
+	 */
+	public ArrayList<byte[]> getPossibleMoves(byte[] pos) {
+		ArrayList<byte[]> moves = new ArrayList<>();
+		byte y = (byte) (pos[0] - 1);
+		byte x = (byte) (pos[1] - 1);
 
-		// go right
-//		System.out.printf("Right from %s\n", pos);
+		
 		while (++x < COLS && isBlank(boardMatrix[x][y])) {
-			ArrayList<Integer> newPos = new ArrayList<>();
-//				System.out.printf("Board: %d,  y:%d, x:%d\n", boardMatrix[x][y], y, x);
+			byte[] newPos = new byte[4];
 			addMove(pos, moves, y, x, newPos);
 		}
-		y = pos.get(0);
-		x = pos.get(1);
+		
+		y = (byte) (pos[0] -1);
+		x = (byte) (pos[1] -1);
 
 		// go left
-//		System.out.printf("Left from %s\n", pos);
 		while (--x > 0 && isBlank(boardMatrix[x][y])) {
-				ArrayList<Integer> newPos = new ArrayList<>();
-//				System.out.printf("Board: %d,  y:%d, x:%d\n", boardMatrix[x][y], y, x);
+			byte[] newPos = new byte[4];
 			addMove(pos, moves, y, x, newPos);
 		}
-		y = pos.get(0);
-		x = pos.get(1);
-
+	
+		
+		y = (byte) (pos[0] -1);
+		x = (byte) (pos[1] -1);
+		
 		// go up
-//		System.out.printf("Up from %s\n", pos);
 		while (++y < COLS && isBlank(boardMatrix[x][y])) {
-				ArrayList<Integer> newPos = new ArrayList<>();
-//				System.out.printf("Board: %d,  y:%d, x:%d\n", boardMatrix[x][y], y, x);
+			byte[] newPos = new byte[4];
 			addMove(pos, moves, y, x, newPos);
 		}
-		y = pos.get(0);
-		x = pos.get(1);
+		
+		
+		y = (byte) (pos[0] -1);
+		x = (byte) (pos[1] -1);
 
 		// go down
-//		System.out.printf("Down from %s\n", pos);
 		while (--y > 0 && isBlank(boardMatrix[x][y])) {
-				ArrayList<Integer> newPos = new ArrayList<>();
-//				System.out.printf("Board: %d,  y:%d, x:%d\n", boardMatrix[x][y], y, x);
+			byte[] newPos = new byte[4];
 			addMove(pos, moves, y, x, newPos);
 		}
-		y = pos.get(0);
-		x = pos.get(1);
+		
+		
+		y = (byte) (pos[0] -1);
+		x = (byte) (pos[1] -1);
 
 		// go diagonal up right
-//		System.out.printf("Diag up right from %s\n", pos);
 		while (++y < ROWS && ++x < COLS && isBlank(boardMatrix[x][y])) {
-				ArrayList<Integer> newPos = new ArrayList<>();
-//				System.out.printf("Board: %d,  y:%d, x:%d\n", boardMatrix[x][y], y, x);
+			byte[] newPos = new byte[4];
 			addMove(pos, moves, y, x, newPos);
 		}
-		y = pos.get(0);
-		x = pos.get(1);
+		
+		
+		y = (byte) (pos[0] -1);
+		x = (byte) (pos[1] -1);
 		
 		// go diagonal up left
-//		System.out.printf("Diag up left from %s\n", pos);
 		while (++y < ROWS && --x > 0 && isBlank(boardMatrix[x][y])) {
-				ArrayList<Integer> newPos = new ArrayList<>();
-//				System.out.printf("Board: %d,  y:%d, x:%d\n", boardMatrix[x][y], y, x);
+			byte[] newPos = new byte[4];
 			addMove(pos, moves, y, x, newPos);
 		}
-		y = pos.get(0);
-		x = pos.get(1);
+		
+		
+		y = (byte) (pos[0] -1);
+		x = (byte) (pos[1] -1);
 		
 		// go diagonal down left
-//		System.out.printf("Diag down left from %s\n", pos);
 		while (--y > 0 && --x > 0 && isBlank(boardMatrix[x][y])) {
-				ArrayList<Integer> newPos = new ArrayList<>();
-//				System.out.printf("Board: %d,  y:%d, x:%d\n", boardMatrix[x][y], y, x);
+			byte[] newPos = new byte[4];
 			addMove(pos, moves, y, x, newPos);
 		}
-		y = pos.get(0);
-		x = pos.get(1);
+		
+		
+		y = (byte) (pos[0] -1);
+		x = (byte) (pos[1] -1);
 		
 		// go diagonal down right
-//		System.out.printf("Diag down right from %s\n", pos);
 		while (--y > 0 && ++x < COLS && isBlank(boardMatrix[x][y])) {
-				ArrayList<Integer> newPos = new ArrayList<>();
-//				System.out.printf("Board: %d,  y:%d, x:%d\n", boardMatrix[x][y], y, x);
+			byte[] newPos = new byte[4];
 			addMove(pos, moves, y, x, newPos);
 		}
 		return moves;
 	}
 
-	private void addMove(ArrayList<Integer> pos, ArrayList<ArrayList<Integer>> moves, int y, int x,
-						 ArrayList<Integer> newPos) {
-		newPos.add(y);
-		newPos.add(x);
-		newPos.add(pos.get(0)); // queen original position
-		newPos.add(pos.get(1));
+	private void addMove(byte[] pos, ArrayList<byte[]> moves, byte y, byte x, byte[] newPos) {
+		newPos[0] = (byte) (y + 1);
+		newPos[1] = (byte) (x + 1);
+		newPos[2] = (byte) (pos[0]); // queen original position
+		newPos[3] = (byte) (pos[1]);
 		moves.add(newPos);
 	}
 
@@ -336,19 +419,15 @@ public class GameBoard {
 		return this.gameState;
 	}
 
-	public HashMap<ArrayList<Integer>, Integer> getAllCoords() {
-		return this.coords;
-	}
-
-	public ArrayList<ArrayList<Integer>> getBlackQueens() {
+	public ArrayList<byte[]> getBlackQueens() {
 		return this.blackQueens;
 	}
 
-	public ArrayList<ArrayList<Integer>> getWhiteQueens() {
+	public ArrayList<byte[]> getWhiteQueens() {
 		return this.whiteQueens;
 	}
 
-	public ArrayList<ArrayList<Integer>> getArrows() {
+	public ArrayList<byte[]> getArrows() {
 		return this.arrows;
 	}
 	

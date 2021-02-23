@@ -89,17 +89,17 @@ public class GameBoard {
 			int tileOccupant = getOccupant(currPos);
 			switch (tileOccupant) {
 				case BLACK_QUEEN:
-					System.out.println("\nMoving Black Queen from " + currPos);
+//					System.out.println("\nMoving Black Queen from " + currPos);
 					updateMatrix(currPos, endPos, BLACK_QUEEN);
 					updatePieces(currPos, endPos, BLACK_QUEEN);
-					System.out.println("\nTo a blank spot at " + endPos);
+//					System.out.println("\nTo a blank spot at " + endPos);
 
 					break;
 				case WHITE_QUEEN:
-					System.out.println("\nMoving White Queen from " + currPos);
+//					System.out.println("\nMoving White Queen from " + currPos);
 					updateMatrix(currPos, endPos, WHITE_QUEEN);
 					updatePieces(currPos, endPos, WHITE_QUEEN);
-					System.out.println("\nTo a blank spot at " + endPos);
+//					System.out.println("\nTo a blank spot at " + endPos);
 					
 					break;
 				default:
@@ -207,7 +207,7 @@ public class GameBoard {
 	    	System.err.println("Selected tile is occupied");
 	    	return;
 		} else {
-			System.out.println("\nPlacing Arrow at a blank spot at " + arrowPos + "\n");
+//			System.out.println("\nPlacing Arrow at a blank spot at " + arrowPos + "\n");
 			int x = arrowPos.get(1) -1;
 			int y = arrowPos.get(0) -1;
 			boardMatrix[x][y] = ARROW;
@@ -326,6 +326,7 @@ public class GameBoard {
 		byte y = (byte) (pos[0] - 1);
 		byte x = (byte) (pos[1] - 1);
 
+		
 		while (++x < COLS && isBlank(boardMatrix[x][y])) {
 			byte[] newPos = new byte[4];
 			addMove(pos, moves, y, x, newPos);

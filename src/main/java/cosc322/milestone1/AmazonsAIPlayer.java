@@ -30,13 +30,13 @@ public class AmazonsAIPlayer extends GamePlayer {
 
 	public AmazonsAIPlayer(String userName, String passwd) {
 		setUserName(userName);
-		
+
 		setPassword(passwd);
 		setIsWhitePlayer(false);
 		setGameGUI(new BaseGameGUI(this));
 		setGameBoard(new GameBoard());
 	}
-	
+
 	@Override
 	public void onLogin() {
 		System.out.println("Login successfull!\n");
@@ -116,86 +116,77 @@ public class AmazonsAIPlayer extends GamePlayer {
 	}
 
 	/**
-	 * TODO docstring
+	 * Does not currently work as expected, the possiblemoves search is a brute force approach and seems to break.
 	 */
 	public void move() {
-		ArrayList<Integer> queen = new ArrayList<>();
-		ArrayList<Integer> newPos = new ArrayList<>();
-		ArrayList<Integer> arrowPos = new ArrayList<>();
+		
 		boolean valid = false;
 
-		do {
+		ArrayList<byte[]> possibleMoves = gameBoard.getPossibleMoves(isWhitePlayer);
 
-			ArrayList<byte[]> possibleMoves = gameBoard.getPossibleMoves(isWhitePlayer);
-			if (!possibleMoves.isEmpty()) {
+		while (!valid && !possibleMoves.isEmpty()) {
+			
+			ArrayList<Integer> queen = new ArrayList<>();
+			ArrayList<Integer> newPos = new ArrayList<>();
+			
+			
+			byte[] move = randomMove(possibleMoves); // pick move and remove it
+			
+			// add to appropriate arrayList
+			newPos.add((int) move[0]); // new pos
+			newPos.add((int) move[1]);
+			queen.add((int) move[2]); // queen being moved y, x
+			queen.add((int) move[3]);
 
-				byte[] move = randomMove(possibleMoves);
-				newPos.add((int) move[0]); // new pos
-				newPos.add((int) move[1]);
-				queen.add((int) move[2]); // queen being moved y, x
-				queen.add((int) move[3]);
+			// from that position get possible arrow moves
+			ArrayList<byte[]> possibleArrows = gameBoard.getPossibleMoves(move);
+			while(!valid && !possibleArrows.isEmpty()) {
+				
+				byte[] arrowMove = randomMove(possibleArrows); // pick arrow and remove it
+				
+				// add to arraylist for server message
+				ArrayList<Integer> arrowPos = new ArrayList<>();
+				arrowPos.add((int) arrowMove[0]); // arrow position
+				arrowPos.add((int) arrowMove[1]);
 
-				ArrayList<byte[]> possibleArrows = gameBoard.getPossibleMoves(move);
-				if (!possibleArrows.isEmpty()) {
-					byte[] arrowMove = randomMove(possibleArrows);
-					arrowPos.add((int) arrowMove[0]); // arrow position
-					arrowPos.add((int) arrowMove[1]);
-
-					gameBoard.updateBoard(queen, newPos, arrowPos);
-					gamegui.updateGameState(queen, newPos, arrowPos);
-					gameClient.sendMoveMessage(queen, newPos, arrowPos);
-
-					System.out.println("Current Board Matrix:\n------------------------------");
-					byte[][] matrix = gameBoard.getMatrix();
-					for (int y = gameBoard.ROWS - 1; y >= 0; y--) {
-						for (int x = 0; x < gameBoard.COLS; x++) {
-							System.out.printf("%d, ", matrix[x][y]);
-						}
-						System.out.println("");
-					}
-
-//					System.out.println("white");
-//					for (byte[] wQueen : gameBoard.getWhiteQueens()) {
-//						System.out.println(Arrays.toString(wQueen));
-//					}
-//					
-//					System.out.println("black");
-//					for (byte[] bQueen : gameBoard.getBlackQueens()) {
-//						System.out.println(Arrays.toString(bQueen));
-//					}
-//					
-//					System.out.println("arrows");
-//					for (byte[] arrow : gameBoard.getArrows()) {
-//						System.out.println(Arrays.toString(arrow));
-//					}
-					
-					try {
-						TimeUnit.SECONDS.sleep(2);
-					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-
-					valid = true;
-
-				} else {
-					String player = isWhitePlayer ? "White Player" : "Black Player";
-					System.out.println(player + " No more places to put arrows.");
-					break;
-				}
-
-			} else {
-				String player = isWhitePlayer ? "White Player" : "Black Player";
-				System.out.println("Game over... " + player);
+				gameBoard.updateBoard(queen, newPos, arrowPos);
+				gamegui.updateGameState(queen, newPos, arrowPos);
+				gameClient.sendMoveMessage(queen, newPos, arrowPos);
 				valid = true;
+				
+//				System.out.println("Current Board Matrix:\n------------------------------");
+//				byte[][] matrix = gameBoard.getMatrix();
+//				for (int y = gameBoard.ROWS - 1; y >= 0; y--) {
+//					for (int x = 0; x < gameBoard.COLS; x++) {
+//						System.out.printf("%d, ", matrix[x][y]);
+//					}
+//					System.out.println("");
+//				}
+				
+				
 			}
-		} while (!valid);
+			if(possibleArrows.isEmpty()) {
+				String player = isWhitePlayer ? "White Player" : "Black Player";
+				System.out.println(player + " - This Queen has no more places to put arrows - " + Arrays.toString(move));
+				System.out.println("moves");
+				for(byte[] p : possibleMoves)
+					System.out.println(Arrays.toString(p));
+			}
+		}
+		
+		if(possibleMoves.isEmpty()) {
+			String player = isWhitePlayer ? "White Player" : "Black Player";
+			System.out.println("Game over... " + player);
+		}
+		
 	}
 
 	// Will need a class / function
 	public byte[] randomMove(ArrayList<byte[]> positions) {
 		int idx = (int) (Math.random() * positions.size());
-		return positions.get(idx);
+		byte[] pos = positions.get(idx);
+		positions.remove(idx);
+		return pos;
 	}
 
 	@Override
@@ -227,19 +218,19 @@ public class AmazonsAIPlayer extends GamePlayer {
 	public boolean handleMessage(String type) {
 		return true;
 	}
-	
+
 	public void setPassword(String pw) {
 		this.passwd = pw;
 	}
-	
+
 	public void setIsWhitePlayer(boolean isWhitePlayer) {
 		this.isWhitePlayer = isWhitePlayer;
 	}
-	
+
 	public void setGameGUI(BaseGameGUI gui) {
 		this.gamegui = gui;
 	}
-	
+
 	public void setGameBoard(GameBoard board) {
 		this.gameBoard = board;
 	}

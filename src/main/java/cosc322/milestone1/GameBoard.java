@@ -61,7 +61,33 @@ public class GameBoard {
 		ArrayList<Integer> arrowPos = (ArrayList<Integer>) msgDetails.get(AmazonsGameMessage.ARROW_POS);
 		updateBoard(queenPosCurr, queenPosNext, arrowPos);
 	}
-	
+
+
+	/**
+	 * Find all "royal chambers" for a given player, then return them as a Hashmap, where the key's are queens, and the
+	 * values are the count of tiles in a given chamber
+	 *
+	 * TODO Once a chamber has been created (in the game) I don't think it can ever go away, so ideally this gets
+	 * refactored such that it only checks queens that are not in chambers
+	 *
+	 * @param isWhite Represents the player to scan
+	 * @return hashmap<byte[], byte>
+	 */
+	public HashMap<byte[], Byte> getRoyalChambers(Boolean isWhite) {
+		HashMap<byte[], Byte> royalChambers = null;
+		ArrayList<byte[]> queens = (isWhite) ? getWhiteQueens() : getBlackQueens();
+		for (byte[] queen : queens)
+			if (inRoyalChamber(queen))
+				royalChambers.put(queen, getRoyalChamberSize(queen));
+		return royalChambers;
+	}
+
+	private byte getRoyalChamberSize(byte[] queen) {
+	}
+
+	private boolean inRoyalChamber(byte[] queen) {
+	}
+
 	/**
 	 * Updates the coordinates HashMap and matrix
 	 * Prints some debugging statements
@@ -74,11 +100,11 @@ public class GameBoard {
 	}
 
 	/**
-	 * Moves queen from position A to B
+	 * Moves queen from position A to B, given that B is a valid state
 	 *
-	 * @param currPos TODO
+	 * @param currPos Position of the queen to move
 	 *
-	 * @param endPos TODO
+	 * @param endPos Position to move this queen to
 	 */
 	private void moveQueen(ArrayList<Integer> currPos, ArrayList<Integer> endPos) {
 		// Check if new position is a valid state

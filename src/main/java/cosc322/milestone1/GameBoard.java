@@ -62,32 +62,6 @@ public class GameBoard {
 		updateBoard(queenPosCurr, queenPosNext, arrowPos);
 	}
 
-
-	/**
-	 * Find all "royal chambers" for a given player, then return them as a Hashmap, where the key's are queens, and the
-	 * values are the count of tiles in a given chamber
-	 *
-	 * TODO Once a chamber has been created (in the game) I don't think it can ever go away, so ideally this gets
-	 * refactored such that it only checks queens that are not in chambers
-	 *
-	 * @param isWhite Represents the player to scan
-	 * @return hashmap<byte[], byte>
-	 */
-	public HashMap<byte[], Byte> getRoyalChambers(Boolean isWhite) {
-		HashMap<byte[], Byte> royalChambers = null;
-		ArrayList<byte[]> queens = (isWhite) ? getWhiteQueens() : getBlackQueens();
-		for (byte[] queen : queens)
-			if (inRoyalChamber(queen))
-				royalChambers.put(queen, getRoyalChamberSize(queen));
-		return royalChambers;
-	}
-
-	private byte getRoyalChamberSize(byte[] queen) {
-	}
-
-	private boolean inRoyalChamber(byte[] queen) {
-	}
-
 	/**
 	 * Updates the coordinates HashMap and matrix
 	 * Prints some debugging statements

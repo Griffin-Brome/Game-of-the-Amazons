@@ -49,10 +49,6 @@ public class AmazonsAIPlayer extends GamePlayer {
 			System.err.println("Error: Could not load game UI");
 			return; // Break out of program
 		}
-
-		// auto join
-//		this.gameClient.joinRoom(this.gameClient.getRoomList().get(0).getName());
-
 	}
 
 	/**
@@ -88,7 +84,6 @@ public class AmazonsAIPlayer extends GamePlayer {
 				break;
 
 			case GameMessage.GAME_ACTION_MOVE:
-				System.out.println(msgDetails);
 				/**
 				 * 
 				 * 
@@ -133,6 +128,17 @@ public class AmazonsAIPlayer extends GamePlayer {
 	 */
 	public void move() {
 
+		Minimax mm = new Minimax(gameBoard, isWhitePlayer);
+		SearchTreeNode node = mm.iterativeDeepening(4);
+	
+		while(node!=null) {
+			System.out.println("Node " + node);
+			node = node.getNextNode();
+		}
+		
+//		System.out.println("Next AlphaBeta Opponent Node " + node.getNextNode().getNextNode());
+//		System.out.println("Next AlphaBeta Opponent Move " + node.getNextNode().getNextNode().getNextQueenPos());
+//		
 		boolean valid = false;
 
 		ArrayList<byte[]> possibleMoves = gameBoard.getPossibleMoves(isWhitePlayer);

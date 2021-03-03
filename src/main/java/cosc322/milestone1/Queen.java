@@ -1,58 +1,53 @@
 package cosc322.milestone1;
 
-public class Queen extends Piece {
+public class Queen {
+    private byte[] position;
+    private boolean white;
 
-	private boolean white;
+    /**
+     * Returns the player this queen belongs to, since there are only two options, this is a binary value, if it's not
+     * white, then it must be black
+     *
+     * @return whether or not this queen belongs to the white player
+     */
+    public boolean isWhite() {
+        return white;
+    }
 
-	public Queen(byte x, byte y, byte player) {
-		super(new byte[] { x, y });
-		setPlayer(player);
-	}
+    /**
+     * Set the position of this queen, note that this method DOES NOT check if the position is valid, this is the
+     * responsibility of the caller method
+     *
+     * @param position x,y coordinates of the queen
+     */
+    public void setPosition(byte[] position) {
+        this.position = position;
+    }
 
-	public Queen(byte[] pos, byte player) {
-		super(pos);
-		setPlayer(player);
-	}
+    /**
+     * @return x,y coordinates of the queen on the board
+     */
+    public byte[] getPosition() {
+        return position;
+    }
 
-	public void setWhite(boolean isWhite) {
-		this.white = isWhite;
-	}
+    /**
+     * Set the player that this queen belongs to. This should only be called once, during the instantiation of the
+     * queen object (i.e. in the constructor)
+     *
+     * @param player must be either 1 (for white player) or 2 (black player)
+     */
+    private void setPlayer(byte player) {
+        switch (player) {
+            case 1:
+                this.white = true;
+                break;
+            case 2:
+                this.white = false;
+                break;
+            default:
+                throw new IllegalArgumentException(player + "is not a player");
+        }
 
-	/**
-	 * Returns the player this queen belongs to, since there are only two options,
-	 * this is a binary value, if it's not white, then it must be black
-	 *
-	 * @return whether or not this queen belongs to the white player
-	 */
-	public boolean isWhite() {
-		return white;
-	}
-
-	/**
-	 * Set the player that this queen belongs to. This should only be called once,
-	 * during the instantiation of the queen object (i.e. in the constructor)
-	 *
-	 * @param player must be either 1 (for white player) or 2 (black player)
-	 */
-	private void setPlayer(byte player) {
-		switch (player) {
-		case 1:
-			setWhite(true);
-			setId(player);
-			break;
-		case 2:
-			setWhite(false);
-			setId(player);
-			break;
-		default:
-			throw new IllegalArgumentException(player + "is not a player");
-		}
-	}
-
-	@Override
-	public String toString() {
-		return "Queen [white=" + white + ", " + super.toString() + "]";
-
-	}
-
+    }
 }

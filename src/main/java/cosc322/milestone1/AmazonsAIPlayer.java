@@ -88,19 +88,7 @@ public class AmazonsAIPlayer extends GamePlayer {
 				break;
 
 			case GameMessage.GAME_ACTION_MOVE:
-				System.out.println(msgDetails);
-				/**
-				 * 
-				 * 
-				 * Now the only place conversion from server to local occurs
-				 * 
-				 * 
-				 */
-				ArrayList<Integer> queenPosCurr = toLocalFormat((ArrayList<Integer>) msgDetails.get(AmazonsGameMessage.QUEEN_POS_CURR));
-				ArrayList<Integer> queenPosNext = toLocalFormat((ArrayList<Integer>) msgDetails.get(AmazonsGameMessage.Queen_POS_NEXT));
-				ArrayList<Integer> arrowPos 	= toLocalFormat((ArrayList<Integer>) msgDetails.get(AmazonsGameMessage.ARROW_POS));
-				
-				gameBoard.updateBoard(queenPosCurr, queenPosNext, arrowPos);
+				gameBoard.updateBoard(msgDetails);
 				gamegui.updateGameState(msgDetails);
 
 				// handle opponent move here ~
@@ -128,22 +116,22 @@ public class AmazonsAIPlayer extends GamePlayer {
 	}
 
 	/**
-	 * Does not currently work as expected, the possiblemoves search is a brute
-	 * force approach and seems to break.
+	 * Does not currently work as expected, the possiblemoves search is a brute force approach and seems to break.
 	 */
 	public void move() {
-
+		
 		boolean valid = false;
 
 		ArrayList<byte[]> possibleMoves = gameBoard.getPossibleMoves(isWhitePlayer);
 
 		while (!valid && !possibleMoves.isEmpty()) {
-
+			
 			ArrayList<Integer> queen = new ArrayList<>();
 			ArrayList<Integer> newPos = new ArrayList<>();
-
+			
+			
 			byte[] move = randomMove(possibleMoves); // pick move and remove it
-
+			
 			// add to appropriate arrayList
 			newPos.add((int) move[0]); // new pos
 			newPos.add((int) move[1]);
@@ -152,10 +140,10 @@ public class AmazonsAIPlayer extends GamePlayer {
 
 			// from that position get possible arrow moves
 			ArrayList<byte[]> possibleArrows = gameBoard.getPossibleMoves(move);
-			while (!valid && !possibleArrows.isEmpty()) {
-
+			while(!valid && !possibleArrows.isEmpty()) {
+				
 				byte[] arrowMove = randomMove(possibleArrows); // pick arrow and remove it
-
+				
 				// add to arraylist for server message
 				ArrayList<Integer> arrowPos = new ArrayList<>();
 				arrowPos.add((int) arrowMove[0]); // arrow position
@@ -163,51 +151,34 @@ public class AmazonsAIPlayer extends GamePlayer {
 
 				gameBoard.updateBoard(queen, newPos, arrowPos);
 				gamegui.updateGameState(queen, newPos, arrowPos);
-
-				/**
-				 * 
-				 * 
-				 * Only place where we have to convert to server format of (y, x) and 1 indexed is now here.
-				 * 
-				 * 
-				 */
-				queen = toServerFormat(queen);
-				newPos = toServerFormat(newPos);
-				arrowPos = toServerFormat(arrowPos);
-				
 				gameClient.sendMoveMessage(queen, newPos, arrowPos);
 				valid = true;
-
+				
+//				System.out.println("Current Board Matrix:\n------------------------------");
+//				byte[][] matrix = gameBoard.getMatrix();
+//				for (int y = gameBoard.ROWS - 1; y >= 0; y--) {
+//					for (int x = 0; x < gameBoard.COLS; x++) {
+//						System.out.printf("%d, ", matrix[x][y]);
+//					}
+//					System.out.println("");
+//				}
+				
+				
 			}
-			if (possibleArrows.isEmpty()) {
+			if(possibleArrows.isEmpty()) {
 				String player = isWhitePlayer ? "White Player" : "Black Player";
-				System.out
-						.println(player + " - This Queen has no more places to put arrows - " + Arrays.toString(move));
+				System.out.println(player + " - This Queen has no more places to put arrows - " + Arrays.toString(move));
 				System.out.println("moves");
-				for (byte[] p : possibleMoves)
+				for(byte[] p : possibleMoves)
 					System.out.println(Arrays.toString(p));
 			}
 		}
-
-		if (possibleMoves.isEmpty()) {
+		
+		if(possibleMoves.isEmpty()) {
 			String player = isWhitePlayer ? "White Player" : "Black Player";
 			System.out.println("Game over... " + player);
 		}
-
-	}
-
-	public ArrayList<Integer> toServerFormat(ArrayList<Integer> pos) {
-		ArrayList<Integer> serverPos = new ArrayList<Integer>();
-		serverPos.add(pos.get(1) + 1);
-		serverPos.add(pos.get(0) + 1);
-		return serverPos;
-	}
-	
-	public ArrayList<Integer> toLocalFormat(ArrayList<Integer> serverPos){
-		ArrayList<Integer> pos = new ArrayList<Integer>();
-		pos.add(serverPos.get(1) - 1);
-		pos.add(serverPos.get(0) - 1);
-		return pos;
+		
 	}
 
 	// Will need a class / function

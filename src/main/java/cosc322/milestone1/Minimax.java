@@ -87,7 +87,7 @@ public class Minimax {
 				if (beta <= alpha) break;
 			}
 			
-			tree.expandNode(node);
+			tree.expandNode(child);
 			
 		}
 		

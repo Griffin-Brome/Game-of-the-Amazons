@@ -122,7 +122,8 @@ public class AmazonsAIPlayer extends GamePlayer {
 		
 		boolean valid = false;
 
-		ArrayList<byte[]> possibleMoves = gameBoard.getPossibleMoves(isWhitePlayer);
+		ActionFactory af = new ActionFactory(gameBoard);
+		ArrayList<byte[]> possibleMoves = af.getPossibleMoves(isWhitePlayer);
 
 		while (!valid && !possibleMoves.isEmpty()) {
 			
@@ -139,7 +140,8 @@ public class AmazonsAIPlayer extends GamePlayer {
 			queen.add((int) move[3]);
 
 			// from that position get possible arrow moves
-			ArrayList<byte[]> possibleArrows = gameBoard.getPossibleMoves(move);
+			ArrayList<byte[]> possibleArrows = af.getPossibleMoves(move);
+
 			while(!valid && !possibleArrows.isEmpty()) {
 				
 				byte[] arrowMove = randomMove(possibleArrows); // pick arrow and remove it

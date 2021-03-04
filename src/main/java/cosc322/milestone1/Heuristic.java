@@ -25,6 +25,11 @@ public class Heuristic {
         //TODO: should take arraylists of queen positions and convert into the 2D byte arrays
     }
 
+    /**
+     * Calculates the 'territory heuristic' for this board state
+     *
+     * @return An integer that encodes the board territory control as a value
+     */
     public int territoryHeuristic() {
         byte[][] myTerritory = new byte[N][N];
         byte[][] theirTerritory = new byte[N][N];
@@ -45,9 +50,9 @@ public class Heuristic {
     /**
      * Adds 2 equal sized N x N matrices, saving the result into matrix 'a' (modifies the contents of 'a')
      *
-     * @param a - the first byte matrix
-     * @param b - the second byte matrix
-     * @return
+     * @param a the first byte matrix
+     * @param b the second byte matrix
+     * @return The matrix 'a' that is now equal to a+b
      */
     private byte[][] addMatrix(byte[][] a, byte[][] b) {
         //assume a and b are the same size, N x N
@@ -62,9 +67,9 @@ public class Heuristic {
     /**
      * Subtracts 2 equal sized N x N matrices, i.e. (a - b),  saving the result into matrix 'a' (modifies the contents of 'a')
      *
-     * @param a - the first byte matrix
-     * @param b - the second byte matrix
-     * @return
+     * @param a the first byte matrix
+     * @param b the second byte matrix
+     * @return The matrix 'a' that is now equal to a-b
      */
     private byte[][] subMatrix(byte[][] a, byte[][] b) {
         //assume a and b are the same size, N x N
@@ -79,29 +84,37 @@ public class Heuristic {
     /**
      * Adds all entries in a matrix and returns a single value totalling them
      *
-     * @param mat - the matrix to reduce
-     * @return
+     * @param mat the matrix to reduce
+     * @return An integer representing the sum of all elements in the matrix
      */
     private int reduceMatrix(byte[][] mat) {
         int total = 0;
         for (byte row = 0; row < N; row++) {
             for (byte col = 0; col < N; col++) {
-                total += (int) (mat[row][col]);
+                total += mat[row][col];
             }
         }
         return total;
     }
 
+    /**
+     * Helper function to recursively find the byte[][] territory() of a single queen
+     *
+     * @param queenPosition the position of this queen on the board
+     * @return A byte[][] representing the territory values on each square
+     */
     public byte[][] territoryHelper(byte[] queenPosition) {
         //TODO: perhaps call this for each queen and collate their territories
         return territory(U, (byte) 0, queenPosition);
     }
 
     /**
-     * @param direction
-     * @param moveCount
-     * @param currPos
-     * @return
+     * Recursively find a byte[][] territory of this queen
+     *
+     * @param direction the direction being travelled in in this call
+     * @param moveCount the number of moves from the original queen position required to get to the current position
+     * @param currPos the current position being visited
+     * @return A byte[][] representing the territory values on each square
      */
     public byte[][] territory(byte direction, byte moveCount, byte[] currPos) {
         byte[][] out = new byte[N][N];
@@ -126,8 +139,11 @@ public class Heuristic {
     }
 
     /**
-     * @param dir
-     * @param oldPos
+     * Generates a new coordinate position based on the direction to move in and the old coordinate position
+     *
+     * @param dir the direction being travelled in
+     * @param oldPos the old coordinate position
+     * @return A byte[] corresponding to the new coordinate position
      */
     public static byte[] newPosition(byte dir, byte[] oldPos) {
         switch (dir) {
@@ -153,23 +169,22 @@ public class Heuristic {
     }
 
     /**
-     * Checks if this position is valid on the board
+     * Checks if this position is valid on the board (i.e. is not populated by a queen of either player or an arrow)
      *
-     * @param position
-     * @return
+     * @param position the position to be checked
+     * @return If this position is on the board or not. True -> "This position is within the bounds of the board"
      */
-    public boolean isValidPosition(byte[] position) {
+    private boolean isValidPosition(byte[] position) {
         return position[0] >= 1 && position[0] <= N && position[1] >= 1 && position[1] <= N && !isOccupied(position);
     }
 
     /**
-     * Specifically checks if this position is previously occupied on the board
+     * Specifically checks if this position is previously occupied on the board (i.e. is populated by a queen of either player or an arrow)
      *
-     * @param position
-     * @return
+     * @param position the position to be checked
+     * @return If this position is free or not. True -> "This position is free".
      */
-    public boolean isOccupied(byte[] position) {
-        //TODO: check if space is occupied given the board
+    private boolean isOccupied(byte[] position) {
         return board[position[0]][position[1]] != 0;
     }
 }

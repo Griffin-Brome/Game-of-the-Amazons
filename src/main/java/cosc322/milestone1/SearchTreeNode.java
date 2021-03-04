@@ -162,4 +162,18 @@ public class SearchTreeNode {
 	}
 
 
+	/**
+	 * @return
+	 */
+	public SearchTreeNode getFirstChild() {
+		return children.get(0);
+	}
+
+	/**
+	 * @return whether or not this node has any children
+	 */
+	public boolean isTerminal() {
+		//FIXME this might be a dumb way of doing this..., feel free to make me more robust
+		return getChildren() == null;
+	}
 }

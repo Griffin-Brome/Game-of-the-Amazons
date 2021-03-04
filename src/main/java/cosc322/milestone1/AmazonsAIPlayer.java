@@ -119,6 +119,8 @@ public class AmazonsAIPlayer extends GamePlayer {
 	 * Does not currently work as expected, the possiblemoves search is a brute force approach and seems to break.
 	 */
 	public void move() {
+		long start = System.currentTimeMillis();
+		while(System.currentTimeMillis() < start + 5000);
 		
 		boolean valid = false;
 

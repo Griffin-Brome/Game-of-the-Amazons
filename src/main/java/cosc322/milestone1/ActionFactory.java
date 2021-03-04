@@ -5,30 +5,28 @@ import com.sun.scenario.effect.impl.sw.sse.SSEBlend_SRC_OUTPeer;
 import java.sql.SQLOutput;
 import java.util.ArrayList;
 
-public class ActionFactory{
+public class ActionFactory {
 
     private ArrayList<byte[]> whiteQueens;
     private ArrayList<byte[]> blackQueens;
     private ArrayList<byte[]> arrows;
     byte[][] boardMatrix;
 
-    ActionFactory(GameBoard gameBoard){
+    ActionFactory(GameBoard gameBoard) {
         boardMatrix = gameBoard.getMatrix();
         whiteQueens = gameBoard.getWhiteQueens();
         blackQueens = gameBoard.getBlackQueens();
         arrows = gameBoard.getArrows();
 
     }
+
     public ArrayList<byte[]> getPossibleMoves(boolean isWhitePlayer) {
         ArrayList<byte[]> moves = new ArrayList<>();
         if (isWhitePlayer) {
-            System.out.println("WHITE");
             for (byte[] queenPos : whiteQueens) {
-                System.out.println("reachinner??");
                 moves.addAll(getPossibleMoves(queenPos));
             }
         } else {
-            System.out.println("BLACK");
             for (byte[] queenPos : blackQueens) {
                 moves.addAll(getPossibleMoves(queenPos));
             }
@@ -55,8 +53,8 @@ public class ActionFactory{
             addMove(pos, moves, y, x, newPos);
         }
 
-        y = (byte) (pos[0] -1);
-        x = (byte) (pos[1] -1);
+        y = (byte) (pos[0] - 1);
+        x = (byte) (pos[1] - 1);
 
         // go left
         while (--x > 0 && isBlank(boardMatrix[x][y])) {
@@ -65,8 +63,8 @@ public class ActionFactory{
         }
 
 
-        y = (byte) (pos[0] -1);
-        x = (byte) (pos[1] -1);
+        y = (byte) (pos[0] - 1);
+        x = (byte) (pos[1] - 1);
 
         // go up
         while (++y < Constant.COLS && isBlank(boardMatrix[x][y])) {
@@ -75,8 +73,8 @@ public class ActionFactory{
         }
 
 
-        y = (byte) (pos[0] -1);
-        x = (byte) (pos[1] -1);
+        y = (byte) (pos[0] - 1);
+        x = (byte) (pos[1] - 1);
 
         // go down
         while (--y > 0 && isBlank(boardMatrix[x][y])) {
@@ -85,8 +83,8 @@ public class ActionFactory{
         }
 
 
-        y = (byte) (pos[0] -1);
-        x = (byte) (pos[1] -1);
+        y = (byte) (pos[0] - 1);
+        x = (byte) (pos[1] - 1);
 
         // go diagonal up right
         while (++y < Constant.ROWS && ++x < Constant.COLS && isBlank(boardMatrix[x][y])) {
@@ -95,8 +93,8 @@ public class ActionFactory{
         }
 
 
-        y = (byte) (pos[0] -1);
-        x = (byte) (pos[1] -1);
+        y = (byte) (pos[0] - 1);
+        x = (byte) (pos[1] - 1);
 
         // go diagonal up left
         while (++y < Constant.ROWS && --x > 0 && isBlank(boardMatrix[x][y])) {
@@ -105,8 +103,8 @@ public class ActionFactory{
         }
 
 
-        y = (byte) (pos[0] -1);
-        x = (byte) (pos[1] -1);
+        y = (byte) (pos[0] - 1);
+        x = (byte) (pos[1] - 1);
 
         // go diagonal down left
         while (--y > 0 && --x > 0 && isBlank(boardMatrix[x][y])) {
@@ -115,8 +113,8 @@ public class ActionFactory{
         }
 
 
-        y = (byte) (pos[0] -1);
-        x = (byte) (pos[1] -1);
+        y = (byte) (pos[0] - 1);
+        x = (byte) (pos[1] - 1);
 
         // go diagonal down right
         while (--y > 0 && ++x < Constant.COLS && isBlank(boardMatrix[x][y])) {
@@ -127,8 +125,8 @@ public class ActionFactory{
     }
 
     private void addMove(byte[] pos, ArrayList<byte[]> moves, byte y, byte x, byte[] newPos) {
-        newPos[0] = (byte) (y + 1);
-        newPos[1] = (byte) (x + 1);
+        newPos[0] = (byte) (y+1);
+        newPos[1] = (byte) (x+1);
         newPos[2] = (byte) (pos[0]); // queen original position
         newPos[3] = (byte) (pos[1]);
         moves.add(newPos);

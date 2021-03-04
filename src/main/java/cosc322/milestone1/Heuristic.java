@@ -216,10 +216,9 @@ public class Heuristic {
      * Specifically checks if this position is previously occupied on the board (i.e. is populated by a queen of either player or an arrow)
      *
      * @param position the position to be checked
-     * @return If this position is free or not. True -> "This position is free".
+     * @return If this position is free or not. True -> "This position is occupied".
      */
     private boolean isOccupied(byte[] position) {
-
         return board[position[0]][position[1]] != 0;
     }
 }

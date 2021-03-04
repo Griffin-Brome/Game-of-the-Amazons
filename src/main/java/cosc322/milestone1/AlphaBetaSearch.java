@@ -43,7 +43,6 @@ public class AlphaBetaSearch implements SearchStrategy{
                return max;
         }
         return max;
-
     }
 
     /**

@@ -12,15 +12,14 @@ import ygraph.ai.smartfox.games.GamePlayer;
 import ygraph.ai.smartfox.games.amazons.AmazonsGameMessage;
 
 /**
- * 
- * Trying to implement a basic random move player AI. Milestone 1
+ * Basic AI player class
  * 
  * @author Group 21
  * 
  */
 public class AmazonsAIPlayer extends GamePlayer {
 
-	public boolean isWhitePlayer;
+	private boolean isWhitePlayer;
 	private GameClient gameClient = null;
 	private BaseGameGUI gamegui = null;
 	private GameBoard gameBoard = null;
@@ -37,6 +36,11 @@ public class AmazonsAIPlayer extends GamePlayer {
 		setGameBoard(new GameBoard());
 	}
 
+	/**
+	 * 
+	 * Login event handlers
+	 * 
+	 */
 	@Override
 	public void onLogin() {
 		System.out.println("Login successfull!\n");
@@ -66,6 +70,11 @@ public class AmazonsAIPlayer extends GamePlayer {
 		}
 	}
 
+	/**
+	 * 
+	 * Handles the varying messages from the server 
+	 * 
+	 */
 	@SuppressWarnings("unchecked")
 	@Override
 	public boolean handleGameMessage(String messageType, Map<String, Object> msgDetails) {
@@ -113,6 +122,12 @@ public class AmazonsAIPlayer extends GamePlayer {
 		return false;
 	}
 
+	/**
+	 * Handles game start message and sets the isWhitePlayer flag. 
+	 * If so, perform move.
+	 * 
+	 * @param msgDetails
+	 */
 	public void handleStart(Map<String, Object> msgDetails) {
 		if (msgDetails.get(AmazonsGameMessage.PLAYER_BLACK).equals(this.userName)) {
 			this.isWhitePlayer = false;
@@ -123,22 +138,10 @@ public class AmazonsAIPlayer extends GamePlayer {
 	}
 
 	/**
-	 * Does not currently work as expected, the possiblemoves search is a brute
-	 * force approach and seems to break.
+	 * Does not currently work as expected, game loop should be replaced when proper search strategy is implemented.
 	 */
 	public void move() {
-
-		Minimax mm = new Minimax(gameBoard, isWhitePlayer);
-		SearchTreeNode node = mm.iterativeDeepening(4);
 	
-		while(node!=null) {
-			System.out.println("Node " + node);
-			node = node.getNextNode();
-		}
-		
-//		System.out.println("Next AlphaBeta Opponent Node " + node.getNextNode().getNextNode());
-//		System.out.println("Next AlphaBeta Opponent Move " + node.getNextNode().getNextNode().getNextQueenPos());
-//		
 		boolean valid = false;
 
 		ArrayList<byte[]> possibleMoves = gameBoard.getPossibleMoves(isWhitePlayer);
@@ -185,6 +188,7 @@ public class AmazonsAIPlayer extends GamePlayer {
 				valid = true;
 
 			}
+			
 			if (possibleArrows.isEmpty()) {
 				String player = isWhitePlayer ? "White Player" : "Black Player";
 				System.out
@@ -202,6 +206,12 @@ public class AmazonsAIPlayer extends GamePlayer {
 
 	}
 
+	/**
+	 * Convert from 0 indexed (x, y) to 1 indexed (y, x) 
+	 * 
+	 * @param pos
+	 * @return
+	 */
 	public ArrayList<Integer> toServerFormat(ArrayList<Integer> pos) {
 		ArrayList<Integer> serverPos = new ArrayList<Integer>();
 		serverPos.add(pos.get(1) + 1);
@@ -209,6 +219,12 @@ public class AmazonsAIPlayer extends GamePlayer {
 		return serverPos;
 	}
 	
+	/**
+	 * Convert from 1 indexed (y, x) coordinates to 0 indexed (x, y)
+	 * 	
+	 * @param serverPos
+	 * @return
+	 */
 	public ArrayList<Integer> toLocalFormat(ArrayList<Integer> serverPos){
 		ArrayList<Integer> pos = new ArrayList<Integer>();
 		pos.add(serverPos.get(1) - 1);
@@ -216,7 +232,12 @@ public class AmazonsAIPlayer extends GamePlayer {
 		return pos;
 	}
 
-	// Will need a class / function
+	/**
+	 * Random move picked from list - old
+	 * 
+	 * @param positions
+	 * @return
+	 */
 	public byte[] randomMove(ArrayList<byte[]> positions) {
 		int idx = (int) (Math.random() * positions.size());
 		byte[] pos = positions.get(idx);
@@ -258,6 +279,10 @@ public class AmazonsAIPlayer extends GamePlayer {
 		this.passwd = pw;
 	}
 
+	public boolean isWhitePlayer() {
+		return this.isWhitePlayer;
+	}
+	
 	public void setIsWhitePlayer(boolean isWhitePlayer) {
 		this.isWhitePlayer = isWhitePlayer;
 	}

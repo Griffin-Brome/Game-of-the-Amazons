@@ -50,6 +50,14 @@ public class SearchTreeNode {
 		setArrowPos(arrowPos);
 		setPlayer(player);
 	}
+	
+	public SearchTreeNode(byte[][] board, byte[] currQueenPos, byte[] nextQueenPos, byte[] arrowPos) {
+		setBoard(board);
+		setChildren(new ArrayList<>());
+		setCurrQueenPos(currQueenPos);
+		setNextQueenPos(nextQueenPos);
+		setArrowPos(arrowPos);
+	}
 
 	public SearchTreeNode(int heuristic, byte[] currQueenPos, byte[] nextQueenPos, byte[] arrowPos, byte player,
 			boolean isWhitePlayer) {

@@ -16,7 +16,7 @@ public class Heuristic {
     private byte[][] theirQueenPositions; //4 x 2
 
     public static final int N = 10; // N in an N x N board
-    public static final byte maxMoves = 5; // max number of moves to reach any position
+    public static final byte maxMoves = 50; // max number of moves to reach any position
 
     public Heuristic(byte[][] board, byte[][] myQueenPositions, byte[][] theirQueenPositions) {
         this.board = board;
@@ -36,49 +36,66 @@ public class Heuristic {
 
         for (byte[] queenPosition : myQueenPositions) {
             byte[][] thisQueensTerritory = territoryHelper(queenPosition);
-            addMatrix(myTerritory, thisQueensTerritory);
+            myTerritory = addMatrix(myTerritory, thisQueensTerritory);
         }
 
         for (byte[] queenPosition : theirQueenPositions) {
             byte[][] thisQueensTerritory = territoryHelper(queenPosition);
-            addMatrix(theirTerritory, thisQueensTerritory);
+            theirTerritory = addMatrix(theirTerritory, thisQueensTerritory);
         }
 
-        return reduceMatrix(subMatrix(myTerritory, theirTerritory));
+        byte[][] out = subMatrix(myTerritory, theirTerritory);
+
+        printMatrix(myTerritory);
+        printMatrix(theirTerritory);
+        printMatrix(out);
+        return reduceMatrix(out);
+    }
+
+    private void printMatrix(byte[][] mat) {
+        for (byte row = 0; row < N; row++) {
+            for (byte col = 0; col < N; col++) {
+                System.out.print(mat[row][col] + "\t\t\t");
+            }
+            System.out.println();
+        }
+        System.out.println();
     }
 
     /**
-     * Adds 2 equal sized N x N matrices, saving the result into matrix 'a' (modifies the contents of 'a')
+     * Adds 2 equal sized N x N matrices without modifying their original values
      *
      * @param a the first byte matrix
      * @param b the second byte matrix
-     * @return The matrix 'a' that is now equal to a+b
+     * @return A matrix equal to a+b
      */
     private byte[][] addMatrix(byte[][] a, byte[][] b) {
         //assume a and b are the same size, N x N
+        byte[][] c = new byte[N][N];
         for (byte row = 0; row < N; row++) {
             for (byte col = 0; col < N; col++) {
-                a[row][col] = (byte) (a[row][col] + b[row][col]);
+                c[row][col] = (byte) (a[row][col] + b[row][col]);
             }
         }
-        return a;
+        return c;
     }
 
     /**
-     * Subtracts 2 equal sized N x N matrices, i.e. (a - b),  saving the result into matrix 'a' (modifies the contents of 'a')
+     * Subtracts 2 equal sized N x N matrices, i.e. (a - b), without modifying their original values
      *
      * @param a the first byte matrix
      * @param b the second byte matrix
-     * @return The matrix 'a' that is now equal to a-b
+     * @return A matrix equal to a-b
      */
     private byte[][] subMatrix(byte[][] a, byte[][] b) {
         //assume a and b are the same size, N x N
+        byte[][] c = new byte[N][N];
         for (byte row = 0; row < N; row++) {
             for (byte col = 0; col < N; col++) {
-                a[row][col] = (byte) (a[row][col] - b[row][col]);
+                c[row][col] = (byte) (a[row][col] - b[row][col]);
             }
         }
-        return a;
+        return c;
     }
 
     /**
@@ -104,44 +121,61 @@ public class Heuristic {
      * @return A byte[][] representing the territory values on each square
      */
     public byte[][] territoryHelper(byte[] queenPosition) {
-        //TODO: perhaps call this for each queen and collate their territories
-        return territory(U, (byte) 0, queenPosition);
+        byte[][] out = new byte[N][N];
+        territory(U, (byte) 1, queenPosition, out);
+        return out;
     }
 
     /**
-     * Recursively find a byte[][] territory of this queen
+     * Recursively find a byte[][] territory of this queen (for the first square, i.e. the current queen's position)
      *
      * @param direction the direction being travelled in in this call
      * @param moveCount the number of moves from the original queen position required to get to the current position
-     * @param currPos the current position being visited
-     * @return A byte[][] representing the territory values on each square
+     * @param currPos   the current position being visited
      */
-    public byte[][] territory(byte direction, byte moveCount, byte[] currPos) {
-        byte[][] out = new byte[N][N];
-        // do this the state-space search way (like Djikstra) with priority queue ordering by moveCount
+    public void territory(byte direction, byte moveCount, byte[] currPos, byte[][] out) {
+        // set the value of this square (i.e. maxMove if reachable in 1 move, maxMove - 1 if reachable in 2 moves, etc)
+        out[currPos[0]][currPos[1]] = (byte) Math.max(out[currPos[0]][currPos[1]], maxMoves - moveCount);
+
         for (byte dir : directions) {
-            byte[] newPos = newPosition(dir, currPos);
-            if (!isValidPosition(newPos)) continue;
+            byte[] curr = currPos.clone();
+            byte[] newPos = newPosition(dir, curr);
+            _territory(dir, moveCount, newPos, out);
+        }
+    }
 
-            // set the value of this square (i.e. maxMove if reachable in 1 move, maxMove - 1 if reachable in 2 moves, etc)
-            out[newPos[0]][newPos[1]] = (byte) Math.max(out[newPos[0]][newPos[1]], maxMoves - moveCount);
+    /**
+     * Recursively populate a byte[][] of this queen's weighted territory
+     *
+     * @param direction the direction being travelled in in this call
+     * @param moveCount the number of moves from the original queen position required to get to the current position
+     * @param currPos   the current position being visited
+     */
+    public void _territory(byte direction, byte moveCount, byte[] currPos, byte[][] out) {
+        if (!isValidPosition(currPos)) return;
 
-            // if this current traversal didn't increase the value of this square, there's no point in continuing
-            if (out[newPos[0]][newPos[1]] != maxMoves - moveCount) continue;
+        // set the value of this square (i.e. maxMove if reachable in 1 move, maxMove - 1 if reachable in 2 moves, etc)
+        out[currPos[0]][currPos[1]] = (byte) Math.max(out[currPos[0]][currPos[1]], maxMoves - moveCount);
+
+        // if this current traversal didn't increase the value of this square, there's no point in continuing
+        if (out[currPos[0]][currPos[1]] != maxMoves - moveCount) return;
+
+
+        for (byte dir : directions) {
+            byte[] curr = currPos.clone();
+            byte[] newPos = newPosition(dir, curr);
 
             if (dir == direction)
-                territory(dir, moveCount, newPos);
+                _territory(dir, moveCount, newPos, out);
             else
-                territory(dir, ++moveCount, newPos);
+                _territory(dir, (byte) (moveCount+1), newPos, out);
         }
-
-        return out;
     }
 
     /**
      * Generates a new coordinate position based on the direction to move in and the old coordinate position
      *
-     * @param dir the direction being travelled in
+     * @param dir    the direction being travelled in
      * @param oldPos the old coordinate position
      * @return A byte[] corresponding to the new coordinate position
      */
@@ -175,7 +209,7 @@ public class Heuristic {
      * @return If this position is on the board or not. True -> "This position is within the bounds of the board"
      */
     private boolean isValidPosition(byte[] position) {
-        return position[0] >= 1 && position[0] <= N && position[1] >= 1 && position[1] <= N && !isOccupied(position);
+        return position[0] >= 0 && position[0] < N && position[1] >= 0 && position[1] < N && !isOccupied(position);
     }
 
     /**
@@ -185,6 +219,7 @@ public class Heuristic {
      * @return If this position is free or not. True -> "This position is free".
      */
     private boolean isOccupied(byte[] position) {
+
         return board[position[0]][position[1]] != 0;
     }
 }

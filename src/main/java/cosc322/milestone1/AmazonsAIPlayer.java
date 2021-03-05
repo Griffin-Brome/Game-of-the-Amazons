@@ -12,15 +12,14 @@ import ygraph.ai.smartfox.games.GamePlayer;
 import ygraph.ai.smartfox.games.amazons.AmazonsGameMessage;
 
 /**
- * 
- * Trying to implement a basic random move player AI. Milestone 1
+ * Basic AI player class
  * 
  * @author Group 21
  * 
  */
 public class AmazonsAIPlayer extends GamePlayer {
 
-	public boolean isWhitePlayer;
+	private boolean isWhitePlayer;
 	private GameClient gameClient = null;
 	private BaseGameGUI gamegui = null;
 	private GameBoard gameBoard = null;
@@ -37,6 +36,11 @@ public class AmazonsAIPlayer extends GamePlayer {
 		setGameBoard(new GameBoard());
 	}
 
+	/**
+	 * 
+	 * Login event handlers
+	 * 
+	 */
 	@Override
 	public void onLogin() {
 		System.out.println("Login successfull!\n");
@@ -49,10 +53,6 @@ public class AmazonsAIPlayer extends GamePlayer {
 			System.err.println("Error: Could not load game UI");
 			return; // Break out of program
 		}
-
-		// auto join
-//		this.gameClient.joinRoom(this.gameClient.getRoomList().get(0).getName());
-
 	}
 
 	/**
@@ -70,6 +70,11 @@ public class AmazonsAIPlayer extends GamePlayer {
 		}
 	}
 
+	/**
+	 * 
+	 * Handles the varying messages from the server 
+	 * 
+	 */
 	@SuppressWarnings("unchecked")
 	@Override
 	public boolean handleGameMessage(String messageType, Map<String, Object> msgDetails) {
@@ -88,7 +93,18 @@ public class AmazonsAIPlayer extends GamePlayer {
 				break;
 
 			case GameMessage.GAME_ACTION_MOVE:
-				gameBoard.updateBoard(msgDetails);
+				/**
+				 * 
+				 * 
+				 * Now the only place conversion from server to local occurs
+				 * 
+				 * 
+				 */
+				ArrayList<Integer> queenPosCurr = toLocalFormat((ArrayList<Integer>) msgDetails.get(AmazonsGameMessage.QUEEN_POS_CURR));
+				ArrayList<Integer> queenPosNext = toLocalFormat((ArrayList<Integer>) msgDetails.get(AmazonsGameMessage.Queen_POS_NEXT));
+				ArrayList<Integer> arrowPos 	= toLocalFormat((ArrayList<Integer>) msgDetails.get(AmazonsGameMessage.ARROW_POS));
+				
+				gameBoard.updateBoard(queenPosCurr, queenPosNext, arrowPos);
 				gamegui.updateGameState(msgDetails);
 
 				// handle opponent move here ~
@@ -106,6 +122,12 @@ public class AmazonsAIPlayer extends GamePlayer {
 		return false;
 	}
 
+	/**
+	 * Handles game start message and sets the isWhitePlayer flag. 
+	 * If so, perform move.
+	 * 
+	 * @param msgDetails
+	 */
 	public void handleStart(Map<String, Object> msgDetails) {
 		if (msgDetails.get(AmazonsGameMessage.PLAYER_BLACK).equals(this.userName)) {
 			this.isWhitePlayer = false;
@@ -116,22 +138,21 @@ public class AmazonsAIPlayer extends GamePlayer {
 	}
 
 	/**
-	 * Does not currently work as expected, the possiblemoves search is a brute force approach and seems to break.
+	 * Does not currently work as expected, game loop should be replaced when proper search strategy is implemented.
 	 */
 	public void move() {
-		
+	
 		boolean valid = false;
 
 		ArrayList<byte[]> possibleMoves = gameBoard.getPossibleMoves(isWhitePlayer);
 
 		while (!valid && !possibleMoves.isEmpty()) {
-			
+
 			ArrayList<Integer> queen = new ArrayList<>();
 			ArrayList<Integer> newPos = new ArrayList<>();
-			
-			
+
 			byte[] move = randomMove(possibleMoves); // pick move and remove it
-			
+
 			// add to appropriate arrayList
 			newPos.add((int) move[0]); // new pos
 			newPos.add((int) move[1]);
@@ -140,10 +161,10 @@ public class AmazonsAIPlayer extends GamePlayer {
 
 			// from that position get possible arrow moves
 			ArrayList<byte[]> possibleArrows = gameBoard.getPossibleMoves(move);
-			while(!valid && !possibleArrows.isEmpty()) {
-				
+			while (!valid && !possibleArrows.isEmpty()) {
+
 				byte[] arrowMove = randomMove(possibleArrows); // pick arrow and remove it
-				
+
 				// add to arraylist for server message
 				ArrayList<Integer> arrowPos = new ArrayList<>();
 				arrowPos.add((int) arrowMove[0]); // arrow position
@@ -151,37 +172,72 @@ public class AmazonsAIPlayer extends GamePlayer {
 
 				gameBoard.updateBoard(queen, newPos, arrowPos);
 				gamegui.updateGameState(queen, newPos, arrowPos);
+
+				/**
+				 * 
+				 * 
+				 * Only place where we have to convert to server format of (y, x) and 1 indexed is now here.
+				 * 
+				 * 
+				 */
+				queen = toServerFormat(queen);
+				newPos = toServerFormat(newPos);
+				arrowPos = toServerFormat(arrowPos);
+				
 				gameClient.sendMoveMessage(queen, newPos, arrowPos);
 				valid = true;
-				
-//				System.out.println("Current Board Matrix:\n------------------------------");
-//				byte[][] matrix = gameBoard.getMatrix();
-//				for (int y = gameBoard.ROWS - 1; y >= 0; y--) {
-//					for (int x = 0; x < gameBoard.COLS; x++) {
-//						System.out.printf("%d, ", matrix[x][y]);
-//					}
-//					System.out.println("");
-//				}
-				
-				
+
 			}
-			if(possibleArrows.isEmpty()) {
+			
+			if (possibleArrows.isEmpty()) {
 				String player = isWhitePlayer ? "White Player" : "Black Player";
-				System.out.println(player + " - This Queen has no more places to put arrows - " + Arrays.toString(move));
+				System.out
+						.println(player + " - This Queen has no more places to put arrows - " + Arrays.toString(move));
 				System.out.println("moves");
-				for(byte[] p : possibleMoves)
+				for (byte[] p : possibleMoves)
 					System.out.println(Arrays.toString(p));
 			}
 		}
-		
-		if(possibleMoves.isEmpty()) {
+
+		if (possibleMoves.isEmpty()) {
 			String player = isWhitePlayer ? "White Player" : "Black Player";
 			System.out.println("Game over... " + player);
 		}
-		
+
 	}
 
-	// Will need a class / function
+	/**
+	 * Convert from 0 indexed (x, y) to 1 indexed (y, x) 
+	 * 
+	 * @param pos
+	 * @return
+	 */
+	public ArrayList<Integer> toServerFormat(ArrayList<Integer> pos) {
+		ArrayList<Integer> serverPos = new ArrayList<Integer>();
+		serverPos.add(pos.get(1) + 1);
+		serverPos.add(pos.get(0) + 1);
+		return serverPos;
+	}
+	
+	/**
+	 * Convert from 1 indexed (y, x) coordinates to 0 indexed (x, y)
+	 * 	
+	 * @param serverPos
+	 * @return
+	 */
+	public ArrayList<Integer> toLocalFormat(ArrayList<Integer> serverPos){
+		ArrayList<Integer> pos = new ArrayList<Integer>();
+		pos.add(serverPos.get(1) - 1);
+		pos.add(serverPos.get(0) - 1);
+		return pos;
+	}
+
+	/**
+	 * Random move picked from list - old
+	 * 
+	 * @param positions
+	 * @return
+	 */
 	public byte[] randomMove(ArrayList<byte[]> positions) {
 		int idx = (int) (Math.random() * positions.size());
 		byte[] pos = positions.get(idx);
@@ -223,6 +279,10 @@ public class AmazonsAIPlayer extends GamePlayer {
 		this.passwd = pw;
 	}
 
+	public boolean isWhitePlayer() {
+		return this.isWhitePlayer;
+	}
+	
 	public void setIsWhitePlayer(boolean isWhitePlayer) {
 		this.isWhitePlayer = isWhitePlayer;
 	}

@@ -16,6 +16,9 @@ public class ActionFactory {
 	private final static byte WHITE_QUEEN = 1;
 	private final static byte BLACK_QUEEN = 2;
 	private final static byte ARROW = 3;
+	
+	private final static byte ROWS = 10;
+	private final static byte COLS = 10;
 
 	private final static byte[] directions = { U, UR, R, DR, D, DL, L, UL };
 
@@ -25,7 +28,7 @@ public class ActionFactory {
 	 * @param pos
 	 * @return
 	 */
-	public static ArrayList<byte[]> getAvailableTiles(GameBoard gameBoard, byte[] pos) {
+	public static ArrayList<byte[]> getAvailableTiles(byte[][] gameBoard, byte[] pos) {
 		ArrayList<byte[]> moves = new ArrayList<>();
 
 		for (byte dir : directions) {
@@ -35,42 +38,42 @@ public class ActionFactory {
 
 			switch (dir) {
 			case U:
-				while (++y < gameBoard.ROWS && gameBoard.isBlank(x, y)) {
+				while (++y < ROWS && gameBoard[x][y] == BLANK) {
 					moves.add(new byte[] { x, y });
 				}
 				break;
 			case UR:
-				while (++x < gameBoard.COLS && ++y < gameBoard.ROWS && gameBoard.isBlank(x, y)) {
+				while (++x < COLS && ++y < ROWS && gameBoard[x][y] == BLANK) {
 					moves.add(new byte[] { x, y });
 				}
 				break;
 			case R:
-				while (++x < gameBoard.COLS && gameBoard.isBlank(x, y)) {
+				while (++x < COLS && gameBoard[x][y] == BLANK) {
 					moves.add(new byte[] { x, y });
 				}
 				break;
 			case DR:
-				while (++x < gameBoard.COLS && --y >= 0 && gameBoard.isBlank(x, y)) {
+				while (++x < COLS && --y >= 0 && gameBoard[x][y] == BLANK) {
 					moves.add(new byte[] { x, y });
 				}
 				break;
 			case D:
-				while (--y >= 0 && gameBoard.isBlank(x, y)) {
+				while (--y >= 0 && gameBoard[x][y] == BLANK) {
 					moves.add(new byte[] { x, y });
 				}
 				break;
 			case DL:
-				while (--x >= 0 && --y >= 0 && gameBoard.isBlank(x, y)) {
+				while (--x >= 0 && --y >= 0 && gameBoard[x][y] == BLANK) {
 					moves.add(new byte[] { x, y });
 				}
 				break;
 			case L:
-				while (--x >= 0 && gameBoard.isBlank(x, y)) {
+				while (--x >= 0 && gameBoard[x][y] == BLANK) {
 					moves.add(new byte[] { x, y });
 				}
 				break;
 			case UL:
-				while (--x >= 0 && ++y < gameBoard.ROWS && gameBoard.isBlank(x, y)) {
+				while (--x >= 0 && ++y < ROWS && gameBoard[x][y] == BLANK) {
 					moves.add(new byte[] { x, y });
 				}
 				break;
@@ -86,24 +89,21 @@ public class ActionFactory {
 	 * @param player
 	 * @return
 	 */
-	public static SearchTreeNode getPossibleMoves(GameBoard gameBoard, AmazonsAIPlayer player) {
-		ArrayList<Queen> queens = new ArrayList<>();
-		SearchTreeNode root = new SearchTreeNode(gameBoard.getMatrix(), (byte) 1, player.isWhitePlayer());
-		
-		if (player.isWhitePlayer()) {
-			queens = gameBoard.getWhiteQueens();
-		} else {
-			queens = gameBoard.getBlackQueens();
-		}
+	public static SearchTreeNode getPossibleMoves(byte[][] gameBoard, ArrayList<Queen> queens) {
+		SearchTreeNode root = new SearchTreeNode(gameBoard);
 
 		for (Queen queen : queens) {
 			for (byte[] newQueenPos : ActionFactory.getAvailableTiles(gameBoard, queen.getPosition())) {
-				makeTempQueenMove(queen, newQueenPos, gameBoard.getMatrix());
+				makeTempQueenMove(queen, newQueenPos, gameBoard);
 				for (byte[] arrowPos : ActionFactory.getAvailableTiles(gameBoard, newQueenPos)) {
 					byte[][] gameState = getNewGameState(queen, gameBoard, newQueenPos, arrowPos);
-					root.add(new SearchTreeNode(gameState, queen.getPosition(), newQueenPos, arrowPos));
+					
+					SearchTreeNode child = new SearchTreeNode(gameState, queen.getPosition(), newQueenPos, arrowPos);
+					child.setHeuristicValue((int)(Math.random() * Integer.MAX_VALUE));
+					root.add(child);
+					
 				}
-				undoTempQueenMove(queen, newQueenPos, gameBoard.getMatrix());
+				undoTempQueenMove(queen, newQueenPos, gameBoard);
 			}
 		}
 		return root;
@@ -170,10 +170,15 @@ public class ActionFactory {
 	 * @param arrowPos
 	 * @return
 	 */
-	public static byte[][] getNewGameState(Queen queen, GameBoard gameBoard, byte[] newQueenPos, byte[] arrowPos) {
+	public static byte[][] getNewGameState(Queen queen, byte[][] gameBoard, byte[] newQueenPos, byte[] arrowPos) {
 
 		byte[] queenPos = queen.getPosition();
-		byte[][] newState = gameBoard.getMatrixCopy();
+		byte[][] newState = new byte[gameBoard.length][gameBoard[0].length];
+		for(int i = 0; i < gameBoard.length; i++) {
+			for(int j = 0; j < gameBoard[0].length; j++) {
+				newState[i][j] = gameBoard[i][j];
+			}
+		}
 		newState[queenPos[0]][queenPos[1]] = BLANK;
 		newState[arrowPos[0]][arrowPos[1]] = ARROW;
 		newState[newQueenPos[0]][newQueenPos[1]] = queen.getId();

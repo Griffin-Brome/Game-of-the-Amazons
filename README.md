@@ -8,7 +8,7 @@ COSC322 Group 21
 - Thomas Van De Crommenacker
 
 ## Installation
-This project requires [Apache Maven](https://maven.apache.org/). Install it's dependancies with the goals: `clean compile install`.
+This project requires [Apache Maven](https://maven.apache.org/). Install its dependancies with the goals: `clean compile install`.
 
 
 ## Bibliography

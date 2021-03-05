@@ -7,6 +7,9 @@ COSC322 Group 21
 - Novia Fan
 - Thomas Van De Crommenacker
 
+## Installation
+This project requires [Apache Maven](https://maven.apache.org/). Install it's dependancies with the goals: `clean compile install`.
+
 
 ## Bibliography
 1. N. Gorski "Artificial Intelligence and Combinatorial Game Theory" [online].

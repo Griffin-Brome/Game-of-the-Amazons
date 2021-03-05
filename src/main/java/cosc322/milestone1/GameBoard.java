@@ -26,7 +26,9 @@ import ygraph.ai.smartfox.games.amazons.AmazonsGameMessage;
  * Where 1 represents white queen, 2 represents black queen and 3 are arrows.
  * 
  * Also positions sent from the server are (y, x).
- * They're stored as byte arrays in respective arraylists in that format.
+ * They're stored as byte arrays in respective arraylists in (x, y) 0-indexed format.
+ * All code uses (x, y) 0 indexed, we just have to make sure to send the sendMoveMessage in the
+ * format the server prefers.
  * 
  */
 public class GameBoard {
@@ -37,23 +39,15 @@ public class GameBoard {
 	
 	private byte[][] boardMatrix;
 
-	private ArrayList<byte[]> arrows;
-	private ArrayList<byte[]> whiteQueens;
-	private ArrayList<byte[]> blackQueens;
+	private ArrayList<Arrow> arrows;
+	private ArrayList<Queen> whiteQueens;
+	private ArrayList<Queen> blackQueens;
 
 	public GameBoard() {
 		boardMatrix = new byte[Constant.ROWS][Constant.COLS];
 		whiteQueens = new ArrayList<>();
 		blackQueens = new ArrayList<>();
 		arrows = new ArrayList<>();
-	}
-
-	@SuppressWarnings("unchecked")
-	public void updateBoard(Map<String, Object> msgDetails) {
-		ArrayList<Integer> queenPosCurr = (ArrayList<Integer>) msgDetails.get(AmazonsGameMessage.QUEEN_POS_CURR);
-		ArrayList<Integer> queenPosNext = (ArrayList<Integer>) msgDetails.get(AmazonsGameMessage.Queen_POS_NEXT);
-		ArrayList<Integer> arrowPos = (ArrayList<Integer>) msgDetails.get(AmazonsGameMessage.ARROW_POS);
-		updateBoard(queenPosCurr, queenPosNext, arrowPos);
 	}
 	
 	/**
@@ -82,28 +76,24 @@ public class GameBoard {
 			int tileOccupant = getOccupant(currPos);
 			switch (tileOccupant) {
 				case Constant.BLACK_QUEEN:
-//					System.out.println("\nMoving Black Queen from " + currPos);
 					updateMatrix(currPos, endPos, Constant.BLACK_QUEEN);
 					updatePieces(currPos, endPos, Constant.BLACK_QUEEN);
-//					System.out.println("\nTo a blank spot at " + endPos);
 
 					break;
 				case Constant.WHITE_QUEEN:
-//					System.out.println("\nMoving White Queen from " + currPos);
 					updateMatrix(currPos, endPos, Constant.WHITE_QUEEN);
 					updatePieces(currPos, endPos, Constant.WHITE_QUEEN);
-//					System.out.println("\nTo a blank spot at " + endPos);
 					
 					break;
 				default:
 					System.err.println("Selected tile does not contain a queen -> " + currPos + " - " + getOccupant(currPos));
 					System.err.println("white");
-					for(byte[] wQueen : whiteQueens) {
-						System.err.println(Arrays.toString(wQueen));
+					for(Queen wQueen : whiteQueens) {
+						System.err.println(wQueen);
 					}
 					System.err.println("black");
-					for(byte[] bQueen : blackQueens) {
-						System.err.println(Arrays.toString(bQueen));
+					for(Queen bQueen : blackQueens) {
+						System.err.println(bQueen);
 					}
 					return;
 			}
@@ -117,8 +107,8 @@ public class GameBoard {
 	 * @return
 	 */
 	public int getOccupant(ArrayList<Integer> pos) {
-		int y = pos.get(0) -1;
-		int x = pos.get(1) -1;
+		int x = pos.get(0);
+		int y = pos.get(1);
 		return boardMatrix[x][y];
 	}
 	
@@ -130,10 +120,11 @@ public class GameBoard {
 	 * @param piece
 	 */
 	public void updateMatrix(ArrayList<Integer> currPos, ArrayList<Integer> endPos, byte piece) {
-		int currY = currPos.get(0) -1;
-		int currX = currPos.get(1) -1;
-		int endY  = endPos.get(0) -1;
-		int endX  = endPos.get(1) -1;
+		int currX = currPos.get(0);
+		int currY = currPos.get(1);
+		int endX  = endPos.get(0);
+		int endY  = endPos.get(1);
+
 		
 		boardMatrix[currX][currY] = Constant.BLANK;
 		boardMatrix[endX][endY] = piece;	
@@ -152,25 +143,25 @@ public class GameBoard {
 		case Constant.BLACK_QUEEN:
 
 			for(int i = 0; i < blackQueens.size(); i++) { 
-				if(blackQueens.get(i)[0] == currPos.get(0) && blackQueens.get(i)[1] == currPos.get(1)) { 
+				if(blackQueens.get(i).getPosition()[0] == currPos.get(0) && blackQueens.get(i).getPosition()[1] == currPos.get(1)) {
 					blackQueens.remove(i);
 				}
 			}
 				
-			blackQueens.add(new byte[] {endPos.get(0).byteValue(), endPos.get(1).byteValue()});
+			blackQueens.add(new Queen(endPos.get(0).byteValue(), endPos.get(1).byteValue(), Constant.BLACK_QUEEN));
 			break;
 		case Constant.WHITE_QUEEN:
 			
 			for(int i = 0; i < whiteQueens.size(); i++) {
-				if(whiteQueens.get(i)[0] == currPos.get(0) && whiteQueens.get(i)[1] == currPos.get(1)) { 
+				if(whiteQueens.get(i).getPosition()[0] == currPos.get(0) && whiteQueens.get(i).getPosition()[1] == currPos.get(1)) {
 					whiteQueens.remove(i);
 				}
 			}
 			
-			whiteQueens.add(new byte[] {endPos.get(0).byteValue(), endPos.get(1).byteValue()});
+			whiteQueens.add(new Queen(endPos.get(0).byteValue(), endPos.get(1).byteValue(), Constant.WHITE_QUEEN));
 			break;
 		case Constant.ARROW:
-			arrows.add(new byte[] {endPos.get(0).byteValue(), endPos.get(1).byteValue()});
+			arrows.add(new Arrow(endPos.get(0).byteValue(), endPos.get(1).byteValue()));
 			break;
 		}
 
@@ -183,8 +174,8 @@ public class GameBoard {
 	 * @return whether or not the tile is occupied
 	 */
 	private boolean isValid(ArrayList<Integer> pos) {
-		int y = pos.get(0) -1;
-		int x = pos.get(1) -1;
+		int x = pos.get(0);
+		int y = pos.get(1);
 		return boardMatrix[x][y] == Constant.BLANK;
 	}
 
@@ -200,10 +191,10 @@ public class GameBoard {
 	    	return;
 		} else {
 //			System.out.println("\nPlacing Arrow at a blank spot at " + arrowPos + "\n");
-			int x = arrowPos.get(1) -1;
-			int y = arrowPos.get(0) -1;
+			int x = arrowPos.get(0);
+			int y = arrowPos.get(1);
 			boardMatrix[x][y] = Constant.ARROW;
-			arrows.add(new byte[] {arrowPos.get(0).byteValue(), arrowPos.get(1).byteValue()});
+			arrows.add(new Arrow(arrowPos.get(0).byteValue(), arrowPos.get(1).byteValue()));
 		}
 	}
 
@@ -227,22 +218,34 @@ public class GameBoard {
 		int pos = 12;
 		for (int y = Constant.ROWS; y > 0; y--) {
 			for (int x = 1; x < Constant.COLS+1; x++) {
+
+				/**
+				 *
+				 *
+				 * Constantly converting is super dumb - our code should only ever handle it as (x, y) and 0 indexed,
+				 * Then when sending a move message revert to (y, x) and 1 indexed since that's what the server expects
+				 *
+				 * This method could be replaced with a more readable and logical one,
+				 * since gamestate is only actually passed once and for all intents and purposes may as well be ignored as opposed
+				 * to trying to convert it to (x, y) and 0 indexed format as done in this call.
+				 *
+				 *
+				 */
 				
-				// positions from server are passed as y,x ...
-				ArrayList<Integer> position = new ArrayList<Integer>(Arrays.asList(y, x));
+				ArrayList<Integer> position = new ArrayList<Integer>(Arrays.asList(x - 1, y - 1));
 				int occupant = gameState.get(pos);
 
 				// add to appropriate list of pieces
 				byte [] bytePos = new byte[]{position.get(0).byteValue(), position.get(1).byteValue()};
                 switch (occupant) {
 					case Constant.BLACK_QUEEN:
-						blackQueens.add(bytePos);
+						blackQueens.add(new Queen(bytePos, Constant.BLACK_QUEEN));
 						break;
 					case Constant.WHITE_QUEEN:
-						whiteQueens.add(bytePos);
+						whiteQueens.add(new Queen(bytePos, Constant.WHITE_QUEEN));
 						break;
 					case Constant.ARROW:
-						arrows.add(bytePos);
+						arrows.add(new Arrow(bytePos));
 				}
 				pos++;
 			}
@@ -269,14 +272,15 @@ public class GameBoard {
 
 			/* lists of pieces */
 
-			for(byte[] wQueen : whiteQueens) {
-				System.out.println(Arrays.toString(wQueen));
+
+			for(Queen wQueen : whiteQueens) {
+				System.out.println(wQueen);
 			}
-			for(byte[] bQueen : blackQueens) {
-				System.out.println(Arrays.toString(bQueen));
+			for(Queen bQueen : blackQueens) {
+				System.out.println(bQueen);
 			}
-			for(byte[] arrow : arrows) {
-				System.out.println(Arrays.toString(arrow));
+			for(Arrow arrow : arrows) {
+				System.out.println(arrow);
 			}
 		}
 	}
@@ -289,16 +293,30 @@ public class GameBoard {
 
 	public ArrayList<Integer> getGameState() { return this.gameState; }
 
-	public ArrayList<byte[]> getBlackQueens() {
+	public ArrayList<Queen> getBlackQueens() {
 		return this.blackQueens;
 	}
 
-	public ArrayList<byte[]> getWhiteQueens() { return this.whiteQueens; }
+	public ArrayList<Queen> getWhiteQueens() {
+		return this.whiteQueens;
+	}
 
-	public ArrayList<byte[]> getArrows() {
+	public ArrayList<Arrow> getArrows() {
 		return this.arrows;
 	}
 	
-	public byte[][] getMatrix(){ return this.boardMatrix; }
+	public byte[][] getMatrix(){
+		return this.boardMatrix;
+	}
+
+	public byte[][] getMatrixCopy(){
+		byte[][] temp = new byte[Constant.ROWS][Constant.COLS];
+		for(int x = 0; x < Constant.COLS; x++) {
+			for(int y = 0; y < Constant.ROWS; y++) {
+				temp[x][y] = boardMatrix[x][y];
+			}
+		}
+		return temp;
+	}
 
 }

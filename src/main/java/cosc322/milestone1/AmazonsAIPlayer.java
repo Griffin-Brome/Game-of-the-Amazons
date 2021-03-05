@@ -3,7 +3,6 @@ package cosc322.milestone1;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 import ygraph.ai.smartfox.games.BaseGameGUI;
 import ygraph.ai.smartfox.games.GameClient;
@@ -124,7 +123,7 @@ public class AmazonsAIPlayer extends GamePlayer {
 		
 		boolean valid = false;
 
-		ActionFactory af = new ActionFactory(gameBoard);
+		ActionFactoryRecursive af = new ActionFactoryRecursive(gameBoard);
 		ArrayList<byte[]> possibleMoves = af.getPossibleMoves(isWhitePlayer);
 
 		while (!valid && !possibleMoves.isEmpty()) {

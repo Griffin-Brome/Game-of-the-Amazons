@@ -6,7 +6,7 @@ import java.sql.SQLOutput;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class ActionFactory {
+public class ActionFactoryRecursive {
     private static final byte U = 1;
     private static final byte UR = 2;
     private static final byte R = 3;
@@ -26,7 +26,7 @@ public class ActionFactory {
     byte[][] boardMatrix;
     ArrayList<byte[]> moves;
 
-    ActionFactory(GameBoard gameBoard) {
+    ActionFactoryRecursive(GameBoard gameBoard) {
         boardMatrix = gameBoard.getMatrix();
         whiteQueens = gameBoard.getWhiteQueens();
         blackQueens = gameBoard.getBlackQueens();

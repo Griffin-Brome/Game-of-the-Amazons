@@ -1,4 +1,12 @@
-# COSC322 - AI Project - Game of Amazons
+# Game of Amazons
+
+COSC322 Group 21
+- Opey Adeyemi
+- Griffin Brome
+- Michael Crouse
+- Novia Fan
+- Thomas Van De Crommenacker
+
 
 ## Bibliography
 1. N. Gorski "Artificial Intelligence and Combinatorial Game Theory" [online].

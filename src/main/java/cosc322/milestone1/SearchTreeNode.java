@@ -16,6 +16,12 @@ public class SearchTreeNode {
 	private SearchTreeNode parent;
 	private ArrayList<SearchTreeNode> children;
 
+	
+	public SearchTreeNode(byte[][] board) {
+		setBoard(board);
+		setChildren(new ArrayList<>());
+	}
+	
 	/**
 	 * Called when creating the very first node in the tree
 	 * 
@@ -27,29 +33,6 @@ public class SearchTreeNode {
 		this.player = player;
 		this.isWhitePlayer = isWhitePlayer;
 	}
-
-	/**
-	 * Called when adding a child to a root node Includes the moves required to
-	 * reach it what player and the resulting board.
-	 * 
-	 * 
-	 * Ideally this would be replaced with the node's heuristic value based on the
-	 * board and not the resulting board.
-	 * 
-	 * 
-	 * @param board
-	 * @param currQueenPos
-	 * @param nextQueenPos
-	 * @param arrowPos
-	 */
-	public SearchTreeNode(byte[][] board, byte[] currQueenPos, byte[] nextQueenPos, byte[] arrowPos, byte player) {
-		setBoard(board);
-		setChildren(new ArrayList<>());
-		setCurrQueenPos(currQueenPos);
-		setNextQueenPos(nextQueenPos);
-		setArrowPos(arrowPos);
-		setPlayer(player);
-	}
 	
 	public SearchTreeNode(byte[][] board, byte[] currQueenPos, byte[] nextQueenPos, byte[] arrowPos) {
 		setBoard(board);
@@ -59,16 +42,6 @@ public class SearchTreeNode {
 		setArrowPos(arrowPos);
 	}
 
-	public SearchTreeNode(int heuristic, byte[] currQueenPos, byte[] nextQueenPos, byte[] arrowPos, byte player,
-			boolean isWhitePlayer) {
-		setChildren(new ArrayList<>());
-		setCurrQueenPos(currQueenPos);
-		setNextQueenPos(nextQueenPos);
-		setArrowPos(arrowPos);
-		setPlayer(player);
-		setWhitePlayer(isWhitePlayer);
-		setHeuristicValue(heuristic);
-	}
 
 	public void add(SearchTreeNode child) {
 		children.add(child);

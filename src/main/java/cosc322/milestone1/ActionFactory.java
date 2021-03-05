@@ -17,8 +17,8 @@ public class ActionFactory {
 	private final static byte BLACK_QUEEN = 2;
 	private final static byte ARROW = 3;
 	
-	private final static byte ROWS = 3;
-	private final static byte COLS = 3;
+	private final static byte ROWS = 10;
+	private final static byte COLS = 10;
 
 	private final static byte[] directions = { U, UR, R, DR, D, DL, L, UL };
 

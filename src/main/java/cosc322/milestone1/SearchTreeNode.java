@@ -5,7 +5,6 @@ import java.util.Arrays;
 
 public class SearchTreeNode {
 	private int heuristicValue;
-	private byte player;
 	private byte[][] board;
 	private byte[] currQueenPos;
 	private byte[] nextQueenPos;
@@ -21,10 +20,9 @@ public class SearchTreeNode {
 	 * 
 	 * @param board
 	 */
-	public SearchTreeNode(byte[][] board, byte player, boolean isWhitePlayer) {
+	public SearchTreeNode(byte[][] board, boolean isWhitePlayer) {
 		setBoard(board);
 		this.children = new ArrayList<>();
-		this.player = player;
 		this.isWhitePlayer = isWhitePlayer;
 	}
 
@@ -42,15 +40,6 @@ public class SearchTreeNode {
 	 * @param nextQueenPos
 	 * @param arrowPos
 	 */
-	public SearchTreeNode(byte[][] board, byte[] currQueenPos, byte[] nextQueenPos, byte[] arrowPos, byte player) {
-		setBoard(board);
-		setChildren(new ArrayList<>());
-		setCurrQueenPos(currQueenPos);
-		setNextQueenPos(nextQueenPos);
-		setArrowPos(arrowPos);
-		setPlayer(player);
-	}
-	
 	public SearchTreeNode(byte[][] board, byte[] currQueenPos, byte[] nextQueenPos, byte[] arrowPos) {
 		setBoard(board);
 		setChildren(new ArrayList<>());
@@ -59,13 +48,11 @@ public class SearchTreeNode {
 		setArrowPos(arrowPos);
 	}
 
-	public SearchTreeNode(int heuristic, byte[] currQueenPos, byte[] nextQueenPos, byte[] arrowPos, byte player,
-			boolean isWhitePlayer) {
+	public SearchTreeNode(int heuristic, byte[] currQueenPos, byte[] nextQueenPos, byte[] arrowPos, boolean isWhitePlayer) {
 		setChildren(new ArrayList<>());
 		setCurrQueenPos(currQueenPos);
 		setNextQueenPos(nextQueenPos);
 		setArrowPos(arrowPos);
-		setPlayer(player);
 		setWhitePlayer(isWhitePlayer);
 		setHeuristicValue(heuristic);
 	}
@@ -103,10 +90,6 @@ public class SearchTreeNode {
 		return this.heuristicValue;
 	}
 
-	public byte getPlayer() {
-		return this.player;
-	}
-
 	public SearchTreeNode getParent() {
 		return this.parent;
 	}
@@ -125,10 +108,6 @@ public class SearchTreeNode {
 
 	public void setChildren(ArrayList<SearchTreeNode> children) {
 		this.children = children;
-	}
-
-	public void setPlayer(byte player) {
-		this.player = player;
 	}
 
 	public void printTree() {
@@ -166,7 +145,7 @@ public class SearchTreeNode {
 	public String toString() {
 		return "SearchTreeNode [heuristicValue=" + heuristicValue + ", currQueenPos=" + Arrays.toString(currQueenPos)
 				+ ", nextQueenPos=" + Arrays.toString(nextQueenPos) + ", arrowPos=" + Arrays.toString(arrowPos)
-				+ ", parent=" + parent + ", player=" + player + ", isWhitePlayer=" + isWhitePlayer;
+				+ ", parent=" + parent + ", isWhitePlayer=" + isWhitePlayer;
 	}
 
 

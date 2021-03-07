@@ -10,12 +10,10 @@ public class AmazonsAIPlayerTest {
 
 	public static void main(String[] args) {
 
-		AmazonsAIPlayer p1 = new AmazonsAIPlayer(args[0], args[1]);
+		AmazonsAIPlayer p1 = new AmazonsAIPlayer(args[0], args[1], true);
 //		AmazonsAIPlayer p2 = new AmazonsAIPlayer(args[2], args[3]);
-//		AmazonsAIPlayer p2 = new AmazonsAIPlayer("otherguy", "password");
-		HumanPlayer p2 = new HumanPlayer();
-		
-		
+		AmazonsAIPlayer p2 = new AmazonsAIPlayer("otherguy", "password", true);
+//		HumanPlayer p2 = new HumanPlayer();
 
 		if (p1.getGameGUI() == null) {
 			p1.Go();

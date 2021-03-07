@@ -11,7 +11,7 @@ public class ActionFactoryRecursive {
     private ArrayList<Queen> blackQueens;
     private ArrayList<Arrow> arrows;
     byte[][] boardMatrix;
-    ArrayList<byte[]> moves;
+    ArrayList<Move> moves;
 
     ActionFactoryRecursive(GameBoard gameBoard) {
         boardMatrix = gameBoard.getMatrix();
@@ -24,8 +24,8 @@ public class ActionFactoryRecursive {
         System.out.println(Arrays.deepToString(boardMatrix));
     }
 
-    public ArrayList<byte[]> getPossibleMoves(boolean isWhitePlayer) {
-        ArrayList<byte[]> moves = new ArrayList<>();
+    public ArrayList<Move> getPossibleMoves(boolean isWhitePlayer) {
+        ArrayList<Move> moves = new ArrayList<>();
         ArrayList<Queen> ourQueens = isWhitePlayer ? whiteQueens : blackQueens;
 
         for (Queen queen : ourQueens) {
@@ -42,25 +42,20 @@ public class ActionFactoryRecursive {
      * @param oldPos coordinates of current position?
      * @return the set of all possible moves from pos
      */
-    public ArrayList<byte[]> getPossibleMoves(byte[] oldPos) {
+    public ArrayList<Move> getPossibleMoves(byte[] oldPos) {
         ArrayList<byte[]> possibleMoves = generateMovesHelper(oldPos);
 
         for (byte[] possibleMove : possibleMoves) {
-            addMove(oldPos, possibleMove[0], possibleMove[1]);
+            addMove(oldPos, possibleMove);
         }
 
         return moves;
     }
 
-    private void addMove(byte[] oldPos, byte newPosX, byte newPosY) {
-        byte[] move = new byte[4];
-        // the "+1" is because the server indexes from 1-10 and we index from 0-9
-        // the 2 lines after this represent the new position coordinates of the queen
-        move[0] = newPosX;
-        move[1] = newPosY;
-        // queen original position
-        move[2] = oldPos[0];
-        move[3] = oldPos[1];
+    private void addMove(byte[] oldPos, byte[] newMove) {
+        Move move = new Move(oldPos);
+        move.setNewPos(new byte[] { newMove[0], newMove[1] });
+        move.setArrowPos(new byte[] { newMove[2], newMove[3] });
 
         moves.add(move);
     }
@@ -68,19 +63,23 @@ public class ActionFactoryRecursive {
     public ArrayList<byte[]> generateMovesHelper(byte[] currPos) {
         ArrayList<byte[]> possibleMoves = new ArrayList<>();
         for (byte dir : DIRECTIONS) {
-            byte[] newPos = generateNewPosition(currPos.clone(), dir);
-            _generateMoves(dir, newPos, possibleMoves);
+            byte[] newPos = _generateNewPosition(currPos.clone(), dir);
+            generateMoves(dir, newPos, possibleMoves);
         }
         return possibleMoves;
     }
 
-    public void _generateMoves(byte dir, byte[] currPos, ArrayList<byte[]> possibleMoves) {
-        // add the current move to the set of all possible moves
-        possibleMoves.add(currPos);
-        byte[] newPos = generateNewPosition(currPos.clone(), dir);
+    public void generateMoves(byte dir, byte[] currPos, ArrayList<byte[]> possibleMoves) {
+        ArrayList<byte[]> possibleArrowPositions = generateMovesHelper(currPos.clone());
+        for(byte[] arrowPos: possibleArrowPositions) {
+            // add the current move to the set of all possible moves
+            possibleMoves.add(new byte[] {currPos[0], currPos[1], arrowPos[0], arrowPos[1]});
+        }
+
+        byte[] newPos = _generateNewPosition(currPos.clone(), dir);
 
         // if the new position is valid, explore it
-        if (isValidPosition(boardMatrix, currPos))
-            _generateMoves(dir, newPos, possibleMoves);
+        if (_isValidPosition(boardMatrix, currPos))
+            generateMoves(dir, newPos, possibleMoves);
     }
 }

@@ -12,290 +12,259 @@ import ygraph.ai.smartfox.games.amazons.AmazonsGameMessage;
 
 /**
  * Basic AI player class
- * 
+ *
  * @author Group 21
- * 
  */
 public class AmazonsAIPlayer extends GamePlayer {
 
-	private boolean isWhitePlayer;
-	private GameClient gameClient = null;
-	private BaseGameGUI gamegui = null;
-	private GameBoard gameBoard = null;
+    private boolean isWhitePlayer = false;
+    private GameClient gameClient = null;
+    private BaseGameGUI gamegui = null;
+    private GameBoard gameBoard = null;
 
-	private String userName = null;
-	private String passwd = null;
+    private String userName = null;
+    private String passwd = null;
+    private boolean verbose = false;
 
-	public AmazonsAIPlayer(String userName, String passwd) {
-		setUserName(userName);
+    public AmazonsAIPlayer(String userName, String passwd) {
+        setUserName(userName);
+        setPassword(passwd);
+        setGameGUI(new BaseGameGUI(this));
+        setGameBoard(new GameBoard());
+    }
 
-		setPassword(passwd);
-		setIsWhitePlayer(false);
-		setGameGUI(new BaseGameGUI(this));
-		setGameBoard(new GameBoard());
-	}
+    // Second constructor for if we want to pass the verbose parameter
+    public AmazonsAIPlayer(String userName, String passwd, boolean verbose) {
+        this(userName, passwd);
+        this.verbose = verbose;
+    }
 
-	/**
-	 *
-	 * Login event handlers
-	 *
-	 */
-	@Override
-	public void onLogin() {
-		System.out.println("Login successfull!\n");
+    /**
+     * Login event handlers
+     */
+    @Override
+    public void onLogin() {
+        System.out.println("Login Successful!\n");
 
-		String uname = gameClient.getUserName();
-		setUserName(uname);
-		if (this.getGameGUI() != null) {
-			this.getGameGUI().setRoomInformation(this.getGameClient().getRoomList());
-		} else {
-			System.err.println("Error: Could not load game UI");
-			return; // Break out of program
-		}
-	}
+        String username = gameClient.getUserName();
+        setUserName(username);
+        if (this.getGameGUI() != null) {
+            this.getGameGUI().setRoomInformation(this.getGameClient().getRoomList());
+        } else {
+            System.err.println("Error: Could not load game UI");
+            // Will break out of program since this method is void
+        }
+    }
 
-	/**
-	 * Sets the players username
-	 *
-	 * @param userName Must not be null, further constraints may need to be added
-	 *
-	 */
-	public void setUserName(String userName) {
-		if (userName.isEmpty()) {
-			System.err.println("Error: Username cannot be empty");
-			return;
-		} else {
-			this.userName = userName;
-		}
-	}
+    /**
+     * Sets the players username
+     *
+     * @param userName Must not be null, further constraints may need to be added
+     */
+    public void setUserName(String userName) {
+        if (userName.isEmpty()) {
+            System.err.println("Error: Username cannot be empty");
+        } else {
+            this.userName = userName;
+        }
+    }
 
-	/**
-	 *
-	 * Handles the varying messages from the server
-	 *
-	 */
-	@SuppressWarnings("unchecked")
-	@Override
-	public boolean handleGameMessage(String messageType, Map<String, Object> msgDetails) {
+    /**
+     * Handles the varying messages from the server
+     */
+    @SuppressWarnings("unchecked")
+    @Override
+    public boolean handleGameMessage(String messageType, Map<String, Object> msgDetails) {
+        try {
+            switch (messageType) {
+                // set gui/board
+                case GameMessage.GAME_STATE_BOARD:
+                    gamegui.setGameState((ArrayList<Integer>) msgDetails.get(AmazonsGameMessage.GAME_STATE));
+                    gameBoard.setBoardState((ArrayList<Integer>) msgDetails.get(AmazonsGameMessage.GAME_STATE), false);
+                    break;
 
-		try {
-			switch (messageType) {
+                case GameMessage.GAME_ACTION_START:
+                    this.handleStart(msgDetails);
+                    break;
 
-			// set gui/board
-			case GameMessage.GAME_STATE_BOARD:
-				gamegui.setGameState((ArrayList<Integer>) msgDetails.get(AmazonsGameMessage.GAME_STATE));
-				gameBoard.setBoardState((ArrayList<Integer>) msgDetails.get(AmazonsGameMessage.GAME_STATE), false);
-				break;
+                case GameMessage.GAME_ACTION_MOVE:
+                    /**
+                     * Now the only place conversion from server to local occurs
+                     */
+                    ArrayList<Integer> queenPosCurr = toLocalFormat((ArrayList<Integer>) msgDetails.get(AmazonsGameMessage.QUEEN_POS_CURR));
+                    ArrayList<Integer> queenPosNext = toLocalFormat((ArrayList<Integer>) msgDetails.get(AmazonsGameMessage.Queen_POS_NEXT));
+                    ArrayList<Integer> arrowPos = toLocalFormat((ArrayList<Integer>) msgDetails.get(AmazonsGameMessage.ARROW_POS));
 
-			case GameMessage.GAME_ACTION_START:
-				this.handleStart(msgDetails);
-				break;
+                    gameBoard.updateBoard(queenPosCurr, queenPosNext, arrowPos);
+                    gamegui.updateGameState(msgDetails);
 
-			case GameMessage.GAME_ACTION_MOVE:
-				/**
-				 *
-				 *
-				 * Now the only place conversion from server to local occurs
-				 *
-				 *
-				 */
-				ArrayList<Integer> queenPosCurr = toLocalFormat((ArrayList<Integer>) msgDetails.get(AmazonsGameMessage.QUEEN_POS_CURR));
-				ArrayList<Integer> queenPosNext = toLocalFormat((ArrayList<Integer>) msgDetails.get(AmazonsGameMessage.Queen_POS_NEXT));
-				ArrayList<Integer> arrowPos 	= toLocalFormat((ArrayList<Integer>) msgDetails.get(AmazonsGameMessage.ARROW_POS));
+                    // Now we make a move
+                    this.move();
 
-				gameBoard.updateBoard(queenPosCurr, queenPosNext, arrowPos);
-				gamegui.updateGameState(msgDetails);
+                    break;
+            }
 
-				// handle opponent move here ~
+        } catch (Exception e) {
+            System.out.println("Something went wrong handling a game message from the server:");
+            e.printStackTrace();
+        }
+        return false;
+    }
 
-				this.move();
+    /**
+     * Handles game start message and sets the isWhitePlayer flag.
+     * If so, perform move.
+     *
+     * @param msgDetails
+     */
+    public void handleStart(Map<String, Object> msgDetails) {
+        if (msgDetails.get(AmazonsGameMessage.PLAYER_BLACK).equals(this.userName)) {
+            this.isWhitePlayer = false;
+        } else if (msgDetails.get(AmazonsGameMessage.PLAYER_WHITE).equals(this.userName)) {
+            this.isWhitePlayer = true;
+            this.move();
+        }
+    }
 
-				break;
-			}
+    /**
+     * Does not currently work as expected, game loop should be replaced when proper search strategy is implemented.
+     */
+    public void move() {
+        if (verbose) {
+            long start = System.currentTimeMillis();
+            while (System.currentTimeMillis() < start + 5000) ;
+        }
 
-		} catch (Exception e) {
-			System.out.println("Something went wrong handling a game message from the server:");
-			e.printStackTrace();
-		}
+        ActionFactoryRecursive af = new ActionFactoryRecursive(gameBoard);
+        ArrayList<Move> possibleMoves = af.getPossibleMoves(isWhitePlayer);
 
-		return false;
-	}
+        if (possibleMoves.isEmpty()) {
+            String player = isWhitePlayer ? "White Player" : "Black Player";
+            System.out.println("Game over... " + player);
+        } else {
+            ArrayList<Integer> oldPosList = new ArrayList<>();
+            ArrayList<Integer> newPosList = new ArrayList<>();
+            ArrayList<Integer> arrowPosList = new ArrayList<>();
 
-	/**
-	 * Handles game start message and sets the isWhitePlayer flag.
-	 * If so, perform move.
-	 *
-	 * @param msgDetails
-	 */
-	public void handleStart(Map<String, Object> msgDetails) {
-		if (msgDetails.get(AmazonsGameMessage.PLAYER_BLACK).equals(this.userName)) {
-			this.isWhitePlayer = false;
-		} else if (msgDetails.get(AmazonsGameMessage.PLAYER_WHITE).equals(this.userName)) {
-			this.isWhitePlayer = true;
-			this.move();
-		}
-	}
+            Move move = randomMove(possibleMoves); // pick move and remove it
 
-	/**
-	 * Does not currently work as expected, game loop should be replaced when proper search strategy is implemented.
-	 */
-	public void move() {
-//		TODO: make a slowedDown parameter that activates this ==> "verbose" option
-//		long start = System.currentTimeMillis();
-//		while(System.currentTimeMillis() < start + 5000);
+            byte[] oldPos = move.getOldPos();
+            byte[] newPos = move.getNewPos();
+            byte[] arrowPos = move.getArrowPos();
 
-		boolean valid = false;
+            // old position of the moving queen
+            oldPosList.add((int) oldPos[0]);
+            oldPosList.add((int) oldPos[1]);
 
-		ActionFactoryRecursive af = new ActionFactoryRecursive(gameBoard);
-		ArrayList<byte[]> possibleMoves = af.getPossibleMoves(isWhitePlayer);
+            // add to appropriate arrayList
+            newPosList.add((int) newPos[0]); // new pos
+            newPosList.add((int) newPos[1]);
 
-		while (!valid && !possibleMoves.isEmpty()) {
+            // add to arraylist for server message
+            arrowPosList.add((int) arrowPos[0]); // arrow position
+            arrowPosList.add((int) arrowPos[1]);
 
-			ArrayList<Integer> queen = new ArrayList<>();
-			ArrayList<Integer> newPos = new ArrayList<>();
+            gameBoard.updateBoard(oldPosList, newPosList, arrowPosList);
+            gamegui.updateGameState(oldPosList, newPosList, arrowPosList);
 
-			byte[] move = randomMove(possibleMoves); // pick move and remove it
+            /**
+             * Only place where we have to convert to server format of (y, x) and 1 indexed is now here.
+             */
+            oldPosList = toServerFormat(oldPosList);
+            newPosList = toServerFormat(newPosList);
+            arrowPosList = toServerFormat(arrowPosList);
 
-			// add to appropriate arrayList
-			newPos.add((int) move[0]); // new pos
-			newPos.add((int) move[1]);
-			queen.add((int) move[2]); // queen being moved y, x
-			queen.add((int) move[3]);
+            gameClient.sendMoveMessage(oldPosList, newPosList, arrowPosList);
+        }
+    }
 
-			// from that position get possible arrow moves
-			ArrayList<byte[]> possibleArrows = af.getPossibleMoves(move);
+    /**
+     * Convert from 0 indexed (x, y) to 1 indexed (y, x)
+     *
+     * @param pos
+     * @return
+     */
+    public ArrayList<Integer> toServerFormat(ArrayList<Integer> pos) {
+        ArrayList<Integer> serverPos = new ArrayList<>();
+        serverPos.add(pos.get(1) + 1);
+        serverPos.add(pos.get(0) + 1);
+        return serverPos;
+    }
 
-			while(!valid && !possibleArrows.isEmpty()) {
+    /**
+     * Convert from 1 indexed (y, x) coordinates to 0 indexed (x, y)
+     *
+     * @param serverPos
+     * @return
+     */
+    public ArrayList<Integer> toLocalFormat(ArrayList<Integer> serverPos) {
+        ArrayList<Integer> pos = new ArrayList<>();
+        pos.add(serverPos.get(1) - 1);
+        pos.add(serverPos.get(0) - 1);
+        return pos;
+    }
 
-				byte[] arrowMove = randomMove(possibleArrows); // pick arrow and remove it
+    /**
+     * Random move picked from list - old
+     *
+     * @param positions
+     * @return
+     */
+    public Move randomMove(ArrayList<Move> positions) {
+        int idx = (int) (Math.random() * positions.size());
+        Move pos = positions.get(idx);
+        positions.remove(idx);
+        return pos;
+    }
 
-				// add to arraylist for server message
-				ArrayList<Integer> arrowPos = new ArrayList<>();
-				arrowPos.add((int) arrowMove[0]); // arrow position
-				arrowPos.add((int) arrowMove[1]);
+    @Override
+    public String userName() {
+        return userName;
+    }
 
-				gameBoard.updateBoard(queen, newPos, arrowPos);
-				gamegui.updateGameState(queen, newPos, arrowPos);
+    @Override
+    public GameClient getGameClient() {
+        // TODO Auto-generated method stub
+        return this.gameClient;
+    }
 
-				/**
-				 *
-				 *
-				 * Only place where we have to convert to server format of (y, x) and 1 indexed is now here.
-				 *
-				 *
-				 */
-				queen = toServerFormat(queen);
-				newPos = toServerFormat(newPos);
-				arrowPos = toServerFormat(arrowPos);
+    @Override
+    public BaseGameGUI getGameGUI() {
+        // TODO Auto-generated method stub
+        return this.gamegui;
+    }
 
-				gameClient.sendMoveMessage(queen, newPos, arrowPos);
-				valid = true;
+    @Override
+    public void connect() {
+        gameClient = new GameClient(userName, passwd, (GamePlayer) this);
+    }
 
-			}
+    public boolean handleMessage(String type, String msg) {
+        return true;
+    }
 
-			if (possibleArrows.isEmpty()) {
-				String player = isWhitePlayer ? "White Player" : "Black Player";
-				System.out.println(player + " - This Queen has no more places to put arrows - " + Arrays.toString(move));
-				System.out.println("moves");
-				for (byte[] p : possibleMoves)
-					System.out.println(Arrays.toString(p));
-			}
-		}
+    public boolean handleMessage(String type) {
+        return true;
+    }
 
-		if (possibleMoves.isEmpty()) {
-			String player = isWhitePlayer ? "White Player" : "Black Player";
-			System.out.println("Game over... " + player);
-		}
+    public void setPassword(String pw) {
+        this.passwd = pw;
+    }
 
-	}
+    public boolean isWhitePlayer() {
+        return this.isWhitePlayer;
+    }
 
-	/**
-	 * Convert from 0 indexed (x, y) to 1 indexed (y, x)
-	 *
-	 * @param pos
-	 * @return
-	 */
-	public ArrayList<Integer> toServerFormat(ArrayList<Integer> pos) {
-		ArrayList<Integer> serverPos = new ArrayList<Integer>();
-		serverPos.add(pos.get(1) + 1);
-		serverPos.add(pos.get(0) + 1);
-		return serverPos;
-	}
+    public void setIsWhitePlayer(boolean isWhitePlayer) {
+        this.isWhitePlayer = isWhitePlayer;
+    }
 
-	/**
-	 * Convert from 1 indexed (y, x) coordinates to 0 indexed (x, y)
-	 *
-	 * @param serverPos
-	 * @return
-	 */
-	public ArrayList<Integer> toLocalFormat(ArrayList<Integer> serverPos){
-		ArrayList<Integer> pos = new ArrayList<Integer>();
-		pos.add(serverPos.get(1) - 1);
-		pos.add(serverPos.get(0) - 1);
-		return pos;
-	}
+    public void setGameGUI(BaseGameGUI gui) {
+        this.gamegui = gui;
+    }
 
-	/**
-	 * Random move picked from list - old
-	 *
-	 * @param positions
-	 * @return
-	 */
-	public byte[] randomMove(ArrayList<byte[]> positions) {
-		int idx = (int) (Math.random() * positions.size());
-		byte[] pos = positions.get(idx);
-		positions.remove(idx);
-		return pos;
-	}
-
-	@Override
-	public String userName() {
-		return userName;
-	}
-
-	@Override
-	public GameClient getGameClient() {
-		// TODO Auto-generated method stub
-		return this.gameClient;
-	}
-
-	@Override
-	public BaseGameGUI getGameGUI() {
-		// TODO Auto-generated method stub
-		return this.gamegui;
-	}
-
-	@Override
-	public void connect() {
-		gameClient = new GameClient(userName, passwd, (GamePlayer) this);
-	}
-
-	public boolean handleMessage(String type, String msg) {
-		return true;
-	}
-
-	public boolean handleMessage(String type) {
-		return true;
-	}
-
-	public void setPassword(String pw) {
-		this.passwd = pw;
-	}
-
-	public boolean isWhitePlayer() {
-		return this.isWhitePlayer;
-	}
-
-	public void setIsWhitePlayer(boolean isWhitePlayer) {
-		this.isWhitePlayer = isWhitePlayer;
-	}
-
-	public void setGameGUI(BaseGameGUI gui) {
-		this.gamegui = gui;
-	}
-
-	public void setGameBoard(GameBoard board) {
-		this.gameBoard = board;
-	}
+    public void setGameBoard(GameBoard board) {
+        this.gameBoard = board;
+    }
 
 }

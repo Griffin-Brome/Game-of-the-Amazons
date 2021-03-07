@@ -3,7 +3,7 @@ package utils;
 import static utils.Constant.N;
 
 public class MatrixOperations {
-    public static void printMatrix(byte[][] mat) {
+    public static void _printMatrix(byte[][] mat) {
         for (byte row = 0; row < N; row++) {
             for (byte col = 0; col < N; col++) {
                 System.out.print(mat[row][col] + "\t\t");
@@ -20,7 +20,7 @@ public class MatrixOperations {
      * @param b the second byte matrix
      * @return A matrix equal to a+b
      */
-    public static byte[][] addMatrix(byte[][] a, byte[][] b) {
+    public static byte[][] _addMatrix(byte[][] a, byte[][] b) {
         //assume a and b are the same size, N x N
         byte[][] c = new byte[N][N];
         for (byte row = 0; row < N; row++) {
@@ -38,7 +38,7 @@ public class MatrixOperations {
      * @param b the second byte matrix
      * @return A matrix equal to a-b
      */
-    public static byte[][] subMatrix(byte[][] a, byte[][] b) {
+    public static byte[][] _subMatrix(byte[][] a, byte[][] b) {
         //assume a and b are the same size, N x N
         byte[][] c = new byte[N][N];
         for (byte row = 0; row < N; row++) {
@@ -55,7 +55,7 @@ public class MatrixOperations {
      * @param mat the matrix to reduce
      * @return An integer representing the sum of all elements in the matrix
      */
-    public static int reduceMatrix(byte[][] mat) {
+    public static int _reduceMatrix(byte[][] mat) {
         int total = 0;
         for (byte row = 0; row < N; row++) {
             for (byte col = 0; col < N; col++) {

@@ -1,13 +1,13 @@
-package cosc322.milestone1;
+package decision.logic;
 
 import static utils.Constant.*;
 import static utils.MatrixOperations.*;
 import static utils.GameLogic.*;
 
 public class Heuristic {
-    private byte[][] board; //N x N
-    private byte[][] myQueenPositions; //4 x 2
-    private byte[][] theirQueenPositions; //4 x 2
+    private final byte[][] board; //N x N
+    private final byte[][] myQueenPositions; //4 x 2
+    private final byte[][] theirQueenPositions; //4 x 2
 
     private static final byte maxMoves = 30; // max number of moves to reach any position
 

@@ -1,8 +1,14 @@
-package cosc322.milestone1;
+package decision.logic;
+
+import cosc322.amazons.ActionFactoryRecursive;
+import cosc322.amazons.GameBoard;
+import models.Move;
+import models.Queen;
 
 import java.util.ArrayList;
 
 import static utils.Constant.*;
+import static utils.MatrixOperations.*;
 
 
 public class DecisionLogic {
@@ -23,7 +29,7 @@ public class DecisionLogic {
      * @return
      */
     public SearchTreeNode getPossibleMoves(byte[][] boardMatrix, ArrayList<Queen> queens) {
-        ActionFactoryRecursive af = new ActionFactoryRecursive(gameBoard);
+        ActionFactoryRecursive af = new ActionFactoryRecursive(gameBoard, isWhitePlayer);
         SearchTreeNode root = new SearchTreeNode(boardMatrix, isWhitePlayer);
 
         for (Queen queen : queens) {
@@ -38,33 +44,6 @@ public class DecisionLogic {
             }
         }
         return root;
-    }
-
-
-    /**
-     * Move the queen to a position in the matrix, moving it out of the way for the
-     * arrow shot.
-     *
-     * @param queen
-     * @param tempQueenPos
-     */
-    public static void makeTempQueenMove(Queen queen, byte[] tempQueenPos, byte[][] matrix) {
-        byte[] queenPos = queen.getPosition();
-        matrix[queenPos[0]][queenPos[1]] = BLANK;
-        matrix[tempQueenPos[0]][tempQueenPos[1]] = queen.getId();
-    }
-
-
-    /**
-     * Move the queen back after checking the arrow shot.
-     *
-     * @param queen
-     * @param tempQueenPos
-     */
-    public static void undoTempQueenMove(Queen queen, byte[] tempQueenPos, byte[][] matrix) {
-        byte[] queenPos = queen.getPosition();
-        matrix[queenPos[0]][queenPos[1]] = queen.getId();
-        matrix[tempQueenPos[0]][tempQueenPos[1]] = BLANK;
     }
 
     /**
@@ -101,15 +80,10 @@ public class DecisionLogic {
      * @param arrowPos
      * @return
      */
-    public static byte[][] getNewGameState(Queen queen, byte[][] gameBoard, byte[] newQueenPos, byte[] arrowPos) {
-
+    public static byte[][] getNewGameState(Queen queen, byte[][] boardMatrix, byte[] newQueenPos, byte[] arrowPos) {
         byte[] queenPos = queen.getPosition();
-        byte[][] newState = new byte[gameBoard.length][gameBoard[0].length];
-        for (int i = 0; i < gameBoard.length; i++) {
-            for (int j = 0; j < gameBoard[0].length; j++) {
-                newState[i][j] = gameBoard[i][j];
-            }
-        }
+        byte[][] newState = _cloneMatrix(boardMatrix);
+
         newState[queenPos[0]][queenPos[1]] = BLANK;
         newState[arrowPos[0]][arrowPos[1]] = ARROW;
         newState[newQueenPos[0]][newQueenPos[1]] = queen.getId();

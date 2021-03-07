@@ -1,9 +1,9 @@
-package cosc322.milestone1;
+package cosc322.amazons;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Map;
 
+import models.Move;
 import ygraph.ai.smartfox.games.BaseGameGUI;
 import ygraph.ai.smartfox.games.GameClient;
 import ygraph.ai.smartfox.games.GameMessage;
@@ -24,19 +24,18 @@ public class AmazonsAIPlayer extends GamePlayer {
 
     private String userName = null;
     private String passwd = null;
-    private boolean verbose = false;
+    private int delay = 0;
 
     public AmazonsAIPlayer(String userName, String passwd) {
         setUserName(userName);
         setPassword(passwd);
         setGameGUI(new BaseGameGUI(this));
-        setGameBoard(new GameBoard());
     }
 
     // Second constructor for if we want to pass the verbose parameter
-    public AmazonsAIPlayer(String userName, String passwd, boolean verbose) {
+    public AmazonsAIPlayer(String userName, String passwd, int delay) {
         this(userName, passwd);
-        this.verbose = verbose;
+        this.delay = delay;
     }
 
     /**
@@ -45,9 +44,9 @@ public class AmazonsAIPlayer extends GamePlayer {
     @Override
     public void onLogin() {
         System.out.println("Login Successful!\n");
-
         String username = gameClient.getUserName();
         setUserName(username);
+
         if (this.getGameGUI() != null) {
             this.getGameGUI().setRoomInformation(this.getGameClient().getRoomList());
         } else {
@@ -79,6 +78,8 @@ public class AmazonsAIPlayer extends GamePlayer {
             switch (messageType) {
                 // set gui/board
                 case GameMessage.GAME_STATE_BOARD:
+                    // initialize game board here so we can simply join a new room to play a new game without restarting the bot
+                    setGameBoard(new GameBoard());
                     gamegui.setGameState((ArrayList<Integer>) msgDetails.get(AmazonsGameMessage.GAME_STATE));
                     gameBoard.setBoardState((ArrayList<Integer>) msgDetails.get(AmazonsGameMessage.GAME_STATE), false);
                     break;
@@ -99,8 +100,7 @@ public class AmazonsAIPlayer extends GamePlayer {
                     gamegui.updateGameState(msgDetails);
 
                     // Now we make a move
-                    this.move();
-
+                    move();
                     break;
             }
 
@@ -122,30 +122,29 @@ public class AmazonsAIPlayer extends GamePlayer {
             this.isWhitePlayer = false;
         } else if (msgDetails.get(AmazonsGameMessage.PLAYER_WHITE).equals(this.userName)) {
             this.isWhitePlayer = true;
-            this.move();
+            move();
         }
     }
 
     /**
-     * Does not currently work as expected, game loop should be replaced when proper search strategy is implemented.
+     * Game DecisionLogic needs to be implemented here, that class should implement AlphaBeta
      */
     public void move() {
-        if (verbose) {
-            long start = System.currentTimeMillis();
-            while (System.currentTimeMillis() < start + 5000) ;
-        }
+        long start = System.currentTimeMillis();
+        while (System.currentTimeMillis() < start + delay) ;
 
-        ActionFactoryRecursive af = new ActionFactoryRecursive(gameBoard);
-        ArrayList<Move> possibleMoves = af.getPossibleMoves(isWhitePlayer);
+        ActionFactoryRecursive af = new ActionFactoryRecursive(gameBoard, isWhitePlayer);
+        ArrayList<Move> possibleMoves = af.getPossibleMoves();
 
         if (possibleMoves.isEmpty()) {
             String player = isWhitePlayer ? "White Player" : "Black Player";
-            System.out.println("Game over... " + player);
+            System.out.println("Game over for " + player);
         } else {
             ArrayList<Integer> oldPosList = new ArrayList<>();
             ArrayList<Integer> newPosList = new ArrayList<>();
             ArrayList<Integer> arrowPosList = new ArrayList<>();
 
+            //TODO: Import the DecisionLogic class and pass in the possible moves, that class should return the optimal move to make
             Move move = randomMove(possibleMoves); // pick move and remove it
 
             byte[] oldPos = move.getOldPos();
@@ -164,15 +163,16 @@ public class AmazonsAIPlayer extends GamePlayer {
             arrowPosList.add((int) arrowPos[0]); // arrow position
             arrowPosList.add((int) arrowPos[1]);
 
+            // IMPORTANT: update board before converting to server format
             gameBoard.updateBoard(oldPosList, newPosList, arrowPosList);
-            gamegui.updateGameState(oldPosList, newPosList, arrowPosList);
 
-            /**
-             * Only place where we have to convert to server format of (y, x) and 1 indexed is now here.
-             */
+            // Only place where we have to convert to server format of (y, x) and 1 indexed is now here.
             oldPosList = toServerFormat(oldPosList);
             newPosList = toServerFormat(newPosList);
             arrowPosList = toServerFormat(arrowPosList);
+
+            // IMPORTANT: update gui after converting to server format
+            gamegui.updateGameState(oldPosList, newPosList, arrowPosList);
 
             gameClient.sendMoveMessage(oldPosList, newPosList, arrowPosList);
         }
@@ -217,24 +217,18 @@ public class AmazonsAIPlayer extends GamePlayer {
         return pos;
     }
 
-    @Override
     public String userName() {
         return userName;
     }
 
-    @Override
     public GameClient getGameClient() {
-        // TODO Auto-generated method stub
         return this.gameClient;
     }
 
-    @Override
     public BaseGameGUI getGameGUI() {
-        // TODO Auto-generated method stub
         return this.gamegui;
     }
 
-    @Override
     public void connect() {
         gameClient = new GameClient(userName, passwd, (GamePlayer) this);
     }
@@ -266,5 +260,4 @@ public class AmazonsAIPlayer extends GamePlayer {
     public void setGameBoard(GameBoard board) {
         this.gameBoard = board;
     }
-
 }

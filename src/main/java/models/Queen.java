@@ -1,4 +1,4 @@
-package cosc322.milestone1;
+package models;
 
 public class Queen extends Piece {
 

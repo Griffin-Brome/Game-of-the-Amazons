@@ -1,15 +1,15 @@
-package cosc322.milestone1;
+package models;
 
 public class Move {
     private byte[] oldPos;
     private byte[] newPos;
     private byte[] arrowPos;
 
-    Move(byte[] oldPos) {
+    public Move(byte[] oldPos) {
         this.oldPos = oldPos;
     }
 
-    Move(byte[] oldPos, byte[] newPos, byte[] arrowPos) {
+    public Move(byte[] oldPos, byte[] newPos, byte[] arrowPos) {
         this(oldPos);
         this.newPos = newPos;
         this.arrowPos = arrowPos;

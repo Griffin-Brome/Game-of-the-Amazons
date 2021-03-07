@@ -1,4 +1,6 @@
-package cosc322.milestone1;
+package cosc322.amazons;
+
+import decision.logic.Heuristic;
 
 public class Testing {
     public static void main(String[] args) {

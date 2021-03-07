@@ -1,25 +1,28 @@
-package cosc322.milestone1;
+package cosc322.amazons;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import utils.Constant;
+import models.Arrow;
+import models.Queen;
+import static utils.Constant.*;
+import static utils.GameLogic.*;
 
 /**
  * gameState from server stored in matrix :
  * <p>
- * 9 	  0, 0, 0, 2, 0, 0, 2, 0, 0, 0,
- * 8		  0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
- * 7		  0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
- * 6    	  2, 0, 0, 0, 0, 0, 0, 0, 0, 2,
- * 5		  0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
- * 4 	  0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
- * 3		  1, 0, 0, 0, 0, 0, 0, 0, 0, 1,
- * 2		  0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
- * 1		  0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
- * 0       0, 0, 0, 1, 0, 0, 1, 0, 0, 0,
+ * 9        0, 0, 0, 2, 0, 0, 2, 0, 0, 0,
+ * 8	    0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+ * 7	    0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+ * 6        0, 0, 0, 0, 0, 0, 0, 0, 0, 2,
+ * 5	    0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+ * 4 	    0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+ * 3	    1, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+ * 2	    0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+ * 1	    0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+ * 0        0, 0, 0, 1, 0, 0, 1, 0, 0, 0,
  * y
- * pos x   0  1  2  3  4  5  6  7  8  9
+ * pos x    0  1  2  3  4  5  6  7  8  9
  * <p>
  * Where 1 represents white queen, 2 represents black queen and 3 are arrows.
  * <p>
@@ -41,7 +44,7 @@ public class GameBoard {
     private ArrayList<Queen> blackQueens;
 
     public GameBoard() {
-        boardMatrix = new byte[Constant.ROWS][Constant.COLS];
+        boardMatrix = new byte[ROWS][COLS];
         whiteQueens = new ArrayList<>();
         blackQueens = new ArrayList<>();
         arrows = new ArrayList<>();
@@ -64,24 +67,24 @@ public class GameBoard {
      */
     private void moveQueen(ArrayList<Integer> currPos, ArrayList<Integer> endPos) {
         // Check if new position is a valid state
-        if (!isValid(endPos)) {
+        if (!_isValidPosition(boardMatrix, endPos)) {
             System.err.println("Cannot move to these coordinates");
         } else {
             // Determine inhabitant of tile
             int tileOccupant = getOccupant(currPos);
             switch (tileOccupant) {
-                case Constant.BLACK_QUEEN:
-                    updateMatrix(currPos, endPos, Constant.BLACK_QUEEN);
-                    updatePieces(currPos, endPos, Constant.BLACK_QUEEN);
+                case BLACK_QUEEN:
+                    updateMatrix(currPos, endPos, BLACK_QUEEN);
+                    updatePieces(currPos, endPos, BLACK_QUEEN);
                     break;
 
-                case Constant.WHITE_QUEEN:
-                    updateMatrix(currPos, endPos, Constant.WHITE_QUEEN);
-                    updatePieces(currPos, endPos, Constant.WHITE_QUEEN);
+                case WHITE_QUEEN:
+                    updateMatrix(currPos, endPos, WHITE_QUEEN);
+                    updatePieces(currPos, endPos, WHITE_QUEEN);
                     break;
 
                 default:
-                    System.err.println("Selected tile does not contain a queen -> " + currPos + " - " + getOccupant(currPos));
+                    System.err.println("Selected tile does not contain a queen -> " + currPos + " - " + tileOccupant);
                     System.err.println("white");
                     for (Queen wQueen : whiteQueens) {
                         System.err.println(wQueen);
@@ -119,7 +122,7 @@ public class GameBoard {
         int endX = endPos.get(0);
         int endY = endPos.get(1);
 
-        boardMatrix[currX][currY] = Constant.BLANK;
+        boardMatrix[currX][currY] = BLANK;
         boardMatrix[endX][endY] = piece;
     }
 
@@ -133,7 +136,7 @@ public class GameBoard {
      */
     public void updatePieces(ArrayList<Integer> currPos, ArrayList<Integer> endPos, byte piece) {
         switch (piece) {
-            case Constant.BLACK_QUEEN:
+            case BLACK_QUEEN:
 
                 for (int i = 0; i < blackQueens.size(); i++) {
                     if (blackQueens.get(i).getPosition()[0] == currPos.get(0) && blackQueens.get(i).getPosition()[1] == currPos.get(1)) {
@@ -141,9 +144,9 @@ public class GameBoard {
                     }
                 }
 
-                blackQueens.add(new Queen(endPos.get(0).byteValue(), endPos.get(1).byteValue(), Constant.BLACK_QUEEN));
+                blackQueens.add(new Queen(endPos.get(0).byteValue(), endPos.get(1).byteValue(), BLACK_QUEEN));
                 break;
-            case Constant.WHITE_QUEEN:
+            case WHITE_QUEEN:
 
                 for (int i = 0; i < whiteQueens.size(); i++) {
                     if (whiteQueens.get(i).getPosition()[0] == currPos.get(0) && whiteQueens.get(i).getPosition()[1] == currPos.get(1)) {
@@ -151,9 +154,9 @@ public class GameBoard {
                     }
                 }
 
-                whiteQueens.add(new Queen(endPos.get(0).byteValue(), endPos.get(1).byteValue(), Constant.WHITE_QUEEN));
+                whiteQueens.add(new Queen(endPos.get(0).byteValue(), endPos.get(1).byteValue(), WHITE_QUEEN));
                 break;
-            case Constant.ARROW:
+            case ARROW:
                 arrows.add(new Arrow(endPos.get(0).byteValue(), endPos.get(1).byteValue()));
                 break;
         }
@@ -169,7 +172,7 @@ public class GameBoard {
     private boolean isValid(ArrayList<Integer> pos) {
         int x = pos.get(0);
         int y = pos.get(1);
-        return boardMatrix[x][y] == Constant.BLANK;
+        return boardMatrix[x][y] == BLANK;
     }
 
 
@@ -186,7 +189,7 @@ public class GameBoard {
 //			System.out.println("\nPlacing Arrow at a blank spot at " + arrowPos + "\n");
             int x = arrowPos.get(0);
             int y = arrowPos.get(1);
-            boardMatrix[x][y] = Constant.ARROW;
+            boardMatrix[x][y] = ARROW;
             arrows.add(new Arrow(arrowPos.get(0).byteValue(), arrowPos.get(1).byteValue()));
         }
     }
@@ -209,8 +212,8 @@ public class GameBoard {
 
         // update coordinates of pieces
         int pos = 12;
-        for (int y = Constant.ROWS; y > 0; y--) {
-            for (int x = 1; x < Constant.COLS + 1; x++) {
+        for (int y = ROWS; y > 0; y--) {
+            for (int x = 1; x < COLS + 1; x++) {
                 /**
                  *
                  * Constantly converting is super dumb - our code should only ever handle it as (x, y) and 0 indexed,
@@ -227,13 +230,13 @@ public class GameBoard {
                 // add to appropriate list of pieces
                 byte[] bytePos = new byte[]{position.get(0).byteValue(), position.get(1).byteValue()};
                 switch (occupant) {
-                    case Constant.BLACK_QUEEN:
-                        blackQueens.add(new Queen(bytePos, Constant.BLACK_QUEEN));
+                    case BLACK_QUEEN:
+                        blackQueens.add(new Queen(bytePos, BLACK_QUEEN));
                         break;
-                    case Constant.WHITE_QUEEN:
-                        whiteQueens.add(new Queen(bytePos, Constant.WHITE_QUEEN));
+                    case WHITE_QUEEN:
+                        whiteQueens.add(new Queen(bytePos, WHITE_QUEEN));
                         break;
-                    case Constant.ARROW:
+                    case ARROW:
                         arrows.add(new Arrow(bytePos));
                 }
                 pos++;
@@ -243,8 +246,8 @@ public class GameBoard {
 
         // update matrix ..
         pos = 12;
-        for (int y = Constant.ROWS - 1; y >= 0; y--) {
-            for (int x = 0; x < Constant.COLS; x++) {
+        for (int y = ROWS - 1; y >= 0; y--) {
+            for (int x = 0; x < COLS; x++) {
                 this.boardMatrix[x][y] = gameState.get(pos++).byteValue();
             }
             pos++;
@@ -252,8 +255,8 @@ public class GameBoard {
 
         if (showBoard) {
             System.out.println("\nCurrent Board Matrix from Server:\n------------------------------------------");
-            for (int y = 0; y < Constant.ROWS; y++) {
-                for (int x = 0; x < Constant.COLS; x++) {
+            for (int y = 0; y < ROWS; y++) {
+                for (int x = 0; x < COLS; x++) {
                     System.out.printf("(%d,%d) => %d, ", x, y, this.boardMatrix[x][y]);
                 }
                 System.out.println();
@@ -302,9 +305,9 @@ public class GameBoard {
     }
 
     public byte[][] getMatrixCopy() {
-        byte[][] temp = new byte[Constant.ROWS][Constant.COLS];
-        for (int x = 0; x < Constant.COLS; x++) {
-            for (int y = 0; y < Constant.ROWS; y++) {
+        byte[][] temp = new byte[ROWS][COLS];
+        for (int x = 0; x < COLS; x++) {
+            for (int y = 0; y < ROWS; y++) {
                 temp[x][y] = boardMatrix[x][y];
             }
         }

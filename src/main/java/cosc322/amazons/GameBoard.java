@@ -5,6 +5,7 @@ import java.util.Arrays;
 
 import models.Arrow;
 import models.Queen;
+
 import static utils.Constant.*;
 import static utils.GameLogic.*;
 
@@ -72,33 +73,25 @@ public class GameBoard {
         } else {
             // Determine inhabitant of tile
             int tileOccupant = getOccupant(currPos);
-            switch (tileOccupant) {
-                case BLACK_QUEEN:
-                    updateMatrix(currPos, endPos, BLACK_QUEEN);
-                    updatePieces(currPos, endPos, BLACK_QUEEN);
-                    break;
-
-                case WHITE_QUEEN:
-                    updateMatrix(currPos, endPos, WHITE_QUEEN);
-                    updatePieces(currPos, endPos, WHITE_QUEEN);
-                    break;
-
-                default:
-                    System.err.println("Selected tile does not contain a queen -> " + currPos + " - " + tileOccupant);
-                    System.err.println("white");
-                    for (Queen wQueen : whiteQueens) {
-                        System.err.println(wQueen);
-                    }
-                    System.err.println("black");
-                    for (Queen bQueen : blackQueens) {
-                        System.err.println(bQueen);
-                    }
+            if (tileOccupant == BLACK_QUEEN || tileOccupant == WHITE_QUEEN) {
+                updateMatrix(currPos, endPos, BLACK_QUEEN);
+                updatePieces(currPos, endPos, BLACK_QUEEN);
+            } else {
+                System.err.println("Selected tile does not contain a queen -> " + currPos + " - " + tileOccupant);
+                System.err.println("White Queens");
+                for (Queen wQueen : whiteQueens) {
+                    System.err.println(wQueen);
+                }
+                System.err.println("Black Queens");
+                for (Queen bQueen : blackQueens) {
+                    System.err.println(bQueen);
+                }
             }
         }
     }
 
     /**
-     * Removed the coordinates hasmap in favor of this function that checks the matrix directly.
+     * Removed the coordinates hashmap in favor of this function that checks the matrix directly.
      *
      * @param pos
      * @return
@@ -136,26 +129,17 @@ public class GameBoard {
      */
     public void updatePieces(ArrayList<Integer> currPos, ArrayList<Integer> endPos, byte piece) {
         switch (piece) {
+            //FIXME Rewrite this to just use .setPosition() instead of removing and re-adding the queen
             case BLACK_QUEEN:
-
-                for (int i = 0; i < blackQueens.size(); i++) {
-                    if (blackQueens.get(i).getPosition()[0] == currPos.get(0) && blackQueens.get(i).getPosition()[1] == currPos.get(1)) {
-                        blackQueens.remove(i);
-                    }
-                }
-
+                blackQueens.removeIf(queen -> queen.getPosition()[0] == currPos.get(0) && queen.getPosition()[1] == currPos.get(1));
                 blackQueens.add(new Queen(endPos.get(0).byteValue(), endPos.get(1).byteValue(), BLACK_QUEEN));
                 break;
+
             case WHITE_QUEEN:
-
-                for (int i = 0; i < whiteQueens.size(); i++) {
-                    if (whiteQueens.get(i).getPosition()[0] == currPos.get(0) && whiteQueens.get(i).getPosition()[1] == currPos.get(1)) {
-                        whiteQueens.remove(i);
-                    }
-                }
-
+                whiteQueens.removeIf(queen -> queen.getPosition()[0] == currPos.get(0) && queen.getPosition()[1] == currPos.get(1));
                 whiteQueens.add(new Queen(endPos.get(0).byteValue(), endPos.get(1).byteValue(), WHITE_QUEEN));
                 break;
+
             case ARROW:
                 arrows.add(new Arrow(endPos.get(0).byteValue(), endPos.get(1).byteValue()));
                 break;
@@ -182,15 +166,13 @@ public class GameBoard {
      * @param arrowPos Coords to shoot arrow at
      */
     private void shootArrow(ArrayList<Integer> arrowPos) {
-        if (!isValid(arrowPos)) {
+        if (!_isValidPosition(boardMatrix, arrowPos)) {
             System.err.println("Selected tile is occupied");
-            return;
         } else {
-//			System.out.println("\nPlacing Arrow at a blank spot at " + arrowPos + "\n");
             int x = arrowPos.get(0);
             int y = arrowPos.get(1);
             boardMatrix[x][y] = ARROW;
-            arrows.add(new Arrow(arrowPos.get(0).byteValue(), arrowPos.get(1).byteValue()));
+            arrows.add(new Arrow((byte) x, (byte) y));
         }
     }
 
@@ -207,7 +189,7 @@ public class GameBoard {
      * @param showBoard - Whether or not to output the matrix representation to the console
      */
     public void setBoardState(ArrayList<Integer> gameState, boolean showBoard) {
-        // update local gameStateList
+        //FIXME Yikes yeah we should refactor this at some point but for now it's just legacy code that works
         setGameState(gameState);
 
         // update coordinates of pieces
@@ -261,10 +243,7 @@ public class GameBoard {
                 }
                 System.out.println();
             }
-
             /* lists of pieces */
-
-
             for (Queen wQueen : whiteQueens) {
                 System.out.println(wQueen);
             }
@@ -303,15 +282,4 @@ public class GameBoard {
     public byte[][] getMatrix() {
         return this.boardMatrix;
     }
-
-    public byte[][] getMatrixCopy() {
-        byte[][] temp = new byte[ROWS][COLS];
-        for (int x = 0; x < COLS; x++) {
-            for (int y = 0; y < ROWS; y++) {
-                temp[x][y] = boardMatrix[x][y];
-            }
-        }
-        return temp;
-    }
-
 }

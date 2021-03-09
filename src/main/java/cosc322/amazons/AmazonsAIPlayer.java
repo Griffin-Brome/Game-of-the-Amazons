@@ -233,10 +233,12 @@ public class AmazonsAIPlayer extends GamePlayer {
         gameClient = new GameClient(userName, passwd, (GamePlayer) this);
     }
 
+    //TODO: Not too sure what these do but we should implement them properly
     public boolean handleMessage(String type, String msg) {
         return true;
     }
 
+    //TODO: Not too sure what these do but we should implement them properly
     public boolean handleMessage(String type) {
         return true;
     }

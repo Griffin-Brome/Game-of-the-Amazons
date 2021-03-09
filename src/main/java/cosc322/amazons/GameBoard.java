@@ -72,10 +72,10 @@ public class GameBoard {
             System.err.println("Cannot move to these coordinates");
         } else {
             // Determine inhabitant of tile
-            int tileOccupant = getOccupant(currPos);
+            byte tileOccupant = getOccupant(currPos);
             if (tileOccupant == BLACK_QUEEN || tileOccupant == WHITE_QUEEN) {
-                updateMatrix(currPos, endPos, BLACK_QUEEN);
-                updatePieces(currPos, endPos, BLACK_QUEEN);
+                updateMatrix(currPos, endPos, tileOccupant);
+                updatePieces(currPos, endPos, tileOccupant);
             } else {
                 System.err.println("Selected tile does not contain a queen -> " + currPos + " - " + tileOccupant);
                 System.err.println("White Queens");
@@ -96,7 +96,7 @@ public class GameBoard {
      * @param pos
      * @return
      */
-    public int getOccupant(ArrayList<Integer> pos) {
+    public byte getOccupant(ArrayList<Integer> pos) {
         int x = pos.get(0);
         int y = pos.get(1);
         return boardMatrix[x][y];

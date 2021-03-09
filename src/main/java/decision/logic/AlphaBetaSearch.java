@@ -1,4 +1,4 @@
-package cosc322.milestone1;
+package decision.logic;
 
 /**
  * Adapted from fig. 5.7, pg.310 of Artificial Intelligence, A Modern Approach (4th Edition)

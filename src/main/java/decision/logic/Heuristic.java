@@ -1,21 +1,53 @@
 package decision.logic;
 
+import cosc322.amazons.GameBoard;
+import models.Queen;
+
+import java.util.ArrayList;
+
 import static utils.Constant.*;
 import static utils.MatrixOperations.*;
 import static utils.GameLogic.*;
 
 public class Heuristic {
     private final byte[][] board; //N x N
-    private final byte[][] myQueenPositions; //4 x 2
-    private final byte[][] theirQueenPositions; //4 x 2
+    private final ArrayList<Queen> myQueenPositions; //4 x 2
+    private final ArrayList<Queen> theirQueenPositions; //4 x 2
 
     private static final byte maxMoves = 30; // max number of moves to reach any position
 
-    public Heuristic(byte[][] board, byte[][] myQueenPositions, byte[][] theirQueenPositions) {
-        this.board = board;
-        this.myQueenPositions = myQueenPositions;
-        this.theirQueenPositions = theirQueenPositions;
+    public Heuristic(GameBoard gameBoard, boolean isWhitePlayer) {
+        this.board = gameBoard.getMatrix();
         //TODO: should take arraylists of queen positions and convert into the 2D byte arrays
+        this.myQueenPositions = isWhitePlayer ? gameBoard.getWhiteQueens() : gameBoard.getBlackQueens();
+        this.theirQueenPositions = isWhitePlayer ? gameBoard.getBlackQueens() : gameBoard.getWhiteQueens();
+    }
+
+    //FIXME: lmao pls fix
+    public Heuristic(byte[][] board, boolean isWhitePlayer) {
+        this.board = board;
+        ArrayList<Queen> whiteQueens = new ArrayList<>();
+        ArrayList<Queen> blackQueens = new ArrayList<>();
+        for (byte row = N-1; row >= 0; row--) {
+            for (byte col = 0; col < N; col++) {
+                if(board[row][col] == WHITE_QUEEN) {
+                    //TODO: convert properly
+                    Queen q = new Queen(new byte[]{col, row}, (byte) 1);
+                    whiteQueens.add(q);
+                } else if(board[row][col] == BLACK_QUEEN) {
+                    Queen q = new Queen(new byte[]{col, row}, (byte) 1);
+                    blackQueens.add(q);
+                }
+            }
+        }
+        //TODO: should take arraylists of queen positions and convert into the 2D byte arrays
+        this.myQueenPositions = isWhitePlayer ? whiteQueens : blackQueens;
+        this.theirQueenPositions = isWhitePlayer ? blackQueens : whiteQueens;
+    }
+
+    public int getUtility() {
+//        return territoryHeuristic();
+        return (int) (1 + Math.random() * 100);
     }
 
     /**
@@ -27,13 +59,13 @@ public class Heuristic {
         byte[][] myTerritory = new byte[N][N];
         byte[][] theirTerritory = new byte[N][N];
 
-        for (byte[] queenPosition : myQueenPositions) {
-            byte[][] thisQueensTerritory = territoryHelper(queenPosition);
+        for (Queen queen : myQueenPositions) {
+            byte[][] thisQueensTerritory = territoryHelper(queen.getPosition());
             myTerritory = _addMatrix(myTerritory, thisQueensTerritory);
         }
 
-        for (byte[] queenPosition : theirQueenPositions) {
-            byte[][] thisQueensTerritory = territoryHelper(queenPosition);
+        for (Queen queen : theirQueenPositions) {
+            byte[][] thisQueensTerritory = territoryHelper(queen.getPosition());
             theirTerritory = _addMatrix(theirTerritory, thisQueensTerritory);
         }
 

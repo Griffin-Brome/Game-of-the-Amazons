@@ -6,8 +6,8 @@ public class AmazonsAIPlayerTest {
 
 	public static void main(String[] args) {
 
-		AmazonsAIPlayer p1 = new AmazonsAIPlayer(args[0], args[1], 0);
-		AmazonsAIPlayer p2 = new AmazonsAIPlayer("otherguy", "password", 0);
+		AmazonsAIPlayer p1 = new AmazonsAIPlayer(args[0], args[1], 500);
+		AmazonsAIPlayer p2 = new AmazonsAIPlayer("otherguy", "password", 500);
 //		HumanPlayer p1 = new HumanPlayer();
 //		HumanPlayer p2 = new HumanPlayer();
 

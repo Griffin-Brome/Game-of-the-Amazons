@@ -1,5 +1,7 @@
 package decision.logic;
 
+import models.Move;
+
 public interface SearchStrategy {
-    public SearchTreeNode search();
+    public Move getBestMove();
 }

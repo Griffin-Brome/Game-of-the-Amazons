@@ -15,6 +15,10 @@ public class Move {
         this.arrowPos = arrowPos;
     }
 
+    public Move() {
+        this(null, null, null);
+    }
+
     public void setOldPos(byte[] oldPos) {
         this.oldPos = oldPos;
     }

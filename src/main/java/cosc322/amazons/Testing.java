@@ -30,7 +30,7 @@ public class Testing {
 //        };
 //        byte[][] whiteQueens = {{0, 0}};
 //        byte[][] blackQueens = {{2, 2}};
-        Heuristic h = new Heuristic(fakeBoard, whiteQueens, blackQueens);
-        h.territoryHeuristic();
+//        Heuristic h = new Heuristic(fakeBoard, whiteQueens, blackQueens);
+//        h.territoryHeuristic();
     }
 }

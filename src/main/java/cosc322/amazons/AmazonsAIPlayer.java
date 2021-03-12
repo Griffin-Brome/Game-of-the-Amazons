@@ -3,6 +3,7 @@ package cosc322.amazons;
 import java.util.ArrayList;
 import java.util.Map;
 
+import decision.logic.AlphaBetaSearch;
 import models.Move;
 import ygraph.ai.smartfox.games.BaseGameGUI;
 import ygraph.ai.smartfox.games.GameClient;
@@ -145,7 +146,12 @@ public class AmazonsAIPlayer extends GamePlayer {
             ArrayList<Integer> arrowPosList = new ArrayList<>();
 
             //TODO: Import the DecisionLogic class and pass in the possible moves, that class should return the optimal move to make
-            Move move = randomMove(possibleMoves); // pick move and remove it
+            Move move = new Move();
+            for(int i = 0; i < 2; i++) {
+                AlphaBetaSearch ab = new AlphaBetaSearch(gameBoard, i, isWhitePlayer);
+                move = ab.getBestMove(); // pick move and remove it
+                System.out.println("Check");
+            }
 
             byte[] oldPos = move.getOldPos();
             byte[] newPos = move.getNewPos();
@@ -230,7 +236,7 @@ public class AmazonsAIPlayer extends GamePlayer {
     }
 
     public void connect() {
-        gameClient = new GameClient(userName, passwd, (GamePlayer) this);
+        gameClient = new GameClient(userName, passwd, this);
     }
 
     //TODO: Not too sure what these do but we should implement them properly

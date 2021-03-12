@@ -23,6 +23,14 @@ public class ActionFactoryRecursive {
         this.isWhitePlayer = isWhitePlayer;
     }
 
+    public ActionFactoryRecursive(byte[][] board, ArrayList<Queen> queens, boolean isWhitePlayer) {
+        boardMatrix = board;
+        ourQueens = queens;
+        moves = new ArrayList<>();
+
+        this.isWhitePlayer = isWhitePlayer;
+    }
+
 
     public ArrayList<Move> getPossibleMoves() {
         ArrayList<Move> moves = new ArrayList<>();

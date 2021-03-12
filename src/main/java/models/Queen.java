@@ -4,6 +4,7 @@ public class Queen extends Piece {
 
 	private boolean white;
 	private int id;
+	//TODO: refactor the 'player' byte out from all files
 
 	public Queen(byte x, byte y, byte player) {
 		super(new byte[] { x, y });

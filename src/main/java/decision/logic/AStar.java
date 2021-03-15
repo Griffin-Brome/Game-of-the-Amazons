@@ -1,14 +1,17 @@
 package decision.logic;
 
 import static utils.Constant.DIRECTIONS;
-import static utils.GameLogic.*;
-import models.Queen;
+import static utils.Constant.N;
+import static utils.GameLogic._generateNewPosition;
+import static utils.GameLogic._isValidPosition;
+
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.PriorityQueue;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.PriorityQueue;
+
+import cosc322.amazons.GameBoard;
+import models.Queen;
 
 
 /**
@@ -83,16 +86,24 @@ public class AStar {
 
 	public ArrayList<byte[]> possibleMoves(byte[] pos) {
 		ArrayList<byte[]> positions = new ArrayList<>();
-
+		
+		/**
+		 * TODO: create a different _isValidPosition to return position even if it contains a piece
+		 * this is required for us to check whether or not a queen or arrow was reached.
+		 */
 		for (byte dir : DIRECTIONS) {
 			byte[] newPos;
-			if(_isValidPosition(gameBoard.getMatrix(), newPos = _generateNewPosition(pos, dir))) {
+			if(isValidPosition(gameBoard.getMatrix(), newPos = _generateNewPosition(pos, dir))) {
 				if(!Arrays.equals(newPos, new byte[] {-1, -1}))
 					positions.add(newPos);
 			}
 		}
 
 		return positions;
+	}
+	
+	public boolean isValidPosition(byte[][] board, byte[] newPos){
+		return position[0] >= 0 && position[0] < N && position[1] >= 0 && position[1] < N;
 	}
 
 	public void addToQueue(PriorityQueue<byte[]> queue, Queen queen) {

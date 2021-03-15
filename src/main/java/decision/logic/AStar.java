@@ -87,10 +87,6 @@ public class AStar {
 	public ArrayList<byte[]> possibleMoves(byte[] pos) {
 		ArrayList<byte[]> positions = new ArrayList<>();
 		
-		/**
-		 * TODO: create a different _isValidPosition to return position even if it contains a piece
-		 * this is required for us to check whether or not a queen or arrow was reached.
-		 */
 		for (byte dir : DIRECTIONS) {
 			byte[] newPos;
 			if(isValidPosition(gameBoard.getMatrix(), newPos = _generateNewPosition(pos, dir))) {
@@ -102,7 +98,7 @@ public class AStar {
 		return positions;
 	}
 	
-	public boolean isValidPosition(byte[][] board, byte[] newPos){
+	public boolean isValidPosition(byte[][] board, byte[] position){
 		return position[0] >= 0 && position[0] < N && position[1] >= 0 && position[1] < N;
 	}
 

@@ -1,10 +1,15 @@
 package decision.logic;
 
+import static utils.Constant.DIRECTIONS;
+import static utils.GameLogic.*;
 import models.Queen;
-
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.PriorityQueue;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.PriorityQueue;
+
 
 /**
  * Represents a modified A* algorithm (https://en.wikipedia.org/wiki/A*_search_algorithm) that checks to see if a path
@@ -14,12 +19,14 @@ import java.util.PriorityQueue;
 public class AStar {
     private Queen enemy;
     private PriorityQueue<byte[]> queue;
+    private GameBoard gameBoard;
 
     /**
      * @param enemy the enemy queen that we want to check for an existing path to
      */
-    public AStar(Queen enemy){
+    public AStar(Queen enemy, GameBoard gameBoard){
         this.enemy = enemy;
+        this.gameBoard = gameBoard;
         queue = new PriorityQueue<>(1, new Comparator<byte[]>() {
             @Override
             /**
@@ -72,4 +79,25 @@ public class AStar {
            if (Arrays.equals(pos1, pos2)) return true;
        return false;
     }
+    
+
+	public ArrayList<byte[]> possibleMoves(byte[] pos) {
+		ArrayList<byte[]> positions = new ArrayList<>();
+
+		for (byte dir : DIRECTIONS) {
+			byte[] newPos;
+			if(_isValidPosition(gameBoard.getMatrix(), newPos = _generateNewPosition(pos, dir))) {
+				if(!Arrays.equals(newPos, new byte[] {-1, -1}))
+					positions.add(newPos);
+			}
+		}
+
+		return positions;
+	}
+
+	public void addToQueue(PriorityQueue<byte[]> queue, Queen queen) {
+		for(byte[] possibleMove : possibleMoves(queen.getPosition())) {
+			queue.add(possibleMove);
+		}
+	}
 }

@@ -101,6 +101,18 @@ public class GameBoard {
         int y = pos.get(1);
         return boardMatrix[x][y];
     }
+    
+    /**
+     * Removed the coordinates hashmap in favor of this function that checks the matrix directly.
+     *
+     * @param pos
+     * @return
+     */
+    public byte getOccupant(byte[] pos) {
+        byte x = pos[0];
+        byte y = pos[1];
+        return boardMatrix[x][y];
+    }
 
     /**
      * Update the matrix based on the arraylist positions received from the server
@@ -129,7 +141,7 @@ public class GameBoard {
      */
     public void updatePieces(ArrayList<Integer> currPos, ArrayList<Integer> endPos, byte piece) {
         switch (piece) {
-            //FIXME Rewrite this to just use .setPosition() instead of removing and re-adding the queen
+            //FIXME Rewrite this to just use .setPosition() instead of removing and re-adding the queen 
             case BLACK_QUEEN:
                 blackQueens.removeIf(queen -> queen.getPosition()[0] == currPos.get(0) && queen.getPosition()[1] == currPos.get(1));
                 blackQueens.add(new Queen(endPos.get(0).byteValue(), endPos.get(1).byteValue(), BLACK_QUEEN));
@@ -190,6 +202,8 @@ public class GameBoard {
      */
     public void setBoardState(ArrayList<Integer> gameState, boolean showBoard) {
         //FIXME Yikes yeah we should refactor this at some point but for now it's just legacy code that works
+    	//This could be replaced entirely with a just hard setting the values since they're always the same at the start
+    	//and gameState is never used afterwards.
         setGameState(gameState);
 
         // update coordinates of pieces
@@ -202,8 +216,7 @@ public class GameBoard {
                  * Then when sending a move message revert to (y, x) and 1 indexed since that's what the server expects
                  *
                  * This method could be replaced with a more readable and logical one,
-                 * since gamestate is only actually passed once and for all intents and purposes may as well be ignored as opposed
-                 * to trying to convert it to (x, y) and 0 indexed format as done in this call.
+                 * since gamestate is only actually passed once and for all intents and purposes may as well be ignored.
                  *
                  */
                 ArrayList<Integer> position = new ArrayList<>(Arrays.asList(x - 1, y - 1));
@@ -226,7 +239,7 @@ public class GameBoard {
             pos++;
         }
 
-        // update matrix ..
+        // update matrix 
         pos = 12;
         for (int y = ROWS - 1; y >= 0; y--) {
             for (int x = 0; x < COLS; x++) {

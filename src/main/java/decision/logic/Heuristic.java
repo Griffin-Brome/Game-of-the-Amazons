@@ -39,6 +39,27 @@ public class Heuristic {
      * Calculates the 'territory heuristic' for this board state
      * @return An integer that encodes the board territory control as a value
      */
+    public byte mobilityHeuristic() {
+        byte[][] out = new byte[N][N];
+
+        for (Queen queen : myQueenPositions) {
+            byte[] oldPos = queen.getPosition();
+            for (byte dir : DIRECTIONS) {
+                byte[] newPos = _generateNewPosition(oldPos, dir);
+                while (_isValidPosition(board, newPos)){
+                    out[newPos[0]][newPos[1]] = 1;
+                    newPos = _generateNewPosition(newPos, dir);
+                }
+            }
+        }
+
+        return (byte) _reduceMatrix(out);
+    }
+
+    /**
+     * Calculates the 'territory heuristic' for this board state
+     * @return An integer that encodes the board territory control as a value
+     */
     public int territoryHeuristic() {
         byte[][] myTerritory = new byte[N][N];
         byte[][] theirTerritory = new byte[N][N];
@@ -54,43 +75,28 @@ public class Heuristic {
         }
 
         byte[][] out = _subMatrix(myTerritory, theirTerritory);
-        _printMatrix(out);
         return _reduceMatrix(out);
     }
 
     /**
      * Helper function to recursively find the byte[][] territory() of a single queen
-     *
      * @param queenPosition the position of this queen on the board
      * @return A byte[][] representing the territory values on each square
      */
     public byte[][] territoryHelper(byte[] queenPosition) {
         byte[][] out = new byte[N][N];
-        territory(U, (byte) 1, queenPosition, out);
+        out[queenPosition[0]][queenPosition[1]] = (byte) Math.max(out[queenPosition[0]][queenPosition[1]], maxMoves);
+
+        for (byte dir : DIRECTIONS) {
+            byte[] curr = queenPosition.clone();
+            byte[] newPos = _generateNewPosition(curr, dir);
+            _territory(dir, (byte) 1, newPos, out);
+        }
         return out;
     }
 
     /**
-     * Recursively find a byte[][] territory of this queen (for the first square, i.e. the current queen's position)
-     *
-     * @param direction the direction being travelled in in this call
-     * @param moveCount the number of moves from the original queen position required to get to the current position
-     * @param currPos   the current position being visited
-     */
-    public void territory(byte direction, byte moveCount, byte[] currPos, byte[][] out) {
-        // set the value of this square (i.e. maxMove if reachable in 1 move, maxMove - 1 if reachable in 2 moves, etc)
-        out[currPos[0]][currPos[1]] = (byte) Math.max(out[currPos[0]][currPos[1]], maxMoves - moveCount);
-
-        for (byte dir : DIRECTIONS) {
-            byte[] curr = currPos.clone();
-            byte[] newPos = _generateNewPosition(curr, dir);
-            _territory(dir, moveCount, newPos, out);
-        }
-    }
-
-    /**
      * Recursively populate a byte[][] of this queen's weighted territory
-     *
      * @param direction the direction being travelled in in this call
      * @param moveCount the number of moves from the original queen position required to get to the current position
      * @param currPos   the current position being visited

@@ -98,9 +98,7 @@ public class GameLogic {
         for (byte row = 0; row < N; row++) {
             for (byte col = 0; col < N; col++) {
                 if(board[row][col] == (isWhitePlayer ? WHITE_QUEEN : BLACK_QUEEN)) {
-                    byte x = col;
-                    byte y = (byte) (N - row - 1);
-                    Queen q = new Queen(new byte[]{x, y}, (byte) 1);
+                    Queen q = new Queen(new byte[]{row, col}, (byte) 1);
                     queens.add(q);
                 }
             }

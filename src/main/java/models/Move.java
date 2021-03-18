@@ -1,9 +1,10 @@
 package models;
 
-public class Move {
+public class Move implements Comparable<Move> {
     private byte[] oldPos;
     private byte[] newPos;
     private byte[] arrowPos;
+    private byte mobility;
 
     public Move(byte[] oldPos) {
         this.oldPos = oldPos;
@@ -31,6 +32,10 @@ public class Move {
         this.arrowPos = arrowPos;
     }
 
+    public void setMobility(byte mobility) {
+        this.mobility = mobility;
+    }
+
     public byte[] getOldPos() {
         return oldPos;
     }
@@ -41,5 +46,14 @@ public class Move {
 
     public byte[] getArrowPos() {
         return arrowPos;
+    }
+
+    public byte getMobility() {
+        return mobility;
+    }
+
+    @Override
+    public int compareTo(Move m) {
+        return m.mobility - this.mobility;
     }
 }

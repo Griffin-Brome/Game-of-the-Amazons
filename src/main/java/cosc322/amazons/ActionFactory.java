@@ -1,5 +1,6 @@
 package cosc322.amazons;
 
+import decision.logic.Heuristic;
 import models.Move;
 import models.Queen;
 
@@ -9,6 +10,7 @@ import static utils.MatrixOperations.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 
 public class ActionFactory {
     private ArrayList<Queen> ourQueens;
@@ -55,11 +57,20 @@ public class ActionFactory {
                     Move move = new Move(oldPos);
                     move.setNewPos(newPos);
                     move.setArrowPos(arrowPos);
+
+                    // this code calculates the mobility heuristic of this move's future board state and stores it in the move so we can order it
+                    byte[][] tempBoard = _makeTempMove(boardMatrix, move);
+                    Heuristic h = new Heuristic(tempBoard, isWhitePlayer);
+                    move.setMobility(h.mobilityHeuristic());
+                    // okay, back to the generating moves ✨
+
                     moves.add(move);
                 }
                 newPos = _generateNewPosition(newPos, dir);
             }
         }
+        // orders the moves from "best" to "worst" based on mobility heuristic
+        Collections.sort(moves);
         return moves;
     }
 
@@ -86,4 +97,6 @@ public class ActionFactory {
 
         return tempBoard;
     }
+
+
 }

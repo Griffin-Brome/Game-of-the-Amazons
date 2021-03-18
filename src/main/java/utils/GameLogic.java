@@ -19,21 +19,21 @@ public class GameLogic {
     public static byte[] _generateNewPosition(byte[] oldPos, byte dir) {
         switch (dir) {
             case U:
-                return new byte[]{oldPos[0], ++oldPos[1]};
-            case UR:
-                return new byte[]{++oldPos[0], ++oldPos[1]};
-            case R:
-                return new byte[]{++oldPos[0], oldPos[1]};
-            case DR:
-                return new byte[]{++oldPos[0], --oldPos[1]};
-            case D:
-                return new byte[]{oldPos[0], --oldPos[1]};
-            case DL:
-                return new byte[]{--oldPos[0], --oldPos[1]};
-            case L:
                 return new byte[]{--oldPos[0], oldPos[1]};
-            case UL:
+            case UR:
                 return new byte[]{--oldPos[0], ++oldPos[1]};
+            case R:
+                return new byte[]{oldPos[0], ++oldPos[1]};
+            case DR:
+                return new byte[]{++oldPos[0], ++oldPos[1]};
+            case D:
+                return new byte[]{++oldPos[0], oldPos[1]};
+            case DL:
+                return new byte[]{++oldPos[0], --oldPos[1]};
+            case L:
+                return new byte[]{oldPos[0], --oldPos[1]};
+            case UL:
+                return new byte[]{--oldPos[0], --oldPos[1]};
             default:
                 return new byte[]{-1, -1};
         }
@@ -107,19 +107,16 @@ public class GameLogic {
         return queens;
     }
 
-    public static byte[][] _makeTempMove(byte[][] board, Move move) {
-        byte[][] newBoard = _cloneMatrix(board);
+    public static byte[][] _makeTempMove(byte[][] oldBoard, Move move) {
+        byte[][] newBoard = _cloneMatrix(oldBoard);
         byte[] oldPos = move.getOldPos();
         byte[] newPos = move.getNewPos();
         byte[] arrowPos = move.getArrowPos();
 
-
+        newBoard[oldPos[0]][oldPos[1]] = BLANK;
+        newBoard[newPos[0]][newPos[1]] = oldBoard[oldPos[0]][oldPos[1]];
+        newBoard[arrowPos[0]][arrowPos[1]] = ARROW;
 
         return newBoard;
-    }
-
-    public static byte[] _boardToMatrix(byte[] coord) {
-        return null;
-
     }
 }

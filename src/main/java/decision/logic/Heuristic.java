@@ -18,41 +18,25 @@ public class Heuristic {
 
     public Heuristic(GameBoard gameBoard, boolean isWhitePlayer) {
         this.board = gameBoard.getMatrix();
-        //TODO: should take arraylists of queen positions and convert into the 2D byte arrays
         this.myQueenPositions = isWhitePlayer ? gameBoard.getWhiteQueens() : gameBoard.getBlackQueens();
         this.theirQueenPositions = isWhitePlayer ? gameBoard.getBlackQueens() : gameBoard.getWhiteQueens();
     }
 
-    //FIXME: lmao pls fix
+    // this constructor is used for temporary board states, which are encoded as byte matrices
     public Heuristic(byte[][] board, boolean isWhitePlayer) {
         this.board = board;
-        ArrayList<Queen> whiteQueens = new ArrayList<>();
-        ArrayList<Queen> blackQueens = new ArrayList<>();
-        for (byte row = N-1; row >= 0; row--) {
-            for (byte col = 0; col < N; col++) {
-                if(board[row][col] == WHITE_QUEEN) {
-                    //TODO: convert properly
-                    Queen q = new Queen(new byte[]{col, row}, (byte) 1);
-                    whiteQueens.add(q);
-                } else if(board[row][col] == BLACK_QUEEN) {
-                    Queen q = new Queen(new byte[]{col, row}, (byte) 1);
-                    blackQueens.add(q);
-                }
-            }
-        }
-        //TODO: should take arraylists of queen positions and convert into the 2D byte arrays
-        this.myQueenPositions = isWhitePlayer ? whiteQueens : blackQueens;
-        this.theirQueenPositions = isWhitePlayer ? blackQueens : whiteQueens;
+        this.myQueenPositions = _queensFromBoard(board, isWhitePlayer);
+        this.theirQueenPositions = _queensFromBoard(board, !isWhitePlayer);
     }
 
     public int getUtility() {
-//        return territoryHeuristic();
-        return (int) (1 + Math.random() * 100);
+        return territoryHeuristic();
+        //TODO: remove this random utility thing
+//        return (int) (1 + Math.random() * 100);
     }
 
     /**
      * Calculates the 'territory heuristic' for this board state
-     *
      * @return An integer that encodes the board territory control as a value
      */
     public int territoryHeuristic() {
@@ -70,6 +54,7 @@ public class Heuristic {
         }
 
         byte[][] out = _subMatrix(myTerritory, theirTerritory);
+        _printMatrix(out);
         return _reduceMatrix(out);
     }
 

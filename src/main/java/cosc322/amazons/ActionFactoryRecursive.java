@@ -31,7 +31,6 @@ public class ActionFactoryRecursive {
         this.isWhitePlayer = isWhitePlayer;
     }
 
-
     public ArrayList<Move> getPossibleMoves() {
         ArrayList<Move> moves = new ArrayList<>();
 

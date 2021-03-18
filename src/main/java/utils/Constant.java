@@ -6,9 +6,9 @@ public class Constant {
     public static final byte WHITE_QUEEN = 1;
     public static final byte BLANK = 0;
 
-    public static final int ROWS = 10;
-    public static final int COLS = 10;
     public static final int N = 10;
+    public static final int ROWS = N;
+    public static final int COLS = N;
 
     public static final byte U = 1;
     public static final byte UR = 2;

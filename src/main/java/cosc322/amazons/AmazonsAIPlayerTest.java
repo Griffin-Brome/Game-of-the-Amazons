@@ -1,6 +1,7 @@
 package cosc322.amazons;
 
 import ygraph.ai.smartfox.games.BaseGameGUI;
+import ygraph.ai.smartfox.games.amazons.HumanPlayer;
 
 public class AmazonsAIPlayerTest {
 

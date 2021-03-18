@@ -4,6 +4,7 @@ import cosc322.amazons.ActionFactoryRecursive;
 import cosc322.amazons.GameBoard;
 import models.Move;
 import static utils.Constant.*;
+import static utils.GameLogic._makeTempMove;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -51,10 +52,9 @@ public class AlphaBetaSearch implements SearchStrategy {
         ActionFactoryRecursive af = new ActionFactoryRecursive(gameBoard, isWhitePlayer);
         Move bestMove = new Move();
         int score = 0;
-//        ArrayList<Move> testMoves = new ArrayList<Move>(Arrays.asList((Move[]) af.getPossibleMoves().toArray()));
         ArrayList<Move> testMoves = new ArrayList<>(af.getPossibleMoves());
         for (Move move : testMoves) {
-            byte[][] tempBoard = makeTempMove(gameBoard.getMatrix(), move);
+            byte[][] tempBoard = _makeTempMove(gameBoard.getMatrix(), move);
             int tempScore = alphabeta(tempBoard, 0, -Integer.MAX_VALUE, Integer.MAX_VALUE, true);
             if (tempScore >= score) {
                 bestMove = move;
@@ -65,7 +65,6 @@ public class AlphaBetaSearch implements SearchStrategy {
 
     public int alphabeta(byte[][] board, int depth, int alpha, int beta, boolean maximizingPlayer) {
         if (depth == goalDepth) { // isTerminal(board, maximizingPlayer, isWhitePlayer))
-            //TODO: should initialize with current temp board state byte[][]
             Heuristic heuristic = new Heuristic(board, isWhitePlayer);
             return heuristic.getUtility();
         }
@@ -78,7 +77,7 @@ public class AlphaBetaSearch implements SearchStrategy {
             af = new ActionFactoryRecursive(board, isWhitePlayer);
 
             for (Move move : af.getPossibleMoves()) {
-                byte[][] tempBoard = makeTempMove(board, move);
+                byte[][] tempBoard = _makeTempMove(board, move);
                 value = Math.max(value, alphabeta(tempBoard, depth + 1, alpha, beta, false));
                 alpha = Math.max(alpha, value);
                 if (alpha >= beta) {
@@ -91,7 +90,7 @@ public class AlphaBetaSearch implements SearchStrategy {
             af = new ActionFactoryRecursive(board, !isWhitePlayer);
 
             for (Move move : af.getPossibleMoves()) {
-                byte[][] tempBoard = makeTempMove(board, move);
+                byte[][] tempBoard = _makeTempMove(board, move);
                 value = Math.min(value, alphabeta(tempBoard, depth + 1, alpha, beta, true));
                 beta = Math.min(beta, value);
                 if (beta <= alpha) {
@@ -101,13 +100,6 @@ public class AlphaBetaSearch implements SearchStrategy {
             }
         }
         return value;
-    }
-
-    private byte[][] makeTempMove(byte[][] board, Move move) {
-        // TODO: make a temp move and return a new byte[][] (clone the previous board before doing anything to it!)
-        byte[][] newBoard = new byte[N][N];
-
-        return board;
     }
 
     /**

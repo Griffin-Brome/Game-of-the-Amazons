@@ -83,16 +83,6 @@ public class ActionFactory {
     }
 
 
-    public void generateArrows(byte dir, byte[][] tempBoard, byte[] currPos, ArrayList<byte[]> possibleArrows) {
-        possibleArrows.add(new byte[] {currPos[0], currPos[1]});
-
-        byte[] newPos = _generateNewPosition(currPos.clone(), dir);
-        // if the new position is valid, explore it
-        if (_isValidPosition(tempBoard, newPos))
-            generateArrows(dir, tempBoard, newPos, possibleArrows);
-    }
-
-
     public byte[][] makeTempQueenMove(byte[][] oldBoard, byte[] oldPos, byte[] newPos){
         byte[][] tempBoard = _cloneMatrix(oldBoard);
         tempBoard[oldPos[0]][oldPos[1]] = BLANK;

@@ -18,14 +18,12 @@ public class ActionFactory {
     public ActionFactory(GameBoard gameBoard, boolean isWhitePlayer) {
         boardMatrix = gameBoard.getMatrix();
         ourQueens = isWhitePlayer ? gameBoard.getWhiteQueens() : gameBoard.getBlackQueens();
-
         this.isWhitePlayer = isWhitePlayer;
     }
 
-    public ActionFactory(byte[][] board, ArrayList<Queen> queens, boolean isWhitePlayer) {
+    public ActionFactory(byte[][] board, boolean isWhitePlayer) {
         boardMatrix = board;
-        ourQueens = queens;
-
+        ourQueens = _queensFromBoard(board, isWhitePlayer);
         this.isWhitePlayer = isWhitePlayer;
     }
 
@@ -47,8 +45,6 @@ public class ActionFactory {
      * @param oldPos coordinates of current position?
      * @return the set of all possible moves from pos
      */
-
-
     public ArrayList<Move> getPossibleMoves(byte[] oldPos) {
         ArrayList<Move> moves = new ArrayList<>();
         for (byte dir : DIRECTIONS) {

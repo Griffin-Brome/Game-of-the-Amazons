@@ -69,7 +69,7 @@ public class AlphaBetaSearch implements SearchStrategy {
         }
 
         int value;
-        ActionFactoryRecursive af;
+        ActionFactory af;
 
         if (maximizingPlayer) {
             value = -Integer.MAX_VALUE;

@@ -1,8 +1,12 @@
 package utils;
 
+import models.Move;
+import models.Queen;
+
 import java.util.ArrayList;
 
 import static utils.Constant.*;
+import static utils.MatrixOperations._cloneMatrix;
 
 public class GameLogic {
     /**
@@ -80,5 +84,42 @@ public class GameLogic {
      */
     public static boolean _isOccupied(byte[][] board, byte[] position) {
         return board[position[0]][position[1]] != BLANK;
+    }
+
+    /**
+     * Read a board matrix to create a queens list based on player
+     * @param board the board matrix
+     * @param isWhitePlayer indicates if we want the white (true) or black (false) queens
+     * @return an arraylist of Queens
+     */
+    public static ArrayList<Queen> _queensFromBoard(byte[][] board, boolean isWhitePlayer) {
+        ArrayList<Queen> queens = new ArrayList<>();
+        for (byte row = 0; row < N; row++) {
+            for (byte col = 0; col < N; col++) {
+                if(board[row][col] == (isWhitePlayer ? WHITE_QUEEN : BLACK_QUEEN)) {
+                    byte x = col;
+                    byte y = (byte) (N - row - 1);
+                    Queen q = new Queen(new byte[]{x, y}, (byte) 1);
+                    queens.add(q);
+                }
+            }
+        }
+        return queens;
+    }
+
+    public static byte[][] _makeTempMove(byte[][] board, Move move) {
+        byte[][] newBoard = _cloneMatrix(board);
+        byte[] oldPos = move.getOldPos();
+        byte[] newPos = move.getNewPos();
+        byte[] arrowPos = move.getArrowPos();
+
+
+
+        return newBoard;
+    }
+
+    public static byte[] _boardToMatrix(byte[] coord) {
+        return null;
+
     }
 }

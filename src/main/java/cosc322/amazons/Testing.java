@@ -2,6 +2,8 @@ package cosc322.amazons;
 
 import decision.logic.Heuristic;
 
+import static utils.MatrixOperations._printMatrix;
+
 public class Testing {
     public static void main(String[] args) {
         testTerritoryHeuristic();
@@ -32,5 +34,6 @@ public class Testing {
 //        byte[][] blackQueens = {{2, 2}};
 //        Heuristic h = new Heuristic(fakeBoard, whiteQueens, blackQueens);
 //        h.territoryHeuristic();
+        _printMatrix(fakeBoard);
     }
 }

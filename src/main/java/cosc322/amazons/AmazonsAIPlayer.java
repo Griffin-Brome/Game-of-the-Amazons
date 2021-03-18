@@ -1,6 +1,7 @@
 package cosc322.amazons;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Map;
 
 import decision.logic.AlphaBetaSearch;
@@ -140,7 +141,7 @@ public class AmazonsAIPlayer extends GamePlayer {
         long start = System.currentTimeMillis();
         while (System.currentTimeMillis() < start + delay) ;
 
-        ActionFactoryRecursive af = new ActionFactoryRecursive(gameBoard, isWhitePlayer);
+        ActionFactory af = new ActionFactory(gameBoard, isWhitePlayer);
         ArrayList<Move> possibleMoves = af.getPossibleMoves();
 
         if (possibleMoves.isEmpty()) {
@@ -153,7 +154,7 @@ public class AmazonsAIPlayer extends GamePlayer {
 
             //TODO: Import the DecisionLogic class and pass in the possible moves, that class should return the optimal move to make
             Move move = new Move();
-            for(int i = 0; i < 2; i++) {
+            for(int i = 0; i < 1; i++) {
                 AlphaBetaSearch ab = new AlphaBetaSearch(gameBoard, i, isWhitePlayer);
                 move = ab.getBestMove(); // pick move and remove it
                 System.out.println("Check");

@@ -3,6 +3,7 @@ package decision.logic;
 import cosc322.amazons.ActionFactoryRecursive;
 import cosc322.amazons.GameBoard;
 import models.Move;
+import static utils.Constant.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -69,12 +70,15 @@ public class AlphaBetaSearch implements SearchStrategy {
             return heuristic.getUtility();
         }
 
+        int value;
+        ActionFactoryRecursive af;
+
         if (maximizingPlayer) {
-            int value = -Integer.MAX_VALUE;
-            ActionFactoryRecursive af = new ActionFactoryRecursive(gameBoard, isWhitePlayer);
+            value = -Integer.MAX_VALUE;
+            af = new ActionFactoryRecursive(board, isWhitePlayer);
+
             for (Move move : af.getPossibleMoves()) {
                 byte[][] tempBoard = makeTempMove(board, move);
-
                 value = Math.max(value, alphabeta(tempBoard, depth + 1, alpha, beta, false));
                 alpha = Math.max(alpha, value);
                 if (alpha >= beta) {
@@ -82,13 +86,12 @@ public class AlphaBetaSearch implements SearchStrategy {
                     break;
                 }
             }
-            return value;
         } else {
-            int value = Integer.MAX_VALUE;
-            ActionFactoryRecursive af = new ActionFactoryRecursive(gameBoard, !isWhitePlayer);
+            value = Integer.MAX_VALUE;
+            af = new ActionFactoryRecursive(board, !isWhitePlayer);
+
             for (Move move : af.getPossibleMoves()) {
                 byte[][] tempBoard = makeTempMove(board, move);
-
                 value = Math.min(value, alphabeta(tempBoard, depth + 1, alpha, beta, true));
                 beta = Math.min(beta, value);
                 if (beta <= alpha) {
@@ -96,12 +99,14 @@ public class AlphaBetaSearch implements SearchStrategy {
                     break;
                 }
             }
-            return value;
         }
+        return value;
     }
 
     private byte[][] makeTempMove(byte[][] board, Move move) {
         // TODO: make a temp move and return a new byte[][] (clone the previous board before doing anything to it!)
+        byte[][] newBoard = new byte[N][N];
+
         return board;
     }
 

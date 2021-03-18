@@ -23,9 +23,9 @@ public class ActionFactoryRecursive {
         this.isWhitePlayer = isWhitePlayer;
     }
 
-    public ActionFactoryRecursive(byte[][] board, ArrayList<Queen> queens, boolean isWhitePlayer) {
+    public ActionFactoryRecursive(byte[][] board, boolean isWhitePlayer) {
         boardMatrix = board;
-        ourQueens = queens;
+        ourQueens = _queensFromBoard(board, isWhitePlayer);
         moves = new ArrayList<>();
 
         this.isWhitePlayer = isWhitePlayer;

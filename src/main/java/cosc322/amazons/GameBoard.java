@@ -11,26 +11,23 @@ import static utils.GameLogic.*;
 
 /**
  * gameState from server stored in matrix :
- * <p>
- * 9        0, 0, 0, 2, 0, 0, 2, 0, 0, 0,
- * 8	    0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
- * 7	    0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
- * 6        0, 0, 0, 0, 0, 0, 0, 0, 0, 2,
- * 5	    0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
- * 4 	    0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
- * 3	    1, 0, 0, 0, 0, 0, 0, 0, 0, 1,
- * 2	    0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+ *      [Y] 0  1  2  3  4  5  6  7  8  9
+ *
+ * [X] 0    0, 0, 0, 2, 0, 0, 2, 0, 0, 0,
  * 1	    0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
- * 0        0, 0, 0, 1, 0, 0, 1, 0, 0, 0,
- * y
- * pos x    0  1  2  3  4  5  6  7  8  9
- * <p>
+ * 2	    0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+ * 3        0, 0, 0, 0, 0, 0, 0, 0, 0, 2,
+ * 4	    0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+ * 5 	    0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+ * 6	    1, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+ * 7	    0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+ * 8	    0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+ * 9        0, 0, 0, 1, 0, 0, 1, 0, 0, 0,
+
  * Where 1 represents white queen, 2 represents black queen and 3 are arrows.
  * <p>
- * Also positions sent from the server are (y, x).
- * They're stored as byte arrays in respective arraylists in (x, y) 0-indexed format.
- * All code uses (x, y) 0 indexed, we just have to make sure to send the sendMoveMessage in the
- * format the server prefers.
+ * The server thinks bottom left is [0, 0] and top right is [10, 10]
+ * We use bottom left as [9, 0] and top right as [0, 9] -> i.e. our positions correlate to the index in the matrix
  */
 public class GameBoard {
 

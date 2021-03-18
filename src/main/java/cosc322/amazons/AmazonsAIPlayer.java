@@ -11,6 +11,10 @@ import ygraph.ai.smartfox.games.GameMessage;
 import ygraph.ai.smartfox.games.GamePlayer;
 import ygraph.ai.smartfox.games.amazons.AmazonsGameMessage;
 
+import static utils.Constant.N;
+import static utils.MatrixOperations._makeMatrix;
+import static utils.MatrixOperations._printMatrix;
+
 /**
  * Basic AI player class
  *
@@ -82,6 +86,8 @@ public class AmazonsAIPlayer extends GamePlayer {
                     // initialize game board here so we can simply join a new room to play a new game without restarting the bot
                     setGameBoard(new GameBoard());
                     gamegui.setGameState((ArrayList<Integer>) msgDetails.get(AmazonsGameMessage.GAME_STATE));
+
+                    _printMatrix(_makeMatrix((ArrayList<Integer>) msgDetails.get(AmazonsGameMessage.GAME_STATE)));
                     gameBoard.setBoardState((ArrayList<Integer>) msgDetails.get(AmazonsGameMessage.GAME_STATE), false);
                     break;
 
@@ -185,41 +191,30 @@ public class AmazonsAIPlayer extends GamePlayer {
     }
 
     /**
-     * Convert from 0 indexed (x, y) to 1 indexed (y, x)
-     *
-     * @param pos
+     * Convert from matrix format (i.e. [row, col] 0 indexed) to server format
+     * @param localPos
      * @return
      */
-    public ArrayList<Integer> toServerFormat(ArrayList<Integer> pos) {
+    public ArrayList<Integer> toServerFormat(ArrayList<Integer> localPos) {
         ArrayList<Integer> serverPos = new ArrayList<>();
-        serverPos.add(pos.get(1) + 1);
-        serverPos.add(pos.get(0) + 1);
+        // for the row, we set it to be N - localPos[0] to handle the conversion
+        serverPos.add(N - localPos.get(0));
+        // column just needs to have 1 added to it
+        serverPos.add(localPos.get(1) + 1);
         return serverPos;
     }
 
     /**
-     * Convert from 1 indexed (y, x) coordinates to 0 indexed (x, y)
-     *
+     * Convert from server format to matrix format (i.e. [row, col] 0 indexed)
      * @param serverPos
      * @return
      */
     public ArrayList<Integer> toLocalFormat(ArrayList<Integer> serverPos) {
         ArrayList<Integer> pos = new ArrayList<>();
+        // for the row, we set it to be N - serverPos[0] to handle the conversion
+        pos.add(N - serverPos.get(0));
+        // column just needs to have 1 subtracted from it
         pos.add(serverPos.get(1) - 1);
-        pos.add(serverPos.get(0) - 1);
-        return pos;
-    }
-
-    /**
-     * Random move picked from list - old
-     *
-     * @param positions
-     * @return
-     */
-    public Move randomMove(ArrayList<Move> positions) {
-        int idx = (int) (Math.random() * positions.size());
-        Move pos = positions.get(idx);
-        positions.remove(idx);
         return pos;
     }
 

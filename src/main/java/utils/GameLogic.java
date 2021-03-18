@@ -9,10 +9,11 @@ public class GameLogic {
      * Generates a new coordinate position based on the direction to move in and the old coordinate position
      *
      * @param dir    the direction being travelled in
-     * @param oldPos the old coordinate position
+     * @param original the old coordinate position
      * @return A byte[] corresponding to the new coordinate position
      */
-    public static byte[] _generateNewPosition(byte[] oldPos, byte dir) {
+    public static byte[] _generateNewPosition(byte[] original, byte dir) {
+        byte[] oldPos = original.clone();
         switch (dir) {
             case U:
                 return new byte[]{oldPos[0], ++oldPos[1]};

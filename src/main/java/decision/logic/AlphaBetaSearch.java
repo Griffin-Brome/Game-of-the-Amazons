@@ -1,11 +1,10 @@
 package decision.logic;
 
-import cosc322.amazons.ActionFactoryRecursive;
+import cosc322.amazons.ActionFactory;
 import cosc322.amazons.GameBoard;
 import models.Move;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 
 /**
  * Adapted from fig. 5.7, pg.310 of Artificial Intelligence, A Modern Approach (4th Edition)
@@ -47,7 +46,7 @@ public class AlphaBetaSearch implements SearchStrategy {
      * @return
      */
     public Move getBestMove() {
-        ActionFactoryRecursive af = new ActionFactoryRecursive(gameBoard, isWhitePlayer);
+        ActionFactory af = new ActionFactory(gameBoard, isWhitePlayer);
         Move bestMove = new Move();
         int score = 0;
 //        ArrayList<Move> testMoves = new ArrayList<Move>(Arrays.asList((Move[]) af.getPossibleMoves().toArray()));
@@ -71,7 +70,7 @@ public class AlphaBetaSearch implements SearchStrategy {
 
         if (maximizingPlayer) {
             int value = -Integer.MAX_VALUE;
-            ActionFactoryRecursive af = new ActionFactoryRecursive(gameBoard, isWhitePlayer);
+            ActionFactory af = new ActionFactory(gameBoard, isWhitePlayer);
             for (Move move : af.getPossibleMoves()) {
                 byte[][] tempBoard = makeTempMove(board, move);
 
@@ -85,7 +84,7 @@ public class AlphaBetaSearch implements SearchStrategy {
             return value;
         } else {
             int value = Integer.MAX_VALUE;
-            ActionFactoryRecursive af = new ActionFactoryRecursive(gameBoard, !isWhitePlayer);
+            ActionFactory af = new ActionFactory(gameBoard, !isWhitePlayer);
             for (Move move : af.getPossibleMoves()) {
                 byte[][] tempBoard = makeTempMove(board, move);
 

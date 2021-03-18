@@ -8,25 +8,23 @@ import static utils.GameLogic.*;
 import static utils.MatrixOperations.*;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
-public class ActionFactoryRecursive {
+public class ActionFactory {
     private ArrayList<Queen> ourQueens;
     byte[][] boardMatrix;
-    ArrayList<Move> moves;
     private boolean isWhitePlayer;
 
-    public ActionFactoryRecursive(GameBoard gameBoard, boolean isWhitePlayer) {
+    public ActionFactory(GameBoard gameBoard, boolean isWhitePlayer) {
         boardMatrix = gameBoard.getMatrix();
         ourQueens = isWhitePlayer ? gameBoard.getWhiteQueens() : gameBoard.getBlackQueens();
-        moves = new ArrayList<>();
 
         this.isWhitePlayer = isWhitePlayer;
     }
 
-    public ActionFactoryRecursive(byte[][] board, ArrayList<Queen> queens, boolean isWhitePlayer) {
+    public ActionFactory(byte[][] board, ArrayList<Queen> queens, boolean isWhitePlayer) {
         boardMatrix = board;
         ourQueens = queens;
-        moves = new ArrayList<>();
 
         this.isWhitePlayer = isWhitePlayer;
     }
@@ -49,50 +47,24 @@ public class ActionFactoryRecursive {
      * @param oldPos coordinates of current position?
      * @return the set of all possible moves from pos
      */
+
+
     public ArrayList<Move> getPossibleMoves(byte[] oldPos) {
-        ArrayList<byte[]> possibleMoves = generateMovesHelper(oldPos);
-
-        for (byte[] possibleMove : possibleMoves) {
-            addMove(oldPos, possibleMove);
-        }
-
-        return moves;
-    }
-
-
-    private void addMove(byte[] oldPos, byte[] newMove) {
-        Move move = new Move(oldPos);
-        move.setNewPos(new byte[] { newMove[0], newMove[1] });
-        move.setArrowPos(new byte[] { newMove[2], newMove[3] });
-
-        moves.add(move);
-    }
-
-
-    public ArrayList<byte[]> generateMovesHelper(byte[] oldPos) {
-        ArrayList<byte[]> possibleMoves = new ArrayList<>();
-
+        ArrayList<Move> moves = new ArrayList<>();
         for (byte dir : DIRECTIONS) {
-            byte[] newPos = _generateNewPosition(oldPos.clone(), dir);
-            if (_isValidPosition(boardMatrix, newPos))
-                generateMoves(dir, oldPos, newPos, possibleMoves);
+            byte[] newPos = _generateNewPosition(oldPos, dir);
+            while (_isValidPosition(boardMatrix, newPos)){
+                ArrayList<byte[]> possibleArrows = generateArrowsHelper(oldPos,newPos);
+                for(byte[] arrowPos : possibleArrows){
+                    Move move = new Move(oldPos);
+                    move.setNewPos(newPos);
+                    move.setArrowPos(arrowPos);
+                    moves.add(move);
+                }
+                newPos = _generateNewPosition(newPos, dir);
+            }
         }
-        return possibleMoves;
-    }
-
-
-    public void generateMoves(byte dir, byte[] originalPos, byte[] currPos, ArrayList<byte[]> possibleMoves) {
-        ArrayList<byte[]> possibleArrowPositions = generateArrowsHelper(originalPos.clone(), currPos.clone());
-        for(byte[] arrowPos: possibleArrowPositions) {
-            // add the current move to the set of all possible moves
-            possibleMoves.add(new byte[] {currPos[0], currPos[1], arrowPos[0], arrowPos[1]});
-        }
-
-        byte[] newPos = _generateNewPosition(currPos.clone(), dir);
-
-        // if the new position is valid, explore it
-        if (_isValidPosition(boardMatrix, newPos))
-            generateMoves(dir, originalPos, newPos, possibleMoves);
+        return moves;
     }
 
 
@@ -101,9 +73,11 @@ public class ActionFactoryRecursive {
         byte[][] tempBoard = makeTempQueenMove(boardMatrix, oldQueenPos, newQueenPos);
 
         for (byte dir : DIRECTIONS) {
-            byte[] newPos = _generateNewPosition(newQueenPos.clone(), dir);
-            if (_isValidPosition(tempBoard, newPos))
-                generateArrows(dir, tempBoard, newPos, possibleArrows);
+            byte[] newPos = _generateNewPosition(newQueenPos, dir);
+          while(_isValidPosition(tempBoard, newPos)){
+              possibleArrows.add(newPos);
+              newPos = _generateNewPosition(newPos, dir);
+          }
         }
         return possibleArrows;
     }

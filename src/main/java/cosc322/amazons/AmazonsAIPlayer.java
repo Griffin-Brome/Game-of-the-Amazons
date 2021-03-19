@@ -88,6 +88,7 @@ public class AmazonsAIPlayer extends GamePlayer {
                 // set gui/board
                 case GameMessage.GAME_STATE_BOARD:
                     // initialize game board here so we can simply join a new room to play a new game without restarting the bot
+                    turnNumber = 0;
                     setGameBoard(new GameBoard());
                     gamegui.setGameState((ArrayList<Integer>) msgDetails.get(AmazonsGameMessage.GAME_STATE));
                     gameBoard.setBoardState((ArrayList<Integer>) msgDetails.get(AmazonsGameMessage.GAME_STATE), false);

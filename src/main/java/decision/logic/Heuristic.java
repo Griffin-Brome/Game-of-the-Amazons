@@ -15,6 +15,7 @@ public class Heuristic {
     private final ArrayList<Queen> theirQueenPositions; //4 x 2
 
     private static final byte maxMoves = 30; // max number of moves to reach any position
+    private byte maxDepth = Byte.MAX_VALUE;
 
     public Heuristic(GameBoard gameBoard, boolean isWhitePlayer) {
         this.board = gameBoard.getMatrix();
@@ -29,15 +30,21 @@ public class Heuristic {
         this.theirQueenPositions = _queensFromBoard(board, !isWhitePlayer);
     }
 
+    public Heuristic(byte[][] board, boolean isWhitePlayer, byte maxDepth) {
+        this(board, isWhitePlayer);
+        this.maxDepth = maxDepth;
+    }
+
     public int getUtility() {
-//        return territoryHeuristic();
-        return mobilityHeuristic();
+        return territoryHeuristic();
+//        return mobilityHeuristic();
         //TODO: remove this random utility thing
 //        return (int) (1 + Math.random() * 100);
     }
 
     /**
      * Calculates the 'territory heuristic' for this board state
+     *
      * @return An integer that encodes the board territory control as a value
      */
     public byte mobilityHeuristic() {
@@ -47,8 +54,8 @@ public class Heuristic {
             byte[] oldPos = queen.getPosition();
             for (byte dir : DIRECTIONS) {
                 byte[] newPos = _generateNewPosition(oldPos, dir);
-                while (_isValidPosition(board, newPos)){
-                    out[newPos[0]][newPos[1]] = 1;
+                while (_isValidPosition(board, newPos)) {
+                    ++out[newPos[0]][newPos[1]];
                     newPos = _generateNewPosition(newPos, dir);
                 }
             }
@@ -59,6 +66,7 @@ public class Heuristic {
 
     /**
      * Calculates the 'territory heuristic' for this board state
+     *
      * @return An integer that encodes the board territory control as a value
      */
     public int territoryHeuristic() {
@@ -81,6 +89,7 @@ public class Heuristic {
 
     /**
      * Helper function to recursively find the byte[][] territory() of a single queen
+     *
      * @param queenPosition the position of this queen on the board
      * @return A byte[][] representing the territory values on each square
      */
@@ -98,6 +107,7 @@ public class Heuristic {
 
     /**
      * Recursively populate a byte[][] of this queen's weighted territory
+     *
      * @param direction the direction being travelled in in this call
      * @param moveCount the number of moves from the original queen position required to get to the current position
      * @param currPos   the current position being visited
@@ -110,6 +120,7 @@ public class Heuristic {
 
         // if this current traversal didn't increase the value of this square, there's no point in continuing
         if (out[currPos[0]][currPos[1]] != maxMoves - moveCount) return;
+        if (moveCount >= this.maxDepth) return;
 
         for (byte dir : DIRECTIONS) {
             byte[] curr = currPos.clone();
@@ -118,7 +129,7 @@ public class Heuristic {
             if (dir == direction)
                 _territory(dir, moveCount, newPos, out);
             else
-                _territory(dir, (byte) (moveCount+1), newPos, out);
+                _territory(dir, (byte) (moveCount + 1), newPos, out);
         }
     }
 }

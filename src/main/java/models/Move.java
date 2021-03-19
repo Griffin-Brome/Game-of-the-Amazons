@@ -6,7 +6,7 @@ public class Move implements Comparable<Move> {
     private byte[] oldPos;
     private byte[] newPos;
     private byte[] arrowPos;
-    private byte mobility;
+    private int orderingValue;
 
     public Move(byte[] oldPos) {
         this.oldPos = oldPos;
@@ -34,8 +34,8 @@ public class Move implements Comparable<Move> {
         this.arrowPos = arrowPos;
     }
 
-    public void setMobility(byte mobility) {
-        this.mobility = mobility;
+    public void setOrderingValue(int orderingValue) {
+        this.orderingValue = orderingValue;
     }
 
     public byte[] getOldPos() {
@@ -50,13 +50,13 @@ public class Move implements Comparable<Move> {
         return arrowPos;
     }
 
-    public byte getMobility() {
-        return mobility;
+    public int setOrderingValue() {
+        return orderingValue;
     }
 
     @Override
     public int compareTo(Move m) {
-        return m.mobility - this.mobility;
+        return m.orderingValue - this.orderingValue;
     }
 
     @Override
@@ -65,7 +65,7 @@ public class Move implements Comparable<Move> {
                 "oldPos=" + Arrays.toString(oldPos) +
                 ", newPos=" + Arrays.toString(newPos) +
                 ", arrowPos=" + Arrays.toString(arrowPos) +
-                ", mobility=" + mobility +
+                ", orderingValue=" + orderingValue +
                 '}';
     }
 }

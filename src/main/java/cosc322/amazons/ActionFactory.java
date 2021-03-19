@@ -61,7 +61,7 @@ public class ActionFactory {
                     // this code calculates the mobility heuristic of this move's future board state and stores it in the move so we can order it
                     byte[][] tempBoard = _makeTempMove(boardMatrix, move);
                     Heuristic h = new Heuristic(tempBoard, isWhitePlayer);
-                    move.setMobility(h.mobilityHeuristic());
+                    move.setOrderingValue(h.mobilityHeuristic());
                     // okay, back to the generating moves ✨
 
                     moves.add(move);

@@ -32,6 +32,7 @@ public class AmazonsAIPlayer extends GamePlayer {
     private String passwd = null;
     private int delay = 0;
     private int turnNumber;
+    private boolean goHard = false;
 
     public AmazonsAIPlayer(String userName, String passwd) {
         setUserName(userName);
@@ -93,7 +94,9 @@ public class AmazonsAIPlayer extends GamePlayer {
                     break;
 
                 case GameMessage.GAME_ACTION_START:
+                    long start = System.currentTimeMillis();
                     this.handleStart(msgDetails);
+                    System.out.println("Move Time: " + (System.currentTimeMillis() - start));
                     break;
 
                 case GameMessage.GAME_ACTION_MOVE:
@@ -107,10 +110,13 @@ public class AmazonsAIPlayer extends GamePlayer {
                     gameBoard.updateBoard(queenPosCurr, queenPosNext, arrowPos);
                     gamegui.updateGameState(msgDetails);
 
+                    this.goHard = turnNumber > 7;
+                    if(goHard) System.out.println("🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥 GANG GANG ESKETIT SKRR 🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥");
+
                     // Now we make a move
-                    long start = System.currentTimeMillis();
+                    start = System.currentTimeMillis();
                     move();
-                    System.out.println("Move Time: " + (System.currentTimeMillis() - start));
+                    System.out.println("Turn Number: " + turnNumber + "\tMove Time: " + (System.currentTimeMillis() - start));
                     ++turnNumber;
                     break;
             }
@@ -157,10 +163,11 @@ public class AmazonsAIPlayer extends GamePlayer {
 
             //TODO: Import the DecisionLogic class and pass in the possible moves, that class should return the optimal move to make
             Move move = new Move();
-//            for(int i = 1; i < 2 + Math.ceil((double) turnNumber / 5); i++) {
-            for(int i = 0; i < 2; i++) {
-                AlphaBetaSearch ab = new AlphaBetaSearch(gameBoard, i, isWhitePlayer);
-                move = ab.getBestMove(); // pick move and remove it
+            int upper = 2 + turnNumber / 25;
+            for(int i = 1; i < upper; i++) {
+                byte territoryDepth = (byte) (2 + turnNumber / 15);
+                AlphaBetaSearch ab = new AlphaBetaSearch(gameBoard, i, isWhitePlayer, this.goHard, territoryDepth);
+                move = ab.getBestMove();
                 System.out.println("Check");
             }
 

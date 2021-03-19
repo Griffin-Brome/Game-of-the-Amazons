@@ -22,11 +22,9 @@ public class Testing {
                 {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
                 {0, 0, 0, 2, 0, 0, 2, 0, 0, 0}
         };
-        byte[][] whiteQueens = {{3, 0}, {0, 3}, {0, 6}, {3, 9}};
-        byte[][] blackQueens = {{6, 0}, {9, 3}, {9, 6}, {6, 9}};
 
         Heuristic h = new Heuristic(fakeBoard, true);
-        System.out.println(h.mobilityHeuristic());
+        System.out.println(h.territoryHeuristic());
 
 //        byte[][] fakeBoard = {
 //                {1, 0, 0},

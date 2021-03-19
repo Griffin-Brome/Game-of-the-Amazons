@@ -1,5 +1,7 @@
 package models;
 
+import java.util.Arrays;
+
 public class Move implements Comparable<Move> {
     private byte[] oldPos;
     private byte[] newPos;
@@ -55,5 +57,15 @@ public class Move implements Comparable<Move> {
     @Override
     public int compareTo(Move m) {
         return m.mobility - this.mobility;
+    }
+
+    @Override
+    public String toString() {
+        return "Move{" +
+                "oldPos=" + Arrays.toString(oldPos) +
+                ", newPos=" + Arrays.toString(newPos) +
+                ", arrowPos=" + Arrays.toString(arrowPos) +
+                ", mobility=" + mobility +
+                '}';
     }
 }

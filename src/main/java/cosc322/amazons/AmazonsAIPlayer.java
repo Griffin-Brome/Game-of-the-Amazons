@@ -31,14 +31,16 @@ public class AmazonsAIPlayer extends GamePlayer {
     private String userName = null;
     private String passwd = null;
     private int delay = 0;
+    private int turnNumber;
 
     public AmazonsAIPlayer(String userName, String passwd) {
         setUserName(userName);
         setPassword(passwd);
         setGameGUI(new BaseGameGUI(this));
+        turnNumber = 0;
     }
 
-    // Second constructor for if we want to pass the verbose parameter
+    // Second constructor for if we want to pass the delay parameter
     public AmazonsAIPlayer(String userName, String passwd, int delay) {
         this(userName, passwd);
         this.delay = delay;
@@ -87,7 +89,7 @@ public class AmazonsAIPlayer extends GamePlayer {
                     // initialize game board here so we can simply join a new room to play a new game without restarting the bot
                     setGameBoard(new GameBoard());
                     gamegui.setGameState((ArrayList<Integer>) msgDetails.get(AmazonsGameMessage.GAME_STATE));
-                    gameBoard.setBoardState((ArrayList<Integer>) msgDetails.get(AmazonsGameMessage.GAME_STATE), true);
+                    gameBoard.setBoardState((ArrayList<Integer>) msgDetails.get(AmazonsGameMessage.GAME_STATE), false);
                     break;
 
                 case GameMessage.GAME_ACTION_START:
@@ -106,7 +108,10 @@ public class AmazonsAIPlayer extends GamePlayer {
                     gamegui.updateGameState(msgDetails);
 
                     // Now we make a move
+                    long start = System.currentTimeMillis();
                     move();
+                    System.out.println("Move Time: " + (System.currentTimeMillis() - start));
+                    ++turnNumber;
                     break;
             }
 
@@ -152,7 +157,8 @@ public class AmazonsAIPlayer extends GamePlayer {
 
             //TODO: Import the DecisionLogic class and pass in the possible moves, that class should return the optimal move to make
             Move move = new Move();
-            for(int i = 0; i < 1; i++) {
+//            for(int i = 1; i < 2 + Math.ceil((double) turnNumber / 5); i++) {
+            for(int i = 0; i < 2; i++) {
                 AlphaBetaSearch ab = new AlphaBetaSearch(gameBoard, i, isWhitePlayer);
                 move = ab.getBestMove(); // pick move and remove it
                 System.out.println("Check");

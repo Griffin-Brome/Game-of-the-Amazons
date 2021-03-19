@@ -52,13 +52,18 @@ public class AlphaBetaSearch implements SearchStrategy {
         Move bestMove = new Move();
         int score = 0;
         ArrayList<Move> testMoves = new ArrayList<>(af.getPossibleMoves());
+//        if(testMoves.size() > 50){
+//            testMoves = new ArrayList<>(testMoves.subList(0, 50));
+//        }
         for (Move move : testMoves) {
             byte[][] tempBoard = _makeTempMove(gameBoard.getMatrix(), move);
             int tempScore = alphabeta(tempBoard, 0, -Integer.MAX_VALUE, Integer.MAX_VALUE, true);
-            if (tempScore >= score) {
+            if (tempScore > score) {
                 bestMove = move;
+                score = tempScore;
             }
         }
+        System.out.println("Score: " + score + "--" + bestMove + "--PM: " + testMoves.size());
         return bestMove;
     }
 

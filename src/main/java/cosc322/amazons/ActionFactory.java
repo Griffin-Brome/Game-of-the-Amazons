@@ -50,9 +50,9 @@ public class ActionFactory {
     public ArrayList<Move> getPossibleMoves(byte[] oldPos) {
         ArrayList<Move> moves = new ArrayList<>();
         for (byte dir : DIRECTIONS) {
-            byte[] newPos = _generateNewPosition(oldPos, dir);
+            byte[] newPos = _generateNewPosition(oldPos.clone(), dir);
             while (_isValidPosition(boardMatrix, newPos)){
-                ArrayList<byte[]> possibleArrows = generateArrowsHelper(oldPos,newPos);
+                ArrayList<byte[]> possibleArrows = generateArrowsHelper(oldPos.clone(), newPos.clone());
                 for(byte[] arrowPos : possibleArrows){
                     Move move = new Move(oldPos);
                     move.setNewPos(newPos);
@@ -66,7 +66,7 @@ public class ActionFactory {
 
                     moves.add(move);
                 }
-                newPos = _generateNewPosition(newPos, dir);
+                newPos = _generateNewPosition(newPos.clone(), dir);
             }
         }
         // orders the moves from "best" to "worst" based on mobility heuristic

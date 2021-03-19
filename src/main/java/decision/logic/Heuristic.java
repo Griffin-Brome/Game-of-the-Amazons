@@ -30,7 +30,8 @@ public class Heuristic {
     }
 
     public int getUtility() {
-        return territoryHeuristic();
+//        return territoryHeuristic();
+        return mobilityHeuristic();
         //TODO: remove this random utility thing
 //        return (int) (1 + Math.random() * 100);
     }
@@ -53,7 +54,7 @@ public class Heuristic {
             }
         }
 
-        return (byte) _reduceMatrix(out);
+        return (byte) (_reduceMatrix(out) + 1);
     }
 
     /**

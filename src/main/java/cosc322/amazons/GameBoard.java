@@ -160,6 +160,8 @@ public class GameBoard {
                 this.boardMatrix[i - 1][j - 1] = rawMatrix[i][j];
             }
         }
+        whiteQueens = _queensFromBoard(this.boardMatrix, true);
+        blackQueens = _queensFromBoard(this.boardMatrix, false);
         if (showBoard) logGameBoard();
     }
 

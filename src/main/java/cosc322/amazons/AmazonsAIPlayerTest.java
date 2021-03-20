@@ -9,7 +9,7 @@ public class AmazonsAIPlayerTest {
 
 	public static void main(String[] args) throws IOException {
 			AmazonsAIPlayer p1 = new AmazonsAIPlayer("oops", "pwd", 500);
-			AmazonsAIPlayer p2 = new AmazonsAIPlayer("otherguy", "password", true);
+			AmazonsAIPlayer p2 = new AmazonsAIPlayer("otherguy", "password");
 //		HumanPlayer p1 = new HumanPlayer();
 //		HumanPlayer p2 = new HumanPlayer();
 

@@ -114,7 +114,7 @@ public class AmazonsAIPlayer extends GamePlayer {
                     gameBoard.updateBoard(queenPosCurr, queenPosNext, arrowPos);
                     gamegui.updateGameState(msgDetails);
 
-                    this.goHard = turnNumber / 5;
+                    this.goHard =1 + turnNumber / 4;
                     //if(goHard) System.out.println("🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥 GANG GANG ESKETIT SKRR 🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥");
 
                     // Now we make a move

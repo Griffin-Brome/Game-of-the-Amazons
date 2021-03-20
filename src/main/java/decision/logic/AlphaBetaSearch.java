@@ -59,6 +59,7 @@ public class AlphaBetaSearch implements SearchStrategy {
         switch(goHard){
             case 1: allMoves = new ArrayList<>(allMoves.subList(0, 130)); break;
             case 2: allMoves = new ArrayList<>(allMoves.subList(0, 250)); break;
+            //case 3: allMoves = new ArrayList<>(allMoves.subList(0, 450)); break;
             default:
         }
 

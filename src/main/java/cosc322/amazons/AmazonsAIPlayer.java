@@ -41,7 +41,7 @@ public class AmazonsAIPlayer extends GamePlayer {
         setUserName(userName);
         setPassword(passwd);
         setGameGUI(new BaseGameGUI(this));
-        turnNumber = 0;
+        turnNumber = 1;
     }
 
     // Second constructor for if we want to pass the delay parameter
@@ -91,7 +91,7 @@ public class AmazonsAIPlayer extends GamePlayer {
                 // set gui/board
                 case GameMessage.GAME_STATE_BOARD:
                     // initialize game board here so we can simply join a new room to play a new game without restarting the bot
-                    turnNumber = 0;
+                    turnNumber = 1;
                     setGameBoard(new GameBoard());
                     gamegui.setGameState((ArrayList<Integer>) msgDetails.get(AmazonsGameMessage.GAME_STATE));
                     gameBoard.setBoardState((ArrayList<Integer>) msgDetails.get(AmazonsGameMessage.GAME_STATE), false);
@@ -121,7 +121,6 @@ public class AmazonsAIPlayer extends GamePlayer {
                     start = System.currentTimeMillis();
                     move();
                     System.out.println("Turn Number: " + turnNumber + "\tMove Time: " + (System.currentTimeMillis() - start));
-                    ++turnNumber;
                     break;
             }
 
@@ -203,6 +202,7 @@ public class AmazonsAIPlayer extends GamePlayer {
             gamegui.updateGameState(oldPosList, newPosList, arrowPosList);
 
             gameClient.sendMoveMessage(oldPosList, newPosList, arrowPosList);
+            ++turnNumber;
         }
     }
 

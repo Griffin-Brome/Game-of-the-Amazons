@@ -1,5 +1,6 @@
 package decision.logic;
 
+import cosc322.amazons.AmazonsAIPlayer;
 import cosc322.amazons.GameBoard;
 import models.Queen;
 
@@ -37,9 +38,8 @@ public class Heuristic {
 
     public int getUtility() {
         return territoryHeuristic();
-//        return mobilityHeuristic();
-        //TODO: remove this random utility thing
-//        return (int) (1 + Math.random() * 100);
+//      return mobilityHeuristic();
+//
     }
 
     /**

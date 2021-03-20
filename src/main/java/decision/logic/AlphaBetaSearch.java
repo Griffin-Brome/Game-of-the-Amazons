@@ -17,10 +17,10 @@ public class AlphaBetaSearch implements SearchStrategy {
     GameBoard gameBoard;
     int goalDepth;
     boolean isWhitePlayer;
-    boolean goHard;
+    int goHard;
     byte territoryDepth;
 
-    public AlphaBetaSearch(GameBoard gameBoard, int goalDepth, boolean isWhitePlayer, boolean goHard, byte territoryDepth) {
+    public AlphaBetaSearch(GameBoard gameBoard, int goalDepth, boolean isWhitePlayer, int goHard, byte territoryDepth) {
         this.gameBoard = gameBoard;
         this.goalDepth = goalDepth;
         this.isWhitePlayer = isWhitePlayer;
@@ -56,7 +56,12 @@ public class AlphaBetaSearch implements SearchStrategy {
         int score = 0;
 
         ArrayList<Move> allMoves = new ArrayList<>(af.getPossibleMoves());
-        if(!this.goHard) allMoves = new ArrayList<>(allMoves.subList(0, 130));
+        switch(goHard){
+            case 1: allMoves = new ArrayList<>(allMoves.subList(0, 130)); break;
+            case 2: allMoves = new ArrayList<>(allMoves.subList(0, 250)); break;
+            default:
+        }
+
 
         Move bestMove = allMoves.get(0);
 

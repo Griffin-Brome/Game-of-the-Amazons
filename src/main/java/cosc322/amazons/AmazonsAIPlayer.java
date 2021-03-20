@@ -32,7 +32,10 @@ public class AmazonsAIPlayer extends GamePlayer {
     private String passwd = null;
     private int delay = 0;
     private int turnNumber;
-    private boolean goHard = false;
+    private int goHard = 1;
+
+    int iterativeDeepeningAlpha = 25;
+    int territoryDepthAlpha = 15;
 
     public AmazonsAIPlayer(String userName, String passwd) {
         setUserName(userName);
@@ -111,8 +114,8 @@ public class AmazonsAIPlayer extends GamePlayer {
                     gameBoard.updateBoard(queenPosCurr, queenPosNext, arrowPos);
                     gamegui.updateGameState(msgDetails);
 
-                    this.goHard = turnNumber > 7;
-                    if(goHard) System.out.println("🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥 GANG GANG ESKETIT SKRR 🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥");
+                    this.goHard = turnNumber / 5;
+                    //if(goHard) System.out.println("🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥 GANG GANG ESKETIT SKRR 🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥");
 
                     // Now we make a move
                     start = System.currentTimeMillis();
@@ -164,9 +167,9 @@ public class AmazonsAIPlayer extends GamePlayer {
 
             //TODO: Import the DecisionLogic class and pass in the possible moves, that class should return the optimal move to make
             Move move = new Move();
-            int upper = 2 + turnNumber / 25;
+            int upper = 2 + turnNumber / iterativeDeepeningAlpha;
             for(int i = 1; i < upper; i++) {
-                byte territoryDepth = (byte) (2 + turnNumber / 15);
+                byte territoryDepth = (byte) (2 + turnNumber / territoryDepthAlpha);
                 AlphaBetaSearch ab = new AlphaBetaSearch(gameBoard, i, isWhitePlayer, this.goHard, territoryDepth);
                 move = ab.getBestMove();
                 System.out.println("Check");

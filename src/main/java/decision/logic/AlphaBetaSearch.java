@@ -56,7 +56,7 @@ public class AlphaBetaSearch implements SearchStrategy {
         int score = 0;
 
         ArrayList<Move> allMoves = new ArrayList<>(af.getPossibleMoves());
-        if(!this.goHard) allMoves = new ArrayList<>(allMoves.subList(0, 130));
+        if(!this.goHard) allMoves = new ArrayList<>(allMoves.subList(0, 120));
 
         Move bestMove = allMoves.get(0);
 

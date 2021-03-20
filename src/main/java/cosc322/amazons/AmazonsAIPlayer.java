@@ -164,12 +164,13 @@ public class AmazonsAIPlayer extends GamePlayer {
 
             //TODO: Import the DecisionLogic class and pass in the possible moves, that class should return the optimal move to make
             Move move = new Move();
-            int upper = 2 + turnNumber / 25;
+            int upper = 2 + Math.max((turnNumber - 18)/3, 0);
+            byte territoryDepth = (byte) (2 + Math.max((turnNumber - 20)/2, 0));
+
             for(int i = 1; i < upper; i++) {
-                byte territoryDepth = (byte) (2 + turnNumber / 15);
                 AlphaBetaSearch ab = new AlphaBetaSearch(gameBoard, i, isWhitePlayer, this.goHard, territoryDepth);
                 move = ab.getBestMove();
-                System.out.println("Check");
+                System.out.println("Check \tTerritory Depth: " + territoryDepth);
             }
 
             byte[] oldPos = move.getOldPos();

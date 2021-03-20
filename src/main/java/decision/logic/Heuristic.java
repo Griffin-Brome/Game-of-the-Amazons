@@ -36,7 +36,7 @@ public class Heuristic {
     }
 
     public int getUtility() {
-        return territoryHeuristic();
+        return 4 * territoryHeuristic() + mobilityHeuristic();
 //        return mobilityHeuristic();
         //TODO: remove this random utility thing
 //        return (int) (1 + Math.random() * 100);

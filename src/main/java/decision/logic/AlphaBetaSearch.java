@@ -13,7 +13,7 @@ import java.util.concurrent.*;
 /**
  * Adapted from fig. 5.7, pg.310 of Artificial Intelligence, A Modern Approach (4th Edition)
  */
-public class AlphaBetaSearch implements Callable<Move>{
+public class AlphaBetaSearch extends RecursiveTask<Move> {
     int alpha, beta;
     SearchTree tree;
     GameBoard gameBoard;
@@ -21,13 +21,15 @@ public class AlphaBetaSearch implements Callable<Move>{
     boolean isWhitePlayer;
     int goHard;
     byte territoryDepth;
+    ArrayList<Move> moveList;
 
-    public AlphaBetaSearch(GameBoard gameBoard, int goalDepth, boolean isWhitePlayer, int goHard, byte territoryDepth) {
+    public AlphaBetaSearch(GameBoard gameBoard, int goalDepth, boolean isWhitePlayer, int goHard, byte territoryDepth, ArrayList<Move> moveList) {
         this.gameBoard = gameBoard;
         this.goalDepth = goalDepth;
         this.isWhitePlayer = isWhitePlayer;
         this.goHard = goHard;
         this.territoryDepth = territoryDepth;
+        this.moveList = moveList;
         setAlpha(-Integer.MAX_VALUE);
         setBeta(Integer.MAX_VALUE);
 
@@ -55,12 +57,17 @@ public class AlphaBetaSearch implements Callable<Move>{
      * @return
      */
     @Override
-    public Move call() {
-        ActionFactory af = new ActionFactory(gameBoard, isWhitePlayer);
+    public Move compute() {
+        ArrayList<Move> allMoves = moveList;
+        int movesSize = allMoves.size();
+        int numThreads = 8;
+        int threshold = numThreads * 8;
         int score = 0;
+        Move bestMove = allMoves.get(0);
 
-        ArrayList<Move> allMoves = new ArrayList<>(af.getPossibleMoves());
-        switch(goHard){
+        if(movesSize > threshold) {
+
+        /*switch(goHard){
             case 1:
                 allMoves = new ArrayList<>(allMoves.subList(0, 120));
                 break;
@@ -77,22 +84,46 @@ public class AlphaBetaSearch implements Callable<Move>{
                 System.out.println("🔥🔥 Going HardER 🔥🔥");
                 break;
             default: System.out.println("🔥🔥🔥🔥 FULL POWER 🔥🔥🔥🔥");
+        }*/
+
+
+
+/*            System.out.println("Before the split");
+            System.out.println(allMoves.size() / 2);
+            System.out.println(allMoves.size() - 1);*/
+
+            ArrayList<Move> testMoves1 = new ArrayList<>(allMoves.subList(0, movesSize/numThreads));
+            ArrayList<Move> testMoves2 = new ArrayList<>(allMoves.subList(movesSize/numThreads, movesSize/numThreads*2));
+            ArrayList<Move> testMoves3 = new ArrayList<>(allMoves.subList(movesSize / numThreads*2, movesSize/numThreads*3));
+            ArrayList<Move> testMoves4 = new ArrayList<>(allMoves.subList(movesSize / numThreads*3, movesSize/numThreads*4));
+            ArrayList<Move> testMoves5 = new ArrayList<>(allMoves.subList(movesSize / numThreads*4, movesSize/numThreads*5));
+            ArrayList<Move> testMoves6 = new ArrayList<>(allMoves.subList(movesSize / numThreads*5, movesSize/numThreads*6));
+            ArrayList<Move> testMoves7 = new ArrayList<>(allMoves.subList(movesSize / numThreads*6, movesSize/numThreads*7));
+            ArrayList<Move> testMoves8 = new ArrayList<>(allMoves.subList(movesSize / numThreads*7, movesSize/numThreads*8));
+
+            AlphaBetaSearch test1 = new AlphaBetaSearch(gameBoard, goalDepth, isWhitePlayer, this.goHard, territoryDepth, testMoves1);
+            AlphaBetaSearch test2 = new AlphaBetaSearch(gameBoard, goalDepth, isWhitePlayer, this.goHard, territoryDepth, testMoves2);
+            AlphaBetaSearch test3 = new AlphaBetaSearch(gameBoard, goalDepth, isWhitePlayer, this.goHard, territoryDepth, testMoves3);
+            AlphaBetaSearch test4 = new AlphaBetaSearch(gameBoard, goalDepth, isWhitePlayer, this.goHard, territoryDepth, testMoves4);
+            AlphaBetaSearch test5 = new AlphaBetaSearch(gameBoard, goalDepth, isWhitePlayer, this.goHard, territoryDepth, testMoves5);
+            AlphaBetaSearch test6 = new AlphaBetaSearch(gameBoard, goalDepth, isWhitePlayer, this.goHard, territoryDepth, testMoves6);
+            AlphaBetaSearch test7 = new AlphaBetaSearch(gameBoard, goalDepth, isWhitePlayer, this.goHard, territoryDepth, testMoves7);
+            AlphaBetaSearch test8 = new AlphaBetaSearch(gameBoard, goalDepth, isWhitePlayer, this.goHard, territoryDepth, testMoves8);
+
+            invokeAll(test1, test2, test3, test4, test5, test6, test7, test8);
+            System.out.println("After the split");
         }
-
-
-        Move bestMove = allMoves.get(0);
-
-
-
-        for (Move move : allMoves) {
-            byte[][] tempBoard = _makeTempMove(gameBoard.getMatrix(), move);
-            int tempScore = alphabeta(tempBoard, 0, -Integer.MAX_VALUE, Integer.MAX_VALUE, true);
-            if (tempScore >= score) {
-                bestMove = move;
-                score = tempScore;
+        else{
+            for (Move move : allMoves) {
+                byte[][] tempBoard = _makeTempMove(gameBoard.getMatrix(), move);
+                int tempScore = alphabeta(tempBoard, 0, -Integer.MAX_VALUE, Integer.MAX_VALUE, true);
+                if (tempScore >= score) {
+                    bestMove = move;
+                    score = tempScore;
+                }
             }
+            System.out.println("Score: " + score + "\t" + bestMove + "\tAll Moves Size: " + allMoves.size());
         }
-        System.out.println("Score: " + score + "\t" + bestMove + "\tAll Moves Size: " + allMoves.size());
         return bestMove;
     }
 

@@ -226,13 +226,13 @@ public class AmazonsAIPlayer extends GamePlayer {
                 move = possibleMoves.get(0);
             }else {
                 int upper = 2 + turnNumber / iterativeDeepeningAlpha;
-                for (int i = 1; i < upper; i++) {
+                for (int i = 1; i < 2; i++) {
                     ForkJoinPool pool = new ForkJoinPool();
                     byte territoryDepth = (byte) (2 + turnNumber / territoryDepthAlpha);
-                    AlphaBetaSearch ab = new AlphaBetaSearch(gameBoard, i, isWhitePlayer, this.goHard, territoryDepth);
-                    ForkJoinTask<Move> movecall = pool.submit(ab);
+                    AlphaBetaSearch ab = new AlphaBetaSearch(gameBoard, i, isWhitePlayer, this.goHard, territoryDepth, possibleMoves);
+                    ForkJoinTask<Move> movecompute = pool.submit(ab);
                     System.out.println("Check");
-                    move = movecall.get();
+                    move = movecompute.get();
                 }
             }
 

@@ -4,6 +4,10 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.ForkJoinTask;
 
 import decision.logic.AlphaBetaSearch;
 import models.Move;
@@ -16,6 +20,7 @@ import ygraph.ai.smartfox.games.amazons.AmazonsGameMessage;
 import static utils.Constant.N;
 import static utils.MatrixOperations._makeMatrix;
 import static utils.MatrixOperations._printMatrix;
+
 
 /**
  * Basic AI player class
@@ -46,7 +51,7 @@ public class AmazonsAIPlayer extends GamePlayer {
     byte iterativeDeepeningAlpha = 35; //25
     byte territoryDepthAlpha = 35; //15
     public static int goHardAlpha = 10;
-    PrintWriter out = new PrintWriter(new File("C:\\Users\\novia\\Documents\\SCHOOL\\COSC322\\data.csv"));
+    PrintWriter out = new PrintWriter(new File("C:\\Users\\micha\\OneDrive\\Documents\\COSC322\\data.csv"));
 
 
     public AmazonsAIPlayer(String userName, String passwd) throws IOException {
@@ -169,7 +174,7 @@ public class AmazonsAIPlayer extends GamePlayer {
      *
      * @param msgDetails
      */
-    public void handleStart(Map<String, Object> msgDetails) {
+    public void handleStart(Map<String, Object> msgDetails) throws ExecutionException, InterruptedException {
         if (msgDetails.get(AmazonsGameMessage.PLAYER_BLACK).equals(this.userName)) {
             this.isWhitePlayer = false;
         } else if (msgDetails.get(AmazonsGameMessage.PLAYER_WHITE).equals(this.userName)) {
@@ -196,7 +201,10 @@ public class AmazonsAIPlayer extends GamePlayer {
     /**
      * Game DecisionLogic needs to be implemented here, that class should implement AlphaBeta
      */
-    public void move() {
+    public void move() throws ExecutionException, InterruptedException {
+
+
+
         long start = System.currentTimeMillis();
         while (System.currentTimeMillis() < start + delay) ;
 
@@ -219,10 +227,12 @@ public class AmazonsAIPlayer extends GamePlayer {
             }else {
                 int upper = 2 + turnNumber / iterativeDeepeningAlpha;
                 for (int i = 1; i < upper; i++) {
+                    ForkJoinPool pool = new ForkJoinPool();
                     byte territoryDepth = (byte) (2 + turnNumber / territoryDepthAlpha);
                     AlphaBetaSearch ab = new AlphaBetaSearch(gameBoard, i, isWhitePlayer, this.goHard, territoryDepth);
-                    move = ab.getBestMove();
+                    ForkJoinTask<Move> movecall = pool.submit(ab);
                     System.out.println("Check");
+                    move = movecall.get();
                 }
             }
 

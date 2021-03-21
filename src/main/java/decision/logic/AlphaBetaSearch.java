@@ -7,11 +7,13 @@ import static utils.Constant.*;
 import static utils.GameLogic._makeTempMove;
 
 import java.util.ArrayList;
+import java.util.concurrent.*;
+
 
 /**
  * Adapted from fig. 5.7, pg.310 of Artificial Intelligence, A Modern Approach (4th Edition)
  */
-public class AlphaBetaSearch implements SearchStrategy {
+public class AlphaBetaSearch implements Callable<Move>{
     int alpha, beta;
     SearchTree tree;
     GameBoard gameBoard;
@@ -28,6 +30,7 @@ public class AlphaBetaSearch implements SearchStrategy {
         this.territoryDepth = territoryDepth;
         setAlpha(-Integer.MAX_VALUE);
         setBeta(Integer.MAX_VALUE);
+
     }
 
     public int getAlpha() {
@@ -51,7 +54,8 @@ public class AlphaBetaSearch implements SearchStrategy {
      * Returns the best move
      * @return
      */
-    public Move getBestMove() {
+    @Override
+    public Move call() {
         ActionFactory af = new ActionFactory(gameBoard, isWhitePlayer);
         int score = 0;
 
@@ -77,6 +81,8 @@ public class AlphaBetaSearch implements SearchStrategy {
 
 
         Move bestMove = allMoves.get(0);
+
+
 
         for (Move move : allMoves) {
             byte[][] tempBoard = _makeTempMove(gameBoard.getMatrix(), move);
@@ -180,4 +186,6 @@ public class AlphaBetaSearch implements SearchStrategy {
         }
         return min;
     }
+
+
 }

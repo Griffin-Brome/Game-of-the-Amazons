@@ -1,9 +1,12 @@
 package models;
 
-public class Move {
+import java.util.Arrays;
+
+public class Move implements Comparable<Move> {
     private byte[] oldPos;
     private byte[] newPos;
     private byte[] arrowPos;
+    private int orderingValue;
 
     public Move(byte[] oldPos) {
         this.oldPos = oldPos;
@@ -31,6 +34,10 @@ public class Move {
         this.arrowPos = arrowPos;
     }
 
+    public void setOrderingValue(int orderingValue) {
+        this.orderingValue = orderingValue;
+    }
+
     public byte[] getOldPos() {
         return oldPos;
     }
@@ -41,5 +48,24 @@ public class Move {
 
     public byte[] getArrowPos() {
         return arrowPos;
+    }
+
+    public int setOrderingValue() {
+        return orderingValue;
+    }
+
+    @Override
+    public int compareTo(Move m) {
+        return m.orderingValue - this.orderingValue;
+    }
+
+    @Override
+    public String toString() {
+        return "Move{" +
+                "oldPos=" + Arrays.toString(oldPos) +
+                ", newPos=" + Arrays.toString(newPos) +
+                ", arrowPos=" + Arrays.toString(arrowPos) +
+                ", orderingValue=" + orderingValue +
+                '}';
     }
 }

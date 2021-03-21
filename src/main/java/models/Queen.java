@@ -2,7 +2,6 @@ package models;
 import static utils.Constant.*;
 
 public class Queen extends Piece {
-
 	private boolean white;
 	private boolean inChamber;
 	private int id;
@@ -81,5 +80,4 @@ public class Queen extends Piece {
 		return "Queen [inChamber=" + inChamber + ", white=" + white + ", " + super.toString() + "]";
 
 	}
-
 }

@@ -15,39 +15,53 @@ public class Heuristic {
     private final ArrayList<Queen> theirQueenPositions; //4 x 2
 
     private static final byte maxMoves = 30; // max number of moves to reach any position
+    private byte maxDepth = Byte.MAX_VALUE;
 
     public Heuristic(GameBoard gameBoard, boolean isWhitePlayer) {
         this.board = gameBoard.getMatrix();
-        //TODO: should take arraylists of queen positions and convert into the 2D byte arrays
         this.myQueenPositions = isWhitePlayer ? gameBoard.getWhiteQueens() : gameBoard.getBlackQueens();
         this.theirQueenPositions = isWhitePlayer ? gameBoard.getBlackQueens() : gameBoard.getWhiteQueens();
     }
 
-    //FIXME: lmao pls fix
+    // this constructor is used for temporary board states, which are encoded as byte matrices
     public Heuristic(byte[][] board, boolean isWhitePlayer) {
         this.board = board;
-        ArrayList<Queen> whiteQueens = new ArrayList<>();
-        ArrayList<Queen> blackQueens = new ArrayList<>();
-        for (byte row = N-1; row >= 0; row--) {
-            for (byte col = 0; col < N; col++) {
-                if(board[row][col] == WHITE_QUEEN) {
-                    //TODO: convert properly
-                    Queen q = new Queen(new byte[]{col, row}, (byte) 1);
-                    whiteQueens.add(q);
-                } else if(board[row][col] == BLACK_QUEEN) {
-                    Queen q = new Queen(new byte[]{col, row}, (byte) 1);
-                    blackQueens.add(q);
-                }
-            }
-        }
-        //TODO: should take arraylists of queen positions and convert into the 2D byte arrays
-        this.myQueenPositions = isWhitePlayer ? whiteQueens : blackQueens;
-        this.theirQueenPositions = isWhitePlayer ? blackQueens : whiteQueens;
+        this.myQueenPositions = _queensFromBoard(board, isWhitePlayer);
+        this.theirQueenPositions = _queensFromBoard(board, !isWhitePlayer);
+    }
+
+    public Heuristic(byte[][] board, boolean isWhitePlayer, byte maxDepth) {
+        this(board, isWhitePlayer);
+        this.maxDepth = maxDepth;
     }
 
     public int getUtility() {
-//        return territoryHeuristic();
-        return (int) (1 + Math.random() * 100);
+        return 4 * territoryHeuristic() + mobilityHeuristic();
+//        return mobilityHeuristic();
+        //TODO: remove this random utility thing
+//        return (int) (1 + Math.random() * 100);
+    }
+
+    /**
+     * Calculates the 'territory heuristic' for this board state
+     *
+     * @return An integer that encodes the board territory control as a value
+     */
+    public byte mobilityHeuristic() {
+        byte[][] out = new byte[N][N];
+
+        for (Queen queen : myQueenPositions) {
+            byte[] oldPos = queen.getPosition();
+            for (byte dir : DIRECTIONS) {
+                byte[] newPos = _generateNewPosition(oldPos, dir);
+                while (_isValidPosition(board, newPos)) {
+                    ++out[newPos[0]][newPos[1]];
+                    newPos = _generateNewPosition(newPos, dir);
+                }
+            }
+        }
+
+        return (byte) (_reduceMatrix(out) + 1);
     }
 
     /**
@@ -81,26 +95,14 @@ public class Heuristic {
      */
     public byte[][] territoryHelper(byte[] queenPosition) {
         byte[][] out = new byte[N][N];
-        territory(U, (byte) 1, queenPosition, out);
-        return out;
-    }
-
-    /**
-     * Recursively find a byte[][] territory of this queen (for the first square, i.e. the current queen's position)
-     *
-     * @param direction the direction being travelled in in this call
-     * @param moveCount the number of moves from the original queen position required to get to the current position
-     * @param currPos   the current position being visited
-     */
-    public void territory(byte direction, byte moveCount, byte[] currPos, byte[][] out) {
-        // set the value of this square (i.e. maxMove if reachable in 1 move, maxMove - 1 if reachable in 2 moves, etc)
-        out[currPos[0]][currPos[1]] = (byte) Math.max(out[currPos[0]][currPos[1]], maxMoves - moveCount);
+        out[queenPosition[0]][queenPosition[1]] = (byte) Math.max(out[queenPosition[0]][queenPosition[1]], maxMoves);
 
         for (byte dir : DIRECTIONS) {
-            byte[] curr = currPos.clone();
+            byte[] curr = queenPosition.clone();
             byte[] newPos = _generateNewPosition(curr, dir);
-            _territory(dir, moveCount, newPos, out);
+            _territory(dir, (byte) 1, newPos, out);
         }
+        return out;
     }
 
     /**
@@ -118,6 +120,7 @@ public class Heuristic {
 
         // if this current traversal didn't increase the value of this square, there's no point in continuing
         if (out[currPos[0]][currPos[1]] != maxMoves - moveCount) return;
+        if (moveCount >= this.maxDepth) return;
 
         for (byte dir : DIRECTIONS) {
             byte[] curr = currPos.clone();
@@ -126,7 +129,7 @@ public class Heuristic {
             if (dir == direction)
                 _territory(dir, moveCount, newPos, out);
             else
-                _territory(dir, (byte) (moveCount+1), newPos, out);
+                _territory(dir, (byte) (moveCount + 1), newPos, out);
         }
     }
 }

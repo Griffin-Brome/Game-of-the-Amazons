@@ -58,16 +58,22 @@ public class AlphaBetaSearch implements SearchStrategy {
         ArrayList<Move> allMoves = new ArrayList<>(af.getPossibleMoves());
         switch(goHard){
             case 1:
-                allMoves = new ArrayList<>(allMoves.subList(0, 150));
-                System.out.println("\uD83D\uDD25 Going Hard \uD83D\uDD25");
+                allMoves = new ArrayList<>(allMoves.subList(0, Math.min(allMoves.size(),150)));
                 break;
             case 2:
-                allMoves = new ArrayList<>(allMoves.subList(0, 250));
-                System.out.println("\uD83D\uDD25\uD83D\uDD25 Going HardER \uD83D\uDD25\uD83D\uDD25");
+                allMoves = new ArrayList<>(allMoves.subList(0, Math.min(allMoves.size(),250)));
+                System.out.println("🔥🔥🔥🔥 Going Hard 🔥🔥🔥🔥");
                 break;
-            //case 3: allMoves = new ArrayList<>(allMoves.subList(0, 450)); break;
+            case 3:
+                allMoves = new ArrayList<>(allMoves.subList(0, Math.min(allMoves.size(),450)));
+                System.out.println("🔥🔥🔥🔥🔥🔥Going HardER 🔥🔥🔥🔥🔥🔥🔥");
+                break;
+            case 4:
+                allMoves = new ArrayList<>(allMoves.subList(0, Math.min(allMoves.size(),750)));
+                System.out.println("🔥🔥🔥🔥🔥🔥🔥🔥 Going HardERRR 🔥🔥🔥🔥🔥🔥🔥🔥");
+                break;
             default:
-                System.out.println("\uD83D\uDD25\uD83D\uDD25\uD83D\uDD25\uD83D\uDD25 FULL POWER \uD83D\uDD25\uD83D\uDD25\uD83D\uDD25\uD83D\uDD25");
+                System.out.println("🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥 FULL POWER 🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥");
         }
 
 

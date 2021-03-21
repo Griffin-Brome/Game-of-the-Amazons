@@ -1,7 +1,6 @@
 package cosc322.amazons;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Map;
 
 import decision.logic.AlphaBetaSearch;
@@ -13,8 +12,7 @@ import ygraph.ai.smartfox.games.GamePlayer;
 import ygraph.ai.smartfox.games.amazons.AmazonsGameMessage;
 
 import static utils.Constant.N;
-import static utils.MatrixOperations._makeMatrix;
-import static utils.MatrixOperations._printMatrix;
+
 
 /**
  * Basic AI player class
@@ -166,7 +164,12 @@ public class AmazonsAIPlayer extends GamePlayer {
 
             //TODO: Import the DecisionLogic class and pass in the possible moves, that class should return the optimal move to make
             Move move = new Move();
-            int upper = 2 + turnNumber / iterativeDeepeningAlpha;
+            int upper = 2;
+
+            if(possibleMoves.size()<150){
+                upper = 3;
+            }
+
             for(int i = 1; i < upper; i++) {
                 byte territoryDepth = (byte) (2 + turnNumber / territoryDepthAlpha);
                 AlphaBetaSearch ab = new AlphaBetaSearch(gameBoard, i, isWhitePlayer, this.goHard, territoryDepth);

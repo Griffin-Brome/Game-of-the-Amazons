@@ -84,6 +84,18 @@ public class GameBoard {
         int y = pos.get(1);
         return boardMatrix[x][y];
     }
+    
+    /**
+     * Removed the coordinates hashmap in favor of this function that checks the matrix directly.
+     *
+     * @param pos
+     * @return
+     */
+    public byte getOccupant(byte[] pos) {
+        byte x = pos[0];
+        byte y = pos[1];
+        return boardMatrix[x][y];
+    }
 
     /**
      * Update the matrix based on the arraylist positions received from the server
@@ -164,7 +176,7 @@ public class GameBoard {
         blackQueens = _queensFromBoard(this.boardMatrix, false);
         if (showBoard) logGameBoard();
     }
-
+  
     public void logGameBoard() {
         System.out.println("\nCurrent Board Matrix from Server:\n------------------------------------------");
         for (int x = 0; x < ROWS; x++) {

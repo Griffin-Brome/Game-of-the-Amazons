@@ -1,5 +1,6 @@
 package models;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 
 public class Piece {
@@ -22,6 +23,14 @@ public class Piece {
      */
     public void setPosition(byte[] position) {
         this.position = position;
+    }
+
+    public void setPosition(ArrayList<Integer> position) {
+        // WARNING: hardcoded as length = 2
+        byte[] newPos = new byte[2];
+        newPos[0] = position.get(0).byteValue();
+        newPos[1] = position.get(1).byteValue();
+        setPosition(newPos);
     }
 
     /**

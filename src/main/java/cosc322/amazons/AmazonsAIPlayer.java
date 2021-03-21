@@ -1,6 +1,7 @@
 package cosc322.amazons;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Map;
 
 import decision.logic.AlphaBetaSearch;
@@ -10,6 +11,10 @@ import ygraph.ai.smartfox.games.GameClient;
 import ygraph.ai.smartfox.games.GameMessage;
 import ygraph.ai.smartfox.games.GamePlayer;
 import ygraph.ai.smartfox.games.amazons.AmazonsGameMessage;
+
+import static utils.Constant.N;
+import static utils.MatrixOperations._makeMatrix;
+import static utils.MatrixOperations._printMatrix;
 
 /**
  * Basic AI player class
@@ -26,14 +31,17 @@ public class AmazonsAIPlayer extends GamePlayer {
     private String userName = null;
     private String passwd = null;
     private int delay = 0;
+    private int turnNumber;
+    private boolean goHard = false;
 
     public AmazonsAIPlayer(String userName, String passwd) {
         setUserName(userName);
         setPassword(passwd);
         setGameGUI(new BaseGameGUI(this));
+        turnNumber = 0;
     }
 
-    // Second constructor for if we want to pass the verbose parameter
+    // Second constructor for if we want to pass the delay parameter
     public AmazonsAIPlayer(String userName, String passwd, int delay) {
         this(userName, passwd);
         this.delay = delay;
@@ -80,13 +88,16 @@ public class AmazonsAIPlayer extends GamePlayer {
                 // set gui/board
                 case GameMessage.GAME_STATE_BOARD:
                     // initialize game board here so we can simply join a new room to play a new game without restarting the bot
+                    turnNumber = 0;
                     setGameBoard(new GameBoard());
                     gamegui.setGameState((ArrayList<Integer>) msgDetails.get(AmazonsGameMessage.GAME_STATE));
                     gameBoard.setBoardState((ArrayList<Integer>) msgDetails.get(AmazonsGameMessage.GAME_STATE), false);
                     break;
 
                 case GameMessage.GAME_ACTION_START:
+                    long start = System.currentTimeMillis();
                     this.handleStart(msgDetails);
+                    System.out.println("Move Time: " + (System.currentTimeMillis() - start));
                     break;
 
                 case GameMessage.GAME_ACTION_MOVE:
@@ -100,8 +111,14 @@ public class AmazonsAIPlayer extends GamePlayer {
                     gameBoard.updateBoard(queenPosCurr, queenPosNext, arrowPos);
                     gamegui.updateGameState(msgDetails);
 
+                    this.goHard = turnNumber > 7;
+                    if(goHard) System.out.println("🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥 GANG GANG ESKETIT SKRR 🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥");
+
                     // Now we make a move
+                    start = System.currentTimeMillis();
                     move();
+                    System.out.println("Turn Number: " + turnNumber + "\tMove Time: " + (System.currentTimeMillis() - start));
+                    ++turnNumber;
                     break;
             }
 
@@ -134,9 +151,10 @@ public class AmazonsAIPlayer extends GamePlayer {
         long start = System.currentTimeMillis();
         while (System.currentTimeMillis() < start + delay) ;
 
-        ActionFactoryRecursive af = new ActionFactoryRecursive(gameBoard, isWhitePlayer);
+        ActionFactory af = new ActionFactory(gameBoard, isWhitePlayer);
         ArrayList<Move> possibleMoves = af.getPossibleMoves();
 
+        //TODO: is it a problem if we remove this? I don't think gao expects us to do this, + it means we generate possible moves twice
         if (possibleMoves.isEmpty()) {
             String player = isWhitePlayer ? "White Player" : "Black Player";
             System.out.println("Game over for " + player);
@@ -145,12 +163,14 @@ public class AmazonsAIPlayer extends GamePlayer {
             ArrayList<Integer> newPosList = new ArrayList<>();
             ArrayList<Integer> arrowPosList = new ArrayList<>();
 
-            //TODO: Import the DecisionLogic class and pass in the possible moves, that class should return the optimal move to make
             Move move = new Move();
-            for(int i = 0; i < 2; i++) {
-                AlphaBetaSearch ab = new AlphaBetaSearch(gameBoard, i, isWhitePlayer);
-                move = ab.getBestMove(); // pick move and remove it
-                System.out.println("Check");
+            int upper = 2 + Math.max((turnNumber - 18)/3, 0);
+            byte territoryDepth = (byte) (2 + Math.max((turnNumber - 20)/2, 0));
+
+            for(int i = 1; i < upper; i++) {
+                AlphaBetaSearch ab = new AlphaBetaSearch(gameBoard, i, isWhitePlayer, this.goHard, territoryDepth);
+                move = ab.getBestMove();
+                System.out.println("Check |\tUpper: " + upper + "\tTerritory Depth: " + territoryDepth);
             }
 
             byte[] oldPos = move.getOldPos();
@@ -185,41 +205,30 @@ public class AmazonsAIPlayer extends GamePlayer {
     }
 
     /**
-     * Convert from 0 indexed (x, y) to 1 indexed (y, x)
-     *
-     * @param pos
+     * Convert from matrix format (i.e. [row, col] 0 indexed) to server format
+     * @param localPos
      * @return
      */
-    public ArrayList<Integer> toServerFormat(ArrayList<Integer> pos) {
+    public ArrayList<Integer> toServerFormat(ArrayList<Integer> localPos) {
         ArrayList<Integer> serverPos = new ArrayList<>();
-        serverPos.add(pos.get(1) + 1);
-        serverPos.add(pos.get(0) + 1);
+        // for the row, we set it to be N - localPos[0] to handle the conversion
+        serverPos.add(N - localPos.get(0));
+        // column just needs to have 1 added to it
+        serverPos.add(localPos.get(1) + 1);
         return serverPos;
     }
 
     /**
-     * Convert from 1 indexed (y, x) coordinates to 0 indexed (x, y)
-     *
+     * Convert from server format to matrix format (i.e. [row, col] 0 indexed)
      * @param serverPos
      * @return
      */
     public ArrayList<Integer> toLocalFormat(ArrayList<Integer> serverPos) {
         ArrayList<Integer> pos = new ArrayList<>();
+        // for the row, we set it to be N - serverPos[0] to handle the conversion
+        pos.add(N - serverPos.get(0));
+        // column just needs to have 1 subtracted from it
         pos.add(serverPos.get(1) - 1);
-        pos.add(serverPos.get(0) - 1);
-        return pos;
-    }
-
-    /**
-     * Random move picked from list - old
-     *
-     * @param positions
-     * @return
-     */
-    public Move randomMove(ArrayList<Move> positions) {
-        int idx = (int) (Math.random() * positions.size());
-        Move pos = positions.get(idx);
-        positions.remove(idx);
         return pos;
     }
 

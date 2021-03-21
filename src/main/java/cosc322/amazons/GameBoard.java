@@ -1,45 +1,37 @@
 package cosc322.amazons;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 
 import models.Arrow;
 import models.Queen;
 
 import static utils.Constant.*;
 import static utils.GameLogic.*;
+import static utils.MatrixOperations._makeMatrix;
 
 /**
  * gameState from server stored in matrix :
- * <p>
- * 9        0, 0, 0, 2, 0, 0, 2, 0, 0, 0,
- * 8	    0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
- * 7	    0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
- * 6        0, 0, 0, 0, 0, 0, 0, 0, 0, 2,
- * 5	    0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
- * 4 	    0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
- * 3	    1, 0, 0, 0, 0, 0, 0, 0, 0, 1,
- * 2	    0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+ *      [Y] 0  1  2  3  4  5  6  7  8  9
+ *
+ * [X] 0    0, 0, 0, 2, 0, 0, 2, 0, 0, 0,
  * 1	    0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
- * 0        0, 0, 0, 1, 0, 0, 1, 0, 0, 0,
- * y
- * pos x    0  1  2  3  4  5  6  7  8  9
+ * 2	    0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+ * 3        2, 0, 0, 0, 0, 0, 0, 0, 0, 2,
+ * 4	    0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+ * 5 	    0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+ * 6	    1, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+ * 7	    0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+ * 8	    0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+ * 9        0, 0, 0, 1, 0, 0, 1, 0, 0, 0,
  * <p>
  * Where 1 represents white queen, 2 represents black queen and 3 are arrows.
- * <p>
- * Also positions sent from the server are (y, x).
- * They're stored as byte arrays in respective arraylists in (x, y) 0-indexed format.
- * All code uses (x, y) 0 indexed, we just have to make sure to send the sendMoveMessage in the
- * format the server prefers.
+ * The server thinks bottom left is [1, 1] and top right is [10, 10]
+ * We use bottom left as [9, 0] and top right as [0, 9] -> i.e. our positions correlate to the index in the matrix
  */
 public class GameBoard {
-
     // Encoding on game state from server :
-
     private ArrayList<Integer> gameState;
-
     private byte[][] boardMatrix;
-
     private ArrayList<Arrow> arrows;
     private ArrayList<Queen> whiteQueens;
     private ArrayList<Queen> blackQueens;
@@ -72,20 +64,11 @@ public class GameBoard {
             System.err.println("Cannot move to these coordinates");
         } else {
             // Determine inhabitant of tile
-            byte tileOccupant = getOccupant(currPos);
-            if (tileOccupant == BLACK_QUEEN || tileOccupant == WHITE_QUEEN) {
-                updateMatrix(currPos, endPos, tileOccupant);
-                updatePieces(currPos, endPos, tileOccupant);
+            byte piece = getOccupant(currPos);
+            if (piece == BLACK_QUEEN || piece == WHITE_QUEEN) {
+                updateQueen(currPos, endPos, piece);
             } else {
-                System.err.println("Selected tile does not contain a queen -> " + currPos + " - " + tileOccupant);
-                System.err.println("White Queens");
-                for (Queen wQueen : whiteQueens) {
-                    System.err.println(wQueen);
-                }
-                System.err.println("Black Queens");
-                for (Queen bQueen : blackQueens) {
-                    System.err.println(bQueen);
-                }
+                logGameBoard();
             }
         }
     }
@@ -93,8 +76,8 @@ public class GameBoard {
     /**
      * Removed the coordinates hashmap in favor of this function that checks the matrix directly.
      *
-     * @param pos
-     * @return
+     * @param pos the position to be checked
+     * @return the value of the piece as defined in CONSTANTS
      */
     public byte getOccupant(ArrayList<Integer> pos) {
         int x = pos.get(0);
@@ -109,7 +92,7 @@ public class GameBoard {
      * @param endPos
      * @param piece
      */
-    public void updateMatrix(ArrayList<Integer> currPos, ArrayList<Integer> endPos, byte piece) {
+    public void updateQueenInMatrix(ArrayList<Integer> currPos, ArrayList<Integer> endPos, byte piece) {
         int currX = currPos.get(0);
         int currY = currPos.get(1);
         int endX = endPos.get(0);
@@ -127,43 +110,31 @@ public class GameBoard {
      * @param endPos
      * @param piece
      */
-    public void updatePieces(ArrayList<Integer> currPos, ArrayList<Integer> endPos, byte piece) {
+    public void updateQueen(ArrayList<Integer> currPos, ArrayList<Integer> endPos, byte piece) {
         switch (piece) {
-            //FIXME Rewrite this to just use .setPosition() instead of removing and re-adding the queen
             case BLACK_QUEEN:
-                blackQueens.removeIf(queen -> queen.getPosition()[0] == currPos.get(0) && queen.getPosition()[1] == currPos.get(1));
-                blackQueens.add(new Queen(endPos.get(0).byteValue(), endPos.get(1).byteValue(), BLACK_QUEEN));
+                for (Queen queen : blackQueens) {
+                    if (queen.getPosition()[0] == currPos.get(0) && queen.getPosition()[1] == currPos.get(1)) {
+                        queen.setPosition(endPos);
+                    }
+                }
                 break;
 
             case WHITE_QUEEN:
-                whiteQueens.removeIf(queen -> queen.getPosition()[0] == currPos.get(0) && queen.getPosition()[1] == currPos.get(1));
-                whiteQueens.add(new Queen(endPos.get(0).byteValue(), endPos.get(1).byteValue(), WHITE_QUEEN));
-                break;
-
-            case ARROW:
-                arrows.add(new Arrow(endPos.get(0).byteValue(), endPos.get(1).byteValue()));
+                for (Queen queen : whiteQueens) {
+                    if (queen.getPosition()[0] == currPos.get(0) && queen.getPosition()[1] == currPos.get(1)) {
+                        queen.setPosition(endPos);
+                    }
+                }
                 break;
         }
-
+        updateQueenInMatrix(currPos, endPos, piece);
     }
-
-    /**
-     * Check if position is empty on board
-     *
-     * @param pos position to check
-     * @return whether or not the tile is occupied
-     */
-    private boolean isValid(ArrayList<Integer> pos) {
-        int x = pos.get(0);
-        int y = pos.get(1);
-        return boardMatrix[x][y] == BLANK;
-    }
-
 
     /**
      * Shoots an arrow at the position
      *
-     * @param arrowPos Coords to shoot arrow at
+     * @param arrowPos Coordinates to shoot arrow at
      */
     private void shootArrow(ArrayList<Integer> arrowPos) {
         if (!_isValidPosition(boardMatrix, arrowPos)) {
@@ -177,94 +148,41 @@ public class GameBoard {
     }
 
     /**
-     * A lot of this will not be necessary but I am not sure what will end up being
-     * best/easiest/most efficient to use during actual searches so :
-     * <p>
-     * - A simple 10x10 matrix representation of the gameState ArrayList ->
-     * boardMatrix
-     * <p>
-     * - the actual ArrayList -> gameState
+     * Initializes our boardMatrix using the integer matrix the server sends to us
      *
      * @param gameState - from server
      * @param showBoard - Whether or not to output the matrix representation to the console
      */
     public void setBoardState(ArrayList<Integer> gameState, boolean showBoard) {
-        //FIXME Yikes yeah we should refactor this at some point but for now it's just legacy code that works
-        setGameState(gameState);
-
-        // update coordinates of pieces
-        int pos = 12;
-        for (int y = ROWS; y > 0; y--) {
-            for (int x = 1; x < COLS + 1; x++) {
-                /**
-                 *
-                 * Constantly converting is super dumb - our code should only ever handle it as (x, y) and 0 indexed,
-                 * Then when sending a move message revert to (y, x) and 1 indexed since that's what the server expects
-                 *
-                 * This method could be replaced with a more readable and logical one,
-                 * since gamestate is only actually passed once and for all intents and purposes may as well be ignored as opposed
-                 * to trying to convert it to (x, y) and 0 indexed format as done in this call.
-                 *
-                 */
-                ArrayList<Integer> position = new ArrayList<>(Arrays.asList(x - 1, y - 1));
-                int occupant = gameState.get(pos);
-
-                // add to appropriate list of pieces
-                byte[] bytePos = new byte[]{position.get(0).byteValue(), position.get(1).byteValue()};
-                switch (occupant) {
-                    case BLACK_QUEEN:
-                        blackQueens.add(new Queen(bytePos, BLACK_QUEEN));
-                        break;
-                    case WHITE_QUEEN:
-                        whiteQueens.add(new Queen(bytePos, WHITE_QUEEN));
-                        break;
-                    case ARROW:
-                        arrows.add(new Arrow(bytePos));
-                }
-                pos++;
-            }
-            pos++;
-        }
-
-        // update matrix ..
-        pos = 12;
-        for (int y = ROWS - 1; y >= 0; y--) {
-            for (int x = 0; x < COLS; x++) {
-                this.boardMatrix[x][y] = gameState.get(pos++).byteValue();
-            }
-            pos++;
-        }
-
-        if (showBoard) {
-            System.out.println("\nCurrent Board Matrix from Server:\n------------------------------------------");
-            for (int y = 0; y < ROWS; y++) {
-                for (int x = 0; x < COLS; x++) {
-                    System.out.printf("(%d,%d) => %d, ", x, y, this.boardMatrix[x][y]);
-                }
-                System.out.println();
-            }
-            /* lists of pieces */
-            for (Queen wQueen : whiteQueens) {
-                System.out.println(wQueen);
-            }
-            for (Queen bQueen : blackQueens) {
-                System.out.println(bQueen);
-            }
-            for (Arrow arrow : arrows) {
-                System.out.println(arrow);
+        byte[][] rawMatrix = _makeMatrix(gameState);
+        for (int i = 1; i < 11; i++) {
+            for (int j = 1; j < 11; j++) {
+                this.boardMatrix[i - 1][j - 1] = rawMatrix[i][j];
             }
         }
+        whiteQueens = _queensFromBoard(this.boardMatrix, true);
+        blackQueens = _queensFromBoard(this.boardMatrix, false);
+        if (showBoard) logGameBoard();
     }
 
-    /**
-     * @param gameState
-     */
-    private void setGameState(ArrayList<Integer> gameState) {
-        this.gameState = gameState;
-    }
-
-    public ArrayList<Integer> getGameState() {
-        return this.gameState;
+    public void logGameBoard() {
+        System.out.println("\nCurrent Board Matrix from Server:\n------------------------------------------");
+        for (int x = 0; x < ROWS; x++) {
+            for (int y = 0; y < COLS; y++) {
+                System.out.printf("(%d,%d) => %d, ", x, y, this.boardMatrix[x][y]);
+            }
+            System.out.println();
+        }
+        /* lists of pieces */
+        for (Queen wQueen : whiteQueens) {
+            System.out.println(wQueen);
+        }
+        for (Queen bQueen : blackQueens) {
+            System.out.println(bQueen);
+        }
+        for (Arrow arrow : arrows) {
+            System.out.println(arrow);
+        }
     }
 
     public ArrayList<Queen> getBlackQueens() {

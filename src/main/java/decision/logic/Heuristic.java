@@ -51,7 +51,7 @@ public class Heuristic {
             for (byte dir : DIRECTIONS) {
                 byte[] newPos = _generateNewPosition(oldPos, dir);
                 while (_isValidPosition(board, newPos)) {
-                    ++out[newPos[0]][newPos[1]];
+                    out[newPos[0]][newPos[1]] += maxMoves - 1;
                     newPos = _generateNewPosition(newPos, dir);
                 }
             }
@@ -118,7 +118,7 @@ public class Heuristic {
         // set initial queen position to the maximum value since you're already on that block
         //TODO: isn't this trivial? all queens should cancel out -- verify this though
         out[queenPosition[0]][queenPosition[1]] = (byte) Math.max(out[queenPosition[0]][queenPosition[1]], maxMoves);
-        Queue<TerritoryState> queue = new LinkedList<>();
+        LinkedList<TerritoryState> queue = new LinkedList<>();
 
         for (byte dir : DIRECTIONS) {
             byte[] curr = queenPosition.clone();
@@ -127,7 +127,7 @@ public class Heuristic {
         }
 
         while (!queue.isEmpty()) {
-            TerritoryState curr = queue.poll();
+            TerritoryState curr = queue.removeLast();
             byte[] currPos = curr.getCurrPos();
             if (!_isValidPosition(board, curr.getCurrPos())) continue;
             // set the value of this square (i.e. maxMove if reachable in 1 move, maxMove - 1 if reachable in 2 moves, etc)

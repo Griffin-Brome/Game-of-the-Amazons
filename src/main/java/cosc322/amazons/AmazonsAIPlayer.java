@@ -164,8 +164,8 @@ public class AmazonsAIPlayer extends GamePlayer {
             ArrayList<Integer> arrowPosList = new ArrayList<>();
 
             Move move = new Move();
-            int upper = 2 + Math.max((turnNumber - 18)/3, 0);
-            byte territoryDepth = (byte) (2 + Math.max((turnNumber - 20)/2, 0));
+            int upper = 2 + Math.max((turnNumber - 18)/6, 0);
+            byte territoryDepth = (byte) (2 + Math.max((turnNumber - 20)/3, 0));
 
             for(int i = 1; i < upper; i++) {
                 AlphaBetaSearch ab = new AlphaBetaSearch(gameBoard, i, isWhitePlayer, this.goHard, territoryDepth);

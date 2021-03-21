@@ -58,18 +58,18 @@ public class AlphaBetaSearch implements SearchStrategy {
         ArrayList<Move> allMoves = new ArrayList<>(af.getPossibleMoves());
         switch(goHard){
             case 1:
-                allMoves = new ArrayList<>(allMoves.subList(0, 120));
+                allMoves = new ArrayList<>(allMoves.subList(0, Math.min(allMoves.size(), 120)));
                 break;
             case 2:
-                allMoves = new ArrayList<>(allMoves.subList(0, 200));
+                allMoves = new ArrayList<>(allMoves.subList(0, Math.min(allMoves.size(), 200)));
                 System.out.println("🔥 Going Hard 🔥");
                 break;
             case 3:
-                allMoves = new ArrayList<>(allMoves.subList(0, 450));
+                allMoves = new ArrayList<>(allMoves.subList(0, Math.min(allMoves.size(), 450)));
                 System.out.println("🔥🔥 Going HardER 🔥🔥");
                 break;
             case 4:
-                allMoves = new ArrayList<>(allMoves.subList(0, 700));
+                allMoves = new ArrayList<>(allMoves.subList(0, Math.min(allMoves.size(), 700)));
                 System.out.println("🔥🔥 Going HardER 🔥🔥");
                 break;
             default: System.out.println("🔥🔥🔥🔥 FULL POWER 🔥🔥🔥🔥");

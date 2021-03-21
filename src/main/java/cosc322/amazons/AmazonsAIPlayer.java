@@ -1,5 +1,6 @@
 package cosc322.amazons;
 
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Map;
@@ -34,10 +35,21 @@ public class AmazonsAIPlayer extends GamePlayer {
     private int turnNumber;
     private int goHard = 1;
 
-    int iterativeDeepeningAlpha = 25;
-    int territoryDepthAlpha = 15;
+    private boolean random = false;
 
-    public AmazonsAIPlayer(String userName, String passwd) {
+    public boolean isRandom() {
+        return random;
+    }
+
+
+
+    byte iterativeDeepeningAlpha = 35; //25
+    byte territoryDepthAlpha = 35; //15
+    public static int goHardAlpha = 10;
+    PrintWriter out = new PrintWriter(new File("C:\\Users\\novia\\Documents\\SCHOOL\\COSC322\\data.csv"));
+
+
+    public AmazonsAIPlayer(String userName, String passwd) throws IOException {
         setUserName(userName);
         setPassword(passwd);
         setGameGUI(new BaseGameGUI(this));
@@ -45,9 +57,15 @@ public class AmazonsAIPlayer extends GamePlayer {
     }
 
     // Second constructor for if we want to pass the delay parameter
-    public AmazonsAIPlayer(String userName, String passwd, int delay) {
+    public AmazonsAIPlayer(String userName, String passwd, int delay) throws IOException {
         this(userName, passwd);
         this.delay = delay;
+    }
+
+    public AmazonsAIPlayer(String userName, String passwd, boolean random) throws IOException {
+        this(userName, passwd);
+        this.delay = delay;
+        this.random = random;
     }
 
     /**
@@ -56,6 +74,7 @@ public class AmazonsAIPlayer extends GamePlayer {
     @Override
     public void onLogin() {
         System.out.println("Login Successful!\n");
+        out.write("-----------------NEW GAME------------------\n");
         String username = gameClient.getUserName();
         setUserName(username);
 
@@ -120,6 +139,18 @@ public class AmazonsAIPlayer extends GamePlayer {
                     // Now we make a move
                     start = System.currentTimeMillis();
                     move();
+                    if(!isRandom()) {
+                        out.print(turnNumber);
+                        out.print(',');
+                        out.print(goHardAlpha);
+                        out.print(',');
+                        out.print(iterativeDeepeningAlpha);
+                        out.print(',');
+                        out.print(territoryDepthAlpha);
+                        out.print(',');
+                        out.print((System.currentTimeMillis() - start));
+                        out.print('\n');
+                    }
                     System.out.println("Turn Number: " + turnNumber + "\tMove Time: " + (System.currentTimeMillis() - start));
                     break;
             }
@@ -127,6 +158,7 @@ public class AmazonsAIPlayer extends GamePlayer {
         } catch (Exception e) {
             System.out.println("Something went wrong handling a game message from the server:");
             e.printStackTrace();
+            out.close();
         }
         return false;
     }
@@ -142,7 +174,22 @@ public class AmazonsAIPlayer extends GamePlayer {
             this.isWhitePlayer = false;
         } else if (msgDetails.get(AmazonsGameMessage.PLAYER_WHITE).equals(this.userName)) {
             this.isWhitePlayer = true;
+            long start = System.currentTimeMillis();
             move();
+            if(!isRandom()) {
+                out.print(turnNumber);
+                out.print(',');
+                out.print(goHardAlpha);
+                out.print(',');
+                out.print(iterativeDeepeningAlpha);
+                out.print(',');
+                out.print(territoryDepthAlpha);
+                out.print(',');
+                out.print((System.currentTimeMillis() - start));
+                out.print('\n');
+            }
+            System.out.println("START TIME:"+(System.currentTimeMillis()-start));
+
         }
     }
 
@@ -159,6 +206,7 @@ public class AmazonsAIPlayer extends GamePlayer {
         if (possibleMoves.isEmpty()) {
             String player = isWhitePlayer ? "White Player" : "Black Player";
             System.out.println("Game over for " + player);
+            out.close();
         } else {
             ArrayList<Integer> oldPosList = new ArrayList<>();
             ArrayList<Integer> newPosList = new ArrayList<>();
@@ -166,18 +214,23 @@ public class AmazonsAIPlayer extends GamePlayer {
 
             //TODO: Import the DecisionLogic class and pass in the possible moves, that class should return the optimal move to make
             Move move = new Move();
-            int upper = 2 + turnNumber / iterativeDeepeningAlpha;
-            for(int i = 1; i < upper; i++) {
-                byte territoryDepth = (byte) (2 + turnNumber / territoryDepthAlpha);
-                AlphaBetaSearch ab = new AlphaBetaSearch(gameBoard, i, isWhitePlayer, this.goHard, territoryDepth);
-                move = ab.getBestMove();
-                System.out.println("Check");
+            if(isRandom()){
+                move = possibleMoves.get(0);
+            }else {
+                int upper = 2 + turnNumber / iterativeDeepeningAlpha;
+                for (int i = 1; i < upper; i++) {
+                    byte territoryDepth = (byte) (2 + turnNumber / territoryDepthAlpha);
+                    AlphaBetaSearch ab = new AlphaBetaSearch(gameBoard, i, isWhitePlayer, this.goHard, territoryDepth);
+                    move = ab.getBestMove();
+                    System.out.println("Check");
+                }
             }
 
             byte[] oldPos = move.getOldPos();
             byte[] newPos = move.getNewPos();
             byte[] arrowPos = move.getArrowPos();
 
+            out.print(possibleMoves.size());
             // old position of the moving queen
             oldPosList.add((int) oldPos[0]);
             oldPosList.add((int) oldPos[1]);

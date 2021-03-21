@@ -154,6 +154,7 @@ public class AmazonsAIPlayer extends GamePlayer {
         ActionFactory af = new ActionFactory(gameBoard, isWhitePlayer);
         ArrayList<Move> possibleMoves = af.getPossibleMoves();
 
+        //TODO: is it a problem if we remove this? I don't think gao expects us to do this, + it means we generate possible moves twice
         if (possibleMoves.isEmpty()) {
             String player = isWhitePlayer ? "White Player" : "Black Player";
             System.out.println("Game over for " + player);
@@ -162,7 +163,6 @@ public class AmazonsAIPlayer extends GamePlayer {
             ArrayList<Integer> newPosList = new ArrayList<>();
             ArrayList<Integer> arrowPosList = new ArrayList<>();
 
-            //TODO: Import the DecisionLogic class and pass in the possible moves, that class should return the optimal move to make
             Move move = new Move();
             int upper = 2 + Math.max((turnNumber - 18)/3, 0);
             byte territoryDepth = (byte) (2 + Math.max((turnNumber - 20)/2, 0));
@@ -170,7 +170,7 @@ public class AmazonsAIPlayer extends GamePlayer {
             for(int i = 1; i < upper; i++) {
                 AlphaBetaSearch ab = new AlphaBetaSearch(gameBoard, i, isWhitePlayer, this.goHard, territoryDepth);
                 move = ab.getBestMove();
-                System.out.println("Check \tTerritory Depth: " + territoryDepth);
+                System.out.println("Check |\tUpper: " + upper + "\tTerritory Depth: " + territoryDepth);
             }
 
             byte[] oldPos = move.getOldPos();

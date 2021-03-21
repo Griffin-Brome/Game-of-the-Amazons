@@ -58,7 +58,7 @@ public class AlphaBetaSearch implements SearchStrategy {
         ArrayList<Move> allMoves = new ArrayList<>(af.getPossibleMoves());
         switch(goHard){
             case 1:
-                allMoves = new ArrayList<>(allMoves.subList(0, Math.min(allMoves.size(), 120)));
+                allMoves = new ArrayList<>(allMoves.subList(0, Math.min(allMoves.size(), 100)));
                 break;
             case 2:
                 allMoves = new ArrayList<>(allMoves.subList(0, Math.min(allMoves.size(), 200)));

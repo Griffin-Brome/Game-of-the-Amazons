@@ -35,18 +35,16 @@ public class AmazonsAIPlayer extends GamePlayer {
     private int turnNumber;
     private int goHard = 1;
 
-    private boolean random = false;
+    private boolean random;
 
     public boolean isRandom() {
         return random;
     }
 
-
-
     byte iterativeDeepeningAlpha = 35; //25
     byte territoryDepthAlpha = 35; //15
     public static int goHardAlpha = 4;
-    PrintWriter out = new PrintWriter(new File("C:\\Users\\novia\\Documents\\SCHOOL\\COSC322\\data.csv"));
+    PrintWriter out = new PrintWriter(new File("C:\\Users\\novia\\Documents\\SCHOOL\\COSC322\\data-"+System.currentTimeMillis()+".csv"));
 
 
     public AmazonsAIPlayer(String userName, String passwd) throws IOException {
@@ -139,18 +137,6 @@ public class AmazonsAIPlayer extends GamePlayer {
                     // Now we make a move
                     start = System.currentTimeMillis();
                     move();
-                    if(!isRandom()) {
-                        out.print(turnNumber);
-                        out.print(',');
-                        out.print(goHardAlpha);
-                        out.print(',');
-                        out.print(iterativeDeepeningAlpha);
-                        out.print(',');
-                        out.print(territoryDepthAlpha);
-                        out.print(',');
-                        out.print((System.currentTimeMillis() - start));
-                        out.print('\n');
-                    }
                     System.out.println("Turn Number: " + turnNumber + "\tMove Time: " + (System.currentTimeMillis() - start));
                     break;
             }
@@ -176,18 +162,6 @@ public class AmazonsAIPlayer extends GamePlayer {
             this.isWhitePlayer = true;
             long start = System.currentTimeMillis();
             move();
-            if(!isRandom()) {
-                out.print(turnNumber);
-                out.print(',');
-                out.print(goHardAlpha);
-                out.print(',');
-                out.print(iterativeDeepeningAlpha);
-                out.print(',');
-                out.print(territoryDepthAlpha);
-                out.print(',');
-                out.print((System.currentTimeMillis() - start));
-                out.print('\n');
-            }
             System.out.println("START TIME:"+(System.currentTimeMillis()-start));
 
         }
@@ -198,7 +172,7 @@ public class AmazonsAIPlayer extends GamePlayer {
      */
     public void move() {
         long start = System.currentTimeMillis();
-        while (System.currentTimeMillis() < start + delay) ;
+        //while (System.currentTimeMillis() < start + delay) ;
 
         ActionFactory af = new ActionFactory(gameBoard, isWhitePlayer);
         ArrayList<Move> possibleMoves = af.getPossibleMoves();
@@ -230,7 +204,6 @@ public class AmazonsAIPlayer extends GamePlayer {
             byte[] newPos = move.getNewPos();
             byte[] arrowPos = move.getArrowPos();
 
-            out.print(possibleMoves.size());
             // old position of the moving queen
             oldPosList.add((int) oldPos[0]);
             oldPosList.add((int) oldPos[1]);
@@ -255,6 +228,29 @@ public class AmazonsAIPlayer extends GamePlayer {
             gamegui.updateGameState(oldPosList, newPosList, arrowPosList);
 
             gameClient.sendMoveMessage(oldPosList, newPosList, arrowPosList);
+
+            if(!isRandom()) {
+                out.print(turnNumber);
+                out.print(',');
+                out.print(possibleMoves.size());
+                out.print(',');
+                out.print(goHardAlpha);
+                out.print(',');
+                out.print(iterativeDeepeningAlpha);
+                out.print(',');
+                out.print(territoryDepthAlpha);
+                out.print(',');
+                out.print((System.currentTimeMillis() - start));
+                out.print('\n');
+            }
+
+            ActionFactory ahfuck = new ActionFactory(gameBoard, !isWhitePlayer);
+            ArrayList<Move> bruh = ahfuck.getPossibleMoves();
+            if (bruh.isEmpty()) {
+                String player = isWhitePlayer ? "White Player" : "Black Player";
+                System.out.println("Game over for " + player);
+                out.close();
+            }
             ++turnNumber;
         }
     }

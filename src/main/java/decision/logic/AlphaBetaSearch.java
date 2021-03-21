@@ -65,11 +65,11 @@ public class AlphaBetaSearch implements SearchStrategy {
                 System.out.println("🔥 Going Hard 🔥");
                 break;
             case 3:
-                allMoves = new ArrayList<>(allMoves.subList(0, Math.min(allMoves.size(), 450)));
+                allMoves = new ArrayList<>(allMoves.subList(0, Math.min(allMoves.size(), 400)));
                 System.out.println("🔥🔥 Going HardER 🔥🔥");
                 break;
             case 4:
-                allMoves = new ArrayList<>(allMoves.subList(0, Math.min(allMoves.size(), 700)));
+                allMoves = new ArrayList<>(allMoves.subList(0, Math.min(allMoves.size(), 600)));
                 System.out.println("🔥🔥 Going HardER 🔥🔥");
                 break;
             default: System.out.println("🔥🔥🔥🔥 FULL POWER 🔥🔥🔥🔥");

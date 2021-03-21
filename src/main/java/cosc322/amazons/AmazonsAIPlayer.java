@@ -45,7 +45,7 @@ public class AmazonsAIPlayer extends GamePlayer {
 
     byte iterativeDeepeningAlpha = 35; //25
     byte territoryDepthAlpha = 35; //15
-    public static int goHardAlpha = 10;
+    public static int goHardAlpha = 4;
     PrintWriter out = new PrintWriter(new File("C:\\Users\\novia\\Documents\\SCHOOL\\COSC322\\data.csv"));
 
 
@@ -133,7 +133,7 @@ public class AmazonsAIPlayer extends GamePlayer {
                     gameBoard.updateBoard(queenPosCurr, queenPosNext, arrowPos);
                     gamegui.updateGameState(msgDetails);
 
-                    this.goHard =1 + turnNumber / 4;
+                    this.goHard =1 + turnNumber / goHardAlpha;
                     //if(goHard) System.out.println("🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥 GANG GANG ESKETIT SKRR 🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥");
 
                     // Now we make a move

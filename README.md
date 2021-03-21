@@ -1,4 +1,15 @@
-# COSC322 - AI Project - Game of Amazons
+# Game of Amazons
+
+COSC322 Group 21
+- Opey Adeyemi
+- Griffin Brome
+- Michael Crouse
+- Novia Fan
+- Thomas Van De Crommenacker
+
+## Installation
+This project requires [Apache Maven](https://maven.apache.org/). Install its dependancies with the goals: `clean compile install`.
+
 
 ## Bibliography
 1. N. Gorski "Artificial Intelligence and Combinatorial Game Theory" [online].

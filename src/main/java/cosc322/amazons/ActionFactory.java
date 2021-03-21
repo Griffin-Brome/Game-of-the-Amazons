@@ -37,6 +37,9 @@ public class ActionFactory {
             moves.addAll(getPossibleMoves(queen.getPosition()));
         }
 
+        // orders the moves from "best" to "worst" based on mobility heuristic
+        Collections.sort(moves);
+
         return moves;
     }
 
@@ -69,8 +72,6 @@ public class ActionFactory {
                 newPos = _generateNewPosition(newPos.clone(), dir);
             }
         }
-        // orders the moves from "best" to "worst" based on mobility heuristic
-        Collections.sort(moves);
         return moves;
     }
 

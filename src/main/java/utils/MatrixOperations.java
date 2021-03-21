@@ -6,9 +6,9 @@ import static utils.Constant.N;
 
 public class MatrixOperations {
     public static void _printMatrix(byte[][] mat) {
-        for (byte row = 0; row < mat.length; row++) {
+        for (byte[] bytes : mat) {
             for (byte col = 0; col < mat[0].length; col++) {
-                System.out.print(mat[row][col] + "\t\t");
+                System.out.print(bytes[col] + "\t\t");
             }
             System.out.println();
         }
@@ -16,21 +16,23 @@ public class MatrixOperations {
     }
 
     /**
-     * Adds 2 equal sized N x N matrices without modifying their original values
+     * Adds any number of equal sized N x N matrices, returning the total matrix, without modifying any original values
+     * [computes a cell-by-cell addition]
      *
-     * @param a the first byte matrix
-     * @param b the second byte matrix
-     * @return A matrix equal to a+b
+     * @param matrices a list of all matrices to sum
+     * @return A matrix equal to sum(all matrices)
      */
-    public static byte[][] _addMatrix(byte[][] a, byte[][] b) {
+    public static byte[][] _addMatrix(byte[][]... matrices) {
         //assume a and b are the same size, N x N
-        byte[][] c = new byte[N][N];
+        byte[][] out = new byte[N][N];
         for (byte row = 0; row < N; row++) {
             for (byte col = 0; col < N; col++) {
-                c[row][col] = (byte) (a[row][col] + b[row][col]);
+                for(byte[][] matrix: matrices){
+                    out[row][col] += matrix[row][col];
+                }
             }
         }
-        return c;
+        return out;
     }
 
     /**

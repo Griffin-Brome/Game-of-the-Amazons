@@ -1,7 +1,6 @@
 package cosc322.amazons;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Map;
 
 import decision.logic.AlphaBetaSearch;
@@ -13,8 +12,7 @@ import ygraph.ai.smartfox.games.GamePlayer;
 import ygraph.ai.smartfox.games.amazons.AmazonsGameMessage;
 
 import static utils.Constant.N;
-import static utils.MatrixOperations._makeMatrix;
-import static utils.MatrixOperations._printMatrix;
+
 
 /**
  * Basic AI player class
@@ -32,13 +30,16 @@ public class AmazonsAIPlayer extends GamePlayer {
     private String passwd = null;
     private int delay = 0;
     private int turnNumber;
-    private boolean goHard = false;
+    private int goHard = 1;
+
+    int iterativeDeepeningAlpha = 25;
+    int territoryDepthAlpha = 15;
 
     public AmazonsAIPlayer(String userName, String passwd) {
         setUserName(userName);
         setPassword(passwd);
         setGameGUI(new BaseGameGUI(this));
-        turnNumber = 0;
+        turnNumber = 1;
     }
 
     // Second constructor for if we want to pass the delay parameter
@@ -88,7 +89,7 @@ public class AmazonsAIPlayer extends GamePlayer {
                 // set gui/board
                 case GameMessage.GAME_STATE_BOARD:
                     // initialize game board here so we can simply join a new room to play a new game without restarting the bot
-                    turnNumber = 0;
+                    turnNumber = 1;
                     setGameBoard(new GameBoard());
                     gamegui.setGameState((ArrayList<Integer>) msgDetails.get(AmazonsGameMessage.GAME_STATE));
                     gameBoard.setBoardState((ArrayList<Integer>) msgDetails.get(AmazonsGameMessage.GAME_STATE), false);
@@ -111,14 +112,13 @@ public class AmazonsAIPlayer extends GamePlayer {
                     gameBoard.updateBoard(queenPosCurr, queenPosNext, arrowPos);
                     gamegui.updateGameState(msgDetails);
 
-                    this.goHard = turnNumber > 7;
-                    if(goHard) System.out.println("🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥 GANG GANG ESKETIT SKRR 🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥");
+                    this.goHard =1 + turnNumber / 4;
+                    //if(goHard) System.out.println("🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥 GANG GANG ESKETIT SKRR 🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥");
 
                     // Now we make a move
                     start = System.currentTimeMillis();
                     move();
                     System.out.println("Turn Number: " + turnNumber + "\tMove Time: " + (System.currentTimeMillis() - start));
-                    ++turnNumber;
                     break;
             }
 
@@ -164,8 +164,13 @@ public class AmazonsAIPlayer extends GamePlayer {
             ArrayList<Integer> arrowPosList = new ArrayList<>();
 
             Move move = new Move();
-            int upper = 2 + Math.max((turnNumber - 18)/6, 0);
-            byte territoryDepth = (byte) (2 + Math.max((turnNumber - 20)/3, 0));
+            int upper = 2;
+
+            if(possibleMoves.size()<150){
+                upper = 3;
+            }
+
+            byte territoryDepth = (byte) (2 + turnNumber / territoryDepthAlpha);
 
             for(int i = 1; i < upper; i++) {
                 AlphaBetaSearch ab = new AlphaBetaSearch(gameBoard, i, isWhitePlayer, this.goHard, territoryDepth);
@@ -201,6 +206,7 @@ public class AmazonsAIPlayer extends GamePlayer {
             gamegui.updateGameState(oldPosList, newPosList, arrowPosList);
 
             gameClient.sendMoveMessage(oldPosList, newPosList, arrowPosList);
+            ++turnNumber;
         }
     }
 

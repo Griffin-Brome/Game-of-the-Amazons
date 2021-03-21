@@ -17,10 +17,10 @@ public class AlphaBetaSearch implements SearchStrategy {
     GameBoard gameBoard;
     int goalDepth;
     boolean isWhitePlayer;
-    boolean goHard;
+    int goHard;
     byte territoryDepth;
 
-    public AlphaBetaSearch(GameBoard gameBoard, int goalDepth, boolean isWhitePlayer, boolean goHard, byte territoryDepth) {
+    public AlphaBetaSearch(GameBoard gameBoard, int goalDepth, boolean isWhitePlayer, int goHard, byte territoryDepth) {
         this.gameBoard = gameBoard;
         this.goalDepth = goalDepth;
         this.isWhitePlayer = isWhitePlayer;
@@ -56,7 +56,26 @@ public class AlphaBetaSearch implements SearchStrategy {
         int score = 0;
 
         ArrayList<Move> allMoves = new ArrayList<>(af.getPossibleMoves());
-        if(!this.goHard) allMoves = new ArrayList<>(allMoves.subList(0, 120));
+        switch(goHard){
+            case 1:
+                allMoves = new ArrayList<>(allMoves.subList(0, Math.min(allMoves.size(),150)));
+                break;
+            case 2:
+                allMoves = new ArrayList<>(allMoves.subList(0, Math.min(allMoves.size(),250)));
+                System.out.println("🔥🔥🔥🔥 Going Hard 🔥🔥🔥🔥");
+                break;
+            case 3:
+                allMoves = new ArrayList<>(allMoves.subList(0, Math.min(allMoves.size(),450)));
+                System.out.println("🔥🔥🔥🔥🔥🔥Going HardER 🔥🔥🔥🔥🔥🔥🔥");
+                break;
+            case 4:
+                allMoves = new ArrayList<>(allMoves.subList(0, Math.min(allMoves.size(),750)));
+                System.out.println("🔥🔥🔥🔥🔥🔥🔥🔥 Going HardERRR 🔥🔥🔥🔥🔥🔥🔥🔥");
+                break;
+            default:
+                System.out.println("🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥 FULL POWER 🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥");
+        }
+
 
         Move bestMove = allMoves.get(0);
 

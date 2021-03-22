@@ -118,4 +118,11 @@ public class GameLogic {
 
         return newBoard;
     }
+
+    public static byte[][] _makeTempQueenMove(byte[][] oldBoard, byte[] oldPos, byte[] newPos, boolean isWhitePlayer){
+        byte[][] tempBoard = _cloneMatrix(oldBoard);
+        tempBoard[oldPos[0]][oldPos[1]] = BLANK;
+        tempBoard[newPos[0]][newPos[1]] = isWhitePlayer ? WHITE_QUEEN : BLACK_QUEEN;
+        return tempBoard;
+    }
 }

@@ -1,6 +1,7 @@
 package cosc322.amazons;
 
 import decision.logic.Heuristic;
+import decision.logic.RoyalChamber;
 import models.Move;
 import models.Queen;
 
@@ -32,9 +33,18 @@ public class ActionFactory {
 
     public ArrayList<Move> getPossibleMoves() {
         ArrayList<Move> moves = new ArrayList<>();
+        RoyalChamber rc = new RoyalChamber(isWhitePlayer, boardMatrix);
+        rc.checkRoyalChambers();
+        ourQueens = rc.getFreeQueens();
 
         for (Queen queen : ourQueens) {
             moves.addAll(getPossibleMoves(queen.getPosition()));
+        }
+
+        if(ourQueens.isEmpty()) {
+            for (Queen queen : rc.getChamberedQueens()) {
+                moves.addAll(getPossibleMoves(queen.getPosition()));
+            }
         }
 
         // orders the moves from "best" to "worst" based on mobility heuristic

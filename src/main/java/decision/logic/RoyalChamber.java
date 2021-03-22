@@ -6,11 +6,16 @@ import cern.colt.Arrays;
 import cosc322.amazons.GameBoard;
 import models.Queen;
 
+import static utils.GameLogic._queensFromBoard;
+
 public class RoyalChamber {
 	private boolean isWhitePlayer;
 	private ArrayList<Queen> myQueens;
+	private ArrayList<Queen> freeQueens;
+	private ArrayList<Queen> chamberQueens;
 	private ArrayList<Queen> enemyQueens;
 	private GameBoard gameBoard;
+	private byte[][] boardMatrix;
 	
 	/**
 	 * Used to check if a players queens are in royal chambers.
@@ -18,13 +23,15 @@ public class RoyalChamber {
 	 * to an enemy queen, if no path exists then we're in a chamber. 
 	 * 
 	 * @param isWhitePlayer
-	 * @param gameBoard
+	 * @param board
 	 */
-	public RoyalChamber(boolean isWhitePlayer, GameBoard gameBoard) {
+	public RoyalChamber(boolean isWhitePlayer, byte[][] board) {
 		this.isWhitePlayer = isWhitePlayer;
-		this.myQueens = isWhitePlayer ? gameBoard.getWhiteQueens() : gameBoard.getBlackQueens();
-		this.enemyQueens = isWhitePlayer ? gameBoard.getBlackQueens() : gameBoard.getWhiteQueens();
-		this.gameBoard = gameBoard;
+		this.myQueens = _queensFromBoard(board, isWhitePlayer);
+		this.enemyQueens = _queensFromBoard(board, !isWhitePlayer);
+		this.boardMatrix = board;
+		this.freeQueens = new ArrayList<>(this.myQueens);
+		this.chamberQueens = new ArrayList<>();
 	}
 	
 	/**
@@ -37,7 +44,7 @@ public class RoyalChamber {
 	 * TODO: remove debug statements once it works. 
 	 */
 	public void checkRoyalChambers() {
-		AStar as = new AStar(gameBoard);
+		AStar as = new AStar(boardMatrix);
 		
 		for(Queen myQueen : myQueens) {
 			boolean inChamber = true;
@@ -50,7 +57,20 @@ public class RoyalChamber {
 				}
 				if(inChamber) System.out.println("Queen at " + Arrays.toString(myQueen.getPosition()) + " in chamber");
 				myQueen.setInChamber(inChamber);
+
+				if(inChamber) {
+					chamberQueens.add(myQueen);
+					freeQueens.remove(myQueen);
+				}
 			}
 		}
+	}
+
+	public ArrayList<Queen> getChamberedQueens() {
+		return chamberQueens;
+	}
+
+	public ArrayList<Queen> getFreeQueens() {
+		return freeQueens;
 	}
 }

@@ -32,7 +32,7 @@ public class Heuristic {
     }
 
     public int getUtility() {
-        return 5 * territoryHeuristic() + mobilityHeuristic();
+        return 4 * territoryHeuristic() + mobilityHeuristic();
     }
 
     /**

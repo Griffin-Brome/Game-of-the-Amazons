@@ -129,10 +129,6 @@ public class AStar {
 				// - if the position is already in the queue, skip
 				if (checkIfContains(neighbour)) 
 					continue;
-					
-				// - if there is one of our queens in the position, skip
-				if (gameBoard.getOccupant(neighbour) == myQueen.getId()) 
-					continue;
 				
 				// if not yet visited add neighbor to the queue
 				queue.offer(neighbour);

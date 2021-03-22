@@ -171,7 +171,7 @@ public class AmazonsAIPlayer extends GamePlayer {
             String player = isWhitePlayer ? "White Player" : "Black Player";
             System.out.println("Game over for " + player);
         } else {
-            Move move = new Move();
+            Move move = possibleMoves.get(0);
             List<ArrayList<Move>> possibleMovesList = new ArrayList<>();
             for(int i = 1; i < numThreads+1; i++){
                 possibleMovesList.add(new ArrayList<>(possibleMoves.subList(possibleMoves.size()/numThreads*(i-1), possibleMoves.size()/numThreads*i)));
@@ -195,18 +195,22 @@ public class AmazonsAIPlayer extends GamePlayer {
                     pool.awaitTermination(23, TimeUnit.SECONDS);
                     waitonce = true;
                 }
+
                 for (int k = 0; k<numThreads;k++) {
                     bestMoves.add(futureList.get(k).get());
                 }
 
+                int bestScore = Integer.MIN_VALUE;
                 for (Move m : bestMoves){
-                    int bestScore = 0;
                     if (m.getScore() > bestScore)
                         move = m;
+                        bestScore = move.getScore();
 
                 }
                 System.out.println("Check |\tUpper current: " + i + "\tTerritory Depth: " + territoryDepth);
+                System.out.println("bestMove" + move + " " + move.getScore());
                 pool.shutdown();
+
             }
 
             ArrayList<Integer> oldPosList = new ArrayList<>(2);

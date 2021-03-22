@@ -1,7 +1,10 @@
 package cosc322.amazons;
 
+import java.sql.Time;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.*;
 
 import decision.logic.AlphaBetaSearch;
 import models.Move;
@@ -145,7 +148,7 @@ public class AmazonsAIPlayer extends GamePlayer {
      *
      * @param msgDetails
      */
-    public void handleStart(Map<String, Object> msgDetails) {
+    public void handleStart(Map<String, Object> msgDetails) throws ExecutionException, InterruptedException {
         if (msgDetails.get(AmazonsGameMessage.PLAYER_WHITE).equals(this.userName)) {
             this.isWhitePlayer = true;
         } else if (msgDetails.get(AmazonsGameMessage.PLAYER_BLACK).equals(this.userName)) {
@@ -157,7 +160,8 @@ public class AmazonsAIPlayer extends GamePlayer {
     /**
      * Game DecisionLogic needs to be implemented here, that class should implement AlphaBeta
      */
-    public void move() {
+    public void move() throws ExecutionException, InterruptedException {
+        int numThreads = 4;
         long start = System.currentTimeMillis();
         while (System.currentTimeMillis() < start + delay) ;
 
@@ -169,13 +173,46 @@ public class AmazonsAIPlayer extends GamePlayer {
             System.out.println("Game over for " + player);
         } else {
             Move move = new Move();
-
+            List<ArrayList<Move>> possibleMovesList = new ArrayList<>();
+            for(int i = 1; i < numThreads+1; i++){
+                possibleMovesList.add(new ArrayList<>(possibleMoves.subList(possibleMoves.size()/numThreads*(i-1), possibleMoves.size()/numThreads*i)));
+            }
+/*            possibleMovesList.add(new ArrayList<>(possibleMoves.subList(0, possibleMoves.size()/numThreads)));
+            possibleMovesList.add(new ArrayList<>(possibleMoves.subList(possibleMoves.size()/numThreads, possibleMoves.size()/numThreads*2)));
+            possibleMovesList.add(new ArrayList<>(possibleMoves.subList(possibleMoves.size()/numThreads*2, possibleMoves.size()/numThreads*3)));
+            possibleMovesList.add(new ArrayList<>(possibleMoves.subList(possibleMoves.size()/numThreads*3, possibleMoves.size()/numThreads*4)));
+            System.out.println(new ArrayList<>(possibleMoves.subList(0, possibleMoves.size()/numThreads)));
+            System.out.println(new ArrayList<>(possibleMoves.subList(possibleMoves.size()/numThreads, possibleMoves.size()/numThreads*2)));
+            System.out.println(new ArrayList<>(possibleMoves.subList(possibleMoves.size()/numThreads*2, possibleMoves.size()/numThreads*3)));
+            System.out.println(new ArrayList<>(possibleMoves.subList(possibleMoves.size()/numThreads*3, possibleMoves.size()/numThreads*4)));*/
             setTuningParameters(turnNumber, possibleMoves.size());
 
             for (int i = 1; i < upper; i++) {
-                AlphaBetaSearch ab = new AlphaBetaSearch(gameBoard, i, isWhitePlayer, this.goHard, this.territoryDepth, possibleMoves);
-                move = ab.getBestMove();
+                ExecutorService pool = Executors.newFixedThreadPool(numThreads);
+                List<AlphaBetaSearch> abList = new ArrayList<>();
+                List<Future<Move>> futureList = new ArrayList<>();
+                List<Move> bestMoves = new ArrayList<>();
+
+                for (int j=0; j< numThreads;j++) {
+                    abList.add(new AlphaBetaSearch(gameBoard, i, isWhitePlayer, this.goHard, this.territoryDepth, possibleMovesList.get(j)));
+                    futureList.add(pool.submit(abList.get(j)));
+
+                }
+                pool.awaitTermination(23, TimeUnit.SECONDS);
+                for (int k = 0; k<numThreads;k++) {
+                    bestMoves.add(futureList.get(k).get());
+                }
+
+                for (Move m : bestMoves){
+                    int bestScore = 0;
+                    if (m.getScore() > bestScore)
+                        move = m;
+
+                }
+                //System.out.println(move.getScore() + " ekaj;eg" + move2.getScore());
+                //move = ab.getBestMove();
                 System.out.println("Check |\tUpper: " + upper + "\tTerritory Depth: " + territoryDepth);
+                pool.shutdown();
             }
 
             ArrayList<Integer> oldPosList = new ArrayList<>(2);

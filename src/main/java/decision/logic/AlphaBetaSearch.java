@@ -7,11 +7,12 @@ import static utils.Constant.*;
 import static utils.GameLogic._makeTempMove;
 
 import java.util.ArrayList;
+import java.util.concurrent.Callable;
 
 /**
  * Adapted from fig. 5.7, pg.310 of Artificial Intelligence, A Modern Approach (4th Edition)
  */
-public class AlphaBetaSearch {
+public class AlphaBetaSearch implements Callable<Move> {
     int alpha, beta;
     GameBoard gameBoard;
     int goalDepth;
@@ -52,6 +53,11 @@ public class AlphaBetaSearch {
      * Returns the best move
      * @return
      */
+    @Override
+    public Move call(){
+        return getBestMove();
+    }
+
     public Move getBestMove() {
         int score = 0;
 
@@ -82,6 +88,7 @@ public class AlphaBetaSearch {
             int tempScore = alphabeta(tempBoard, 0, -Integer.MAX_VALUE, Integer.MAX_VALUE, true);
             if (tempScore >= score) {
                 bestMove = move;
+                bestMove.setScore(tempScore);
                 score = tempScore;
             }
         }

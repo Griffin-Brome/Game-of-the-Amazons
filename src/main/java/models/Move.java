@@ -7,6 +7,7 @@ public class Move implements Comparable<Move> {
     private byte[] newPos;
     private byte[] arrowPos;
     private int orderingValue;
+    private int score;
 
     public Move(byte[] oldPos) {
         this.oldPos = oldPos;
@@ -49,6 +50,10 @@ public class Move implements Comparable<Move> {
     public byte[] getArrowPos() {
         return arrowPos;
     }
+
+    public int getScore() {return score; }
+
+    public void setScore(int score) {this.score = score;}
 
     public int setOrderingValue() {
         return orderingValue;

@@ -30,11 +30,9 @@ public class AmazonsAIPlayer extends GamePlayer {
 
     private String userName = null;
     private String passwd = null;
-    private int delay = 0;
     private int turnNumber;
     private int goHard = 1;
 
-    int iterativeDeepeningAlpha = 25;
     int territoryDepthAlpha = 15;
     private int upper;
     private byte territoryDepth;
@@ -49,7 +47,6 @@ public class AmazonsAIPlayer extends GamePlayer {
     // Second constructor for if we want to pass the delay parameter
     public AmazonsAIPlayer(String userName, String passwd, int delay) {
         this(userName, passwd);
-        this.delay = delay;
     }
 
     /**
@@ -100,9 +97,7 @@ public class AmazonsAIPlayer extends GamePlayer {
                     break;
 
                 case GameMessage.GAME_ACTION_START:
-                    long start = System.currentTimeMillis();
                     this.handleStart(msgDetails);
-                    System.out.println("Move Time: " + (System.currentTimeMillis() - start));
                     break;
 
                 case GameMessage.GAME_ACTION_MOVE:
@@ -117,12 +112,9 @@ public class AmazonsAIPlayer extends GamePlayer {
                     gamegui.updateGameState(msgDetails);
 
                     // Now we make a move
-                    start = System.currentTimeMillis();
                     move();
-                    System.out.println("Turn Number: " + turnNumber + "\tMove Time: " + (System.currentTimeMillis() - start));
                     break;
             }
-
         } catch (Exception e) {
             System.out.println("Something went wrong handling a game message from the server:");
             e.printStackTrace();
@@ -161,8 +153,6 @@ public class AmazonsAIPlayer extends GamePlayer {
      */
     public void move() throws ExecutionException, InterruptedException {
         int numThreads = 4;
-        long start = System.currentTimeMillis();
-        while (System.currentTimeMillis() < start + delay) ;
 
         ActionFactory af = new ActionFactory(gameBoard, isWhitePlayer);
         ArrayList<Move> possibleMoves = af.getPossibleMoves();
@@ -188,7 +178,6 @@ public class AmazonsAIPlayer extends GamePlayer {
                 for (int j=0; j< numThreads;j++) {
                     abList.add(new AlphaBetaSearch(gameBoard, i, isWhitePlayer, this.goHard, this.territoryDepth, possibleMovesList.get(j)));
                     futureList.add(pool.submit(abList.get(j)));
-
                 }
 
                 if(!waitonce) {
@@ -199,13 +188,13 @@ public class AmazonsAIPlayer extends GamePlayer {
                     bestMoves.add(futureList.get(k).get());
                 }
 
+                int bestScore = 0;
                 for (Move m : bestMoves){
-                    int bestScore = 0;
-                    if (m.getScore() > bestScore)
+                    if (m.getScore() > bestScore) {
                         move = m;
-
+                        bestScore = m.getScore();
+                    }
                 }
-                System.out.println("Check |\tUpper current: " + i + "\tTerritory Depth: " + territoryDepth);
                 pool.shutdown();
             }
 
@@ -303,14 +292,6 @@ public class AmazonsAIPlayer extends GamePlayer {
 
     public void setPassword(String pw) {
         this.passwd = pw;
-    }
-
-    public boolean isWhitePlayer() {
-        return this.isWhitePlayer;
-    }
-
-    public void setIsWhitePlayer(boolean isWhitePlayer) {
-        this.isWhitePlayer = isWhitePlayer;
     }
 
     public void setGameGUI(BaseGameGUI gui) {

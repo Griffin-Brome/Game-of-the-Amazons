@@ -3,7 +3,6 @@ package decision.logic;
 import cosc322.amazons.ActionFactory;
 import cosc322.amazons.GameBoard;
 import models.Move;
-import static utils.Constant.*;
 import static utils.GameLogic._makeTempMove;
 
 import java.util.ArrayList;
@@ -32,16 +31,8 @@ public class AlphaBetaSearch implements Callable<Move> {
         setBeta(Integer.MAX_VALUE);
     }
 
-    public int getAlpha() {
-        return alpha;
-    }
-
     public void setAlpha(int alpha) {
         this.alpha = alpha;
-    }
-
-    public int getBeta() {
-        return beta;
     }
 
     public void setBeta(int beta) {
@@ -67,18 +58,15 @@ public class AlphaBetaSearch implements Callable<Move> {
                 break;
             case 2:
                 possibleMoves = new ArrayList<>(possibleMoves.subList(0, Math.min(possibleMoves.size(),250)));
-                System.out.println("🔥🔥🔥🔥 Going Hard 🔥🔥🔥🔥");
                 break;
             case 3:
                 possibleMoves = new ArrayList<>(possibleMoves.subList(0, Math.min(possibleMoves.size(),450)));
-                System.out.println("🔥🔥🔥🔥🔥🔥Going HardER 🔥🔥🔥🔥🔥🔥🔥");
                 break;
             case 4:
                 possibleMoves = new ArrayList<>(possibleMoves.subList(0, Math.min(possibleMoves.size(),750)));
-                System.out.println("🔥🔥🔥🔥🔥🔥🔥🔥 Going HardERRR 🔥🔥🔥🔥🔥🔥🔥🔥");
                 break;
             default:
-                System.out.println("🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥 FULL POWER 🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥");
+                break;
         }
 
         Move bestMove = possibleMoves.get(0);
@@ -92,7 +80,6 @@ public class AlphaBetaSearch implements Callable<Move> {
                 score = tempScore;
             }
         }
-        System.out.println("Score: " + score + "\t" + bestMove + "\tAll Moves Size: " + possibleMoves.size());
         return bestMove;
     }
 
@@ -114,7 +101,6 @@ public class AlphaBetaSearch implements Callable<Move> {
                 value = Math.max(value, alphabeta(tempBoard, depth + 1, alpha, beta, false));
                 alpha = Math.max(alpha, value);
                 if (alpha >= beta) {
-//                    System.out.println("Prune: " + move.toString());
                     break;
                 }
             }
@@ -127,7 +113,6 @@ public class AlphaBetaSearch implements Callable<Move> {
                 value = Math.min(value, alphabeta(tempBoard, depth + 1, alpha, beta, true));
                 beta = Math.min(beta, value);
                 if (beta <= alpha) {
-//                    System.out.println("Prune: " + move.toString());
                     break;
                 }
             }

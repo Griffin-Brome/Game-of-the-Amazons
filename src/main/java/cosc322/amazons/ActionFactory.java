@@ -7,10 +7,8 @@ import models.Queen;
 
 import static utils.Constant.*;
 import static utils.GameLogic.*;
-import static utils.MatrixOperations.*;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 
 public class ActionFactory {

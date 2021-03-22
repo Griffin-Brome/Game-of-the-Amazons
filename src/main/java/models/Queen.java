@@ -5,9 +5,7 @@ public class Queen extends Piece {
 	private boolean white;
 	private boolean inChamber;
 	private int id;
-	// TODO: refactor the 'player' byte out from all files 
-	// Nope! This actually is used to set a queen as white or black! 
-	
+	// Player byte is actually is used to set a queen as white or black!
 
 	public Queen(byte x, byte y, byte player) {
 		super(new byte[] { x, y });

@@ -1,17 +1,17 @@
 package models;
 
-import static utils.Constant.*;
+import static utils.Constant.ARROW;
 
 public class Arrow extends Piece {
 
 	public Arrow(byte x, byte y) {
 		super(x, y);
-		setId((byte) ARROW);
+		setId(ARROW);
 	}
 
 	public Arrow(byte[] pos) {
 		super(pos);
-		setId((byte) ARROW);
+		setId(ARROW);
 	}
 
 }

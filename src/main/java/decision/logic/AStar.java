@@ -24,16 +24,8 @@ public class AStar {
 	byte[][] boardMatrix;
 
 	/**
-	 * @param gameBoard the gameboard to check
+	 * @param board the gameboard to check
 	 */
-	public AStar(GameBoard gameBoard) {
-		this.boardMatrix = gameBoard.getMatrix();
-		/**
-		 * Return whichever one has a smaller Manhattan distance to the enemy queen
-		 */
-		queue = new PriorityQueue<>(1, Comparator.comparingInt(o -> ManhattanDistance(o, enemy.getPosition())));
-	}
-
 	public AStar(byte[][] board) {
 		this.boardMatrix = board;
 		/**
@@ -80,7 +72,6 @@ public class AStar {
 			// Dequeue the first element
 			byte[] pos = queue.poll();
 			visited[pos[0]][pos[1]] = true;
-//			System.out.println("Checking position "+ Arrays.toString(pos));
 
 			ArrayList<byte[]> neighbours = possibleMoves(pos);
 			for(byte[] neighbour : neighbours) {
@@ -92,7 +83,6 @@ public class AStar {
 				
 				// - if there is an enemy, return true
 				if (_getOccupant(boardMatrix, neighbour) == enemyQueen.getId()) {
-//					System.out.println("Found at " + Arrays.toString(neighbour));
 					return true;
 				}
 				

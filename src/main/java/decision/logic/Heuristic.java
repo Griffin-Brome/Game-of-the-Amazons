@@ -33,9 +33,6 @@ public class Heuristic {
 
     public int getUtility() {
         return 4 * territoryHeuristic() + mobilityHeuristic();
-//        return mobilityHeuristic();
-        //TODO: remove this random utility thing
-//        return (int) (1 + Math.random() * 100);
     }
 
     /**
@@ -66,40 +63,16 @@ public class Heuristic {
      * @return An integer that represents the board territory control as a value.
      */
     public int territoryHeuristic() {
-        //TODO: remove this if else block, this is just for testing recursion vs iteration
-        boolean iterative = true;
-        if(iterative) {
-            byte[][] myTerritory = new byte[N][N];
-            byte[][] theirTerritory = new byte[N][N];
-
-            for (Queen queen : myQueenPositions) {
-                byte[][] thisQueensTerritory = territoryIterative(queen.getPosition());
-                myTerritory = _addMatrix(myTerritory, thisQueensTerritory);
-            }
-
-            for (Queen queen : theirQueenPositions) {
-                byte[][] thisQueensTerritory = territoryIterative(queen.getPosition());
-                theirTerritory = _addMatrix(theirTerritory, thisQueensTerritory);
-            }
-
-            byte[][] out = _subMatrix(myTerritory, theirTerritory);
-            return _reduceMatrix(out);
-        } else {
-            return territoryHeuristicR();
-        }
-    }
-
-    public int territoryHeuristicR() {
         byte[][] myTerritory = new byte[N][N];
         byte[][] theirTerritory = new byte[N][N];
 
         for (Queen queen : myQueenPositions) {
-            byte[][] thisQueensTerritory = territoryHelper(queen.getPosition());
+            byte[][] thisQueensTerritory = territoryIterative(queen.getPosition());
             myTerritory = _addMatrix(myTerritory, thisQueensTerritory);
         }
 
         for (Queen queen : theirQueenPositions) {
-            byte[][] thisQueensTerritory = territoryHelper(queen.getPosition());
+            byte[][] thisQueensTerritory = territoryIterative(queen.getPosition());
             theirTerritory = _addMatrix(theirTerritory, thisQueensTerritory);
         }
 
@@ -132,9 +105,9 @@ public class Heuristic {
             if (!_isValidPosition(board, curr.getCurrPos())) continue;
             // set the value of this square (i.e. maxMove if reachable in 1 move, maxMove - 1 if reachable in 2 moves, etc)
             out[curr.getCurrPos()[0]][curr.getCurrPos()[1]] = (byte) Math.max(
-                                                                        out[curr.getCurrPos()[0]][curr.getCurrPos()[1]],
-                                                                        maxMoves - curr.getMoveCount()
-                                                                     );
+                    out[curr.getCurrPos()[0]][curr.getCurrPos()[1]],
+                    maxMoves - curr.getMoveCount()
+            );
 
             // if this current traversal didn't increase the value of this square, there's no point in continuing
             if (out[currPos[0]][currPos[1]] != maxMoves - curr.getMoveCount()) continue;
@@ -152,38 +125,5 @@ public class Heuristic {
             }
         }
         return out;
-    }
-
-    public byte[][] territoryHelper(byte[] queenPosition) {
-        byte[][] out = new byte[N][N];
-        out[queenPosition[0]][queenPosition[1]] = (byte) Math.max(out[queenPosition[0]][queenPosition[1]], maxMoves);
-
-        for (byte dir : DIRECTIONS) {
-            byte[] curr = queenPosition.clone();
-            byte[] newPos = _generateNewPosition(curr, dir);
-            _territory(dir, (byte) 1, newPos, out);
-        }
-        return out;
-    }
-
-    public void _territory(byte direction, byte moveCount, byte[] currPos, byte[][] out) {
-        if (!_isValidPosition(board, currPos)) return;
-
-        // set the value of this square (i.e. maxMove if reachable in 1 move, maxMove - 1 if reachable in 2 moves, etc)
-        out[currPos[0]][currPos[1]] = (byte) Math.max(out[currPos[0]][currPos[1]], maxMoves - moveCount);
-
-        // if this current traversal didn't increase the value of this square, there's no point in continuing
-        if (out[currPos[0]][currPos[1]] != maxMoves - moveCount) return;
-        if (moveCount >= this.maxDepth) return;
-
-        for (byte dir : DIRECTIONS) {
-            byte[] curr = currPos.clone();
-            byte[] newPos = _generateNewPosition(curr, dir);
-
-            if (dir == direction)
-                _territory(dir, moveCount, newPos, out);
-            else
-                _territory(dir, (byte) (moveCount + 1), newPos, out);
-        }
     }
 }

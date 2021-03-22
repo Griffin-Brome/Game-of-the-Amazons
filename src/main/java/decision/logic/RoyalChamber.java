@@ -14,7 +14,6 @@ public class RoyalChamber {
 	private ArrayList<Queen> freeQueens;
 	private ArrayList<Queen> chamberQueens;
 	private ArrayList<Queen> enemyQueens;
-	private GameBoard gameBoard;
 	private byte[][] boardMatrix;
 	
 	/**
@@ -55,7 +54,6 @@ public class RoyalChamber {
 						break;
 					} 
 				}
-				if(inChamber) System.out.println("Queen at " + Arrays.toString(myQueen.getPosition()) + " in chamber");
 				myQueen.setInChamber(inChamber);
 
 				if(inChamber) {

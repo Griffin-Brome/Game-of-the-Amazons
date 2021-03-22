@@ -200,7 +200,7 @@ public class AmazonsAIPlayer extends GamePlayer {
                 }
 
                 for (Move m : bestMoves){
-                    int bestScore = 0;
+                    int bestScore = Integer.MIN_VALUE;
                     if (m.getScore() > bestScore)
                         move = m;
 

@@ -164,7 +164,7 @@ public class AmazonsAIPlayer extends GamePlayer {
             Move move = possibleMoves.get(0);
             setTuningParameters(turnNumber, possibleMoves.size());
 
-            if(possibleMoves.size() < numThreads * 10) {
+            if(possibleMoves.size() > numThreads * 10) {
                 List<ArrayList<Move>> possibleMovesList = new ArrayList<>();
                 for (int i = 1; i < numThreads + 1; i++) {
                     possibleMovesList.add(new ArrayList<>(possibleMoves.subList(possibleMoves.size() / numThreads * (i - 1), possibleMoves.size() / numThreads * i)));

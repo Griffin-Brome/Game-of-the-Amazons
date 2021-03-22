@@ -34,18 +34,19 @@ public class ActionFactory {
     public ArrayList<Move> getPossibleMoves() {
         ArrayList<Move> moves = new ArrayList<>();
         RoyalChamber rc = new RoyalChamber(isWhitePlayer, boardMatrix);
-        rc.checkRoyalChambers();
-        ourQueens = rc.getFreeQueens();
+        //TODO: the comments in this method toggle the chamber checking on and off
+//        rc.checkRoyalChambers();
+//        ourQueens = rc.getFreeQueens();
 
         for (Queen queen : ourQueens) {
             moves.addAll(getPossibleMoves(queen.getPosition()));
         }
 
-        if(ourQueens.isEmpty()) {
-            for (Queen queen : rc.getChamberedQueens()) {
-                moves.addAll(getPossibleMoves(queen.getPosition()));
-            }
-        }
+//        if(ourQueens.isEmpty()) {
+//            for (Queen queen : rc.getChamberedQueens()) {
+//                moves.addAll(getPossibleMoves(queen.getPosition()));
+//            }
+//        }
 
         // orders the moves from "best" to "worst" based on mobility heuristic
         Collections.sort(moves);

@@ -199,11 +199,12 @@ public class AmazonsAIPlayer extends GamePlayer {
                     bestMoves.add(futureList.get(k).get());
                 }
 
+                int bestScore = Integer.MIN_VALUE;
                 for (Move m : bestMoves){
-                    int bestScore = Integer.MIN_VALUE;
-                    if (m.getScore() > bestScore)
+                    if (m.getScore() > bestScore) {
                         move = m;
-
+                        bestScore = m.getScore();
+                    }
                 }
                 System.out.println("Check |\tUpper current: " + i + "\tTerritory Depth: " + territoryDepth);
                 pool.shutdown();

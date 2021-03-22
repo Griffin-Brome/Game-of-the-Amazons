@@ -162,40 +162,49 @@ public class AmazonsAIPlayer extends GamePlayer {
             System.out.println("Game over for " + player);
         } else {
             Move move = possibleMoves.get(0);
-            List<ArrayList<Move>> possibleMovesList = new ArrayList<>();
-            for(int i = 1; i < numThreads+1; i++){
-                possibleMovesList.add(new ArrayList<>(possibleMoves.subList(possibleMoves.size()/numThreads*(i-1), possibleMoves.size()/numThreads*i)));
-            }
-
             setTuningParameters(turnNumber, possibleMoves.size());
-            boolean waitonce = false;
-            for (int i = 1; i < upper; i++) {
-                ExecutorService pool = Executors.newFixedThreadPool(numThreads);
-                List<AlphaBetaSearch> abList = new ArrayList<>();
-                List<Future<Move>> futureList = new ArrayList<>();
-                List<Move> bestMoves = new ArrayList<>();
 
-                for (int j=0; j< numThreads;j++) {
-                    abList.add(new AlphaBetaSearch(gameBoard, i, isWhitePlayer, this.goHard, this.territoryDepth, possibleMovesList.get(j)));
-                    futureList.add(pool.submit(abList.get(j)));
+            if(possibleMoves.size() < numThreads * 10) {
+                List<ArrayList<Move>> possibleMovesList = new ArrayList<>();
+                for (int i = 1; i < numThreads + 1; i++) {
+                    possibleMovesList.add(new ArrayList<>(possibleMoves.subList(possibleMoves.size() / numThreads * (i - 1), possibleMoves.size() / numThreads * i)));
                 }
 
-                if(!waitonce) {
-                    pool.awaitTermination(23, TimeUnit.SECONDS);
-                    waitonce = true;
-                }
-                for (int k = 0; k<numThreads;k++) {
-                    bestMoves.add(futureList.get(k).get());
-                }
+                boolean waitonce = false;
+                for (int i = 1; i < upper; i++) {
+                    ExecutorService pool = Executors.newFixedThreadPool(numThreads);
+                    List<AlphaBetaSearch> abList = new ArrayList<>();
+                    List<Future<Move>> futureList = new ArrayList<>();
+                    List<Move> bestMoves = new ArrayList<>();
 
-                int bestScore = Integer.MIN_VALUE;
-                for (Move m : bestMoves){
-                    if (m.getScore() > bestScore) {
-                        move = m;
-                        bestScore = m.getScore();
+                    for (int j = 0; j < numThreads; j++) {
+                        abList.add(new AlphaBetaSearch(gameBoard, i, isWhitePlayer, this.goHard, this.territoryDepth, possibleMovesList.get(j)));
+                        futureList.add(pool.submit(abList.get(j)));
                     }
+
+                    if (!waitonce) {
+                        pool.awaitTermination(23, TimeUnit.SECONDS);
+                        waitonce = true;
+                    }
+
+                    for (int k = 0; k < numThreads; k++) {
+                        bestMoves.add(futureList.get(k).get());
+                    }
+
+                    int bestScore = Integer.MIN_VALUE;
+                    for (Move m : bestMoves) {
+                        if (m.getScore() > bestScore) {
+                            move = m;
+                            bestScore = m.getScore();
+                        }
+                    }
+                    pool.shutdown();
                 }
-                pool.shutdown();
+            } else {
+                for(int i = 1; i < upper; i++) {
+                    AlphaBetaSearch ab = new AlphaBetaSearch(gameBoard, i, isWhitePlayer, this.goHard, this.territoryDepth, possibleMoves);
+                    move = ab.getBestMove();
+                }
             }
 
             ArrayList<Integer> oldPosList = new ArrayList<>(2);

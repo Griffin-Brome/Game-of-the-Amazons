@@ -56,6 +56,18 @@ public class Heuristic {
                 }
             }
         }
+
+        for (Queen queen : theirQueenPositions) {
+            byte[] oldPos = queen.getPosition();
+            for (byte dir : DIRECTIONS) {
+                byte[] newPos = _generateNewPosition(oldPos, dir);
+                while (_isValidPosition(board, newPos)) {
+                    out[newPos[0]][newPos[1]] -= maxMoves - 1;
+                    newPos = _generateNewPosition(newPos, dir);
+                }
+            }
+        }
+
         return (byte) (_reduceMatrix(out) + 1);
     }
 

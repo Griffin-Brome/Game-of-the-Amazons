@@ -1,6 +1,7 @@
 package cosc322.amazons;
 
 import decision.logic.Heuristic;
+import decision.logic.RoyalChamber;
 import models.Move;
 import models.Queen;
 
@@ -32,10 +33,20 @@ public class ActionFactory {
 
     public ArrayList<Move> getPossibleMoves() {
         ArrayList<Move> moves = new ArrayList<>();
+        RoyalChamber rc = new RoyalChamber(isWhitePlayer, boardMatrix);
+        //TODO: the comments in this method toggle the chamber checking on and off
+//        rc.checkRoyalChambers();
+//        ourQueens = rc.getFreeQueens();
 
         for (Queen queen : ourQueens) {
             moves.addAll(getPossibleMoves(queen.getPosition()));
         }
+
+//        if(ourQueens.isEmpty()) {
+//            for (Queen queen : rc.getChamberedQueens()) {
+//                moves.addAll(getPossibleMoves(queen.getPosition()));
+//            }
+//        }
 
         // orders the moves from "best" to "worst" based on mobility heuristic
         Collections.sort(moves);
@@ -78,7 +89,7 @@ public class ActionFactory {
 
     public ArrayList<byte[]> generateArrowsHelper(byte[] oldQueenPos, byte[] newQueenPos) {
         ArrayList<byte[]> possibleArrows = new ArrayList<>();
-        byte[][] tempBoard = makeTempQueenMove(boardMatrix, oldQueenPos, newQueenPos);
+        byte[][] tempBoard = _makeTempQueenMove(boardMatrix, oldQueenPos, newQueenPos, isWhitePlayer);
 
         for (byte dir : DIRECTIONS) {
             byte[] newPos = _generateNewPosition(newQueenPos, dir);
@@ -89,15 +100,4 @@ public class ActionFactory {
         }
         return possibleArrows;
     }
-
-
-    public byte[][] makeTempQueenMove(byte[][] oldBoard, byte[] oldPos, byte[] newPos){
-        byte[][] tempBoard = _cloneMatrix(oldBoard);
-        tempBoard[oldPos[0]][oldPos[1]] = BLANK;
-        tempBoard[newPos[0]][newPos[1]] = isWhitePlayer ? WHITE_QUEEN : BLACK_QUEEN;
-
-        return tempBoard;
-    }
-
-
 }

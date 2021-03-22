@@ -21,43 +21,25 @@ import models.Queen;
 public class AStar {
 	private Queen enemy;
 	private PriorityQueue<byte[]> queue;
-	private GameBoard gameBoard;
+	byte[][] boardMatrix;
 
 	/**
-	 * @param enemy the enemy queen that we want to check for an existing path to
+	 * @param gameBoard the gameboard to check
 	 */
 	public AStar(GameBoard gameBoard) {
-		this.gameBoard = gameBoard;
-		queue = new PriorityQueue<>(1, new Comparator<byte[]>() {
-			@Override
-			/**
-			 * Return whichever one has a smaller Manhattan distance to the enemy queen
-			 */
-			public int compare(byte[] o1, byte[] o2) {
-				return ManhattanDistance(o1, enemy.getPosition()) - ManhattanDistance(o2, enemy.getPosition());
-			}
-		});
+		this.boardMatrix = gameBoard.getMatrix();
+		/**
+		 * Return whichever one has a smaller Manhattan distance to the enemy queen
+		 */
+		queue = new PriorityQueue<>(1, Comparator.comparingInt(o -> ManhattanDistance(o, enemy.getPosition())));
 	}
-	
 
-	/**
-	 * TODO: I think we can probably get rid of this, and instead setting enemy queen
-	 * when passed as a parameter to search? 
-	 * 
-	 * @param enemy: the enemy queen that we want to check for an existing path to
-	 */
-	public AStar(Queen enemy, GameBoard gameBoard) {
-		this.enemy = enemy;
-		this.gameBoard = gameBoard;
-		queue = new PriorityQueue<>(8, new Comparator<byte[]>() {
-			@Override
-			/**
-			 * Return whichever one has a smaller Manhattan distance to the enemy queen
-			 */
-			public int compare(byte[] o1, byte[] o2) {
-				return ManhattanDistance(o1, enemy.getPosition()) - ManhattanDistance(o2, enemy.getPosition());
-			}
-		});
+	public AStar(byte[][] board) {
+		this.boardMatrix = board;
+		/**
+		 * Return whichever one has a smaller Manhattan distance to the enemy queen
+		 */
+		queue = new PriorityQueue<>(1, Comparator.comparingInt(o -> ManhattanDistance(o, enemy.getPosition())));
 	}
 
 	/**
@@ -69,18 +51,6 @@ public class AStar {
 	 */
 	private int ManhattanDistance(byte[] pos1, byte[] pos2) {
 		return Math.abs(pos1[0] - pos2[0]) + Math.abs(pos1[1] - pos2[1]);
-	}
-	
-	/**
-	 * Computes the euclidean distance between two points.
-	 * Briefly used during testing.
-	 *
-	 * @param pos1 first position
-	 * @param pos2 second position
-	 * @return Euclidean distance as a scalar value
-	 */
-	private int euclideanDistance(byte[] pos1, byte[] pos2) {
-		return (int) Math.sqrt(Math.pow(pos2[0] - pos1[0], 2) + Math.pow(pos2[1] - pos1[1], 2));
 	}
 
 	/**
@@ -121,17 +91,13 @@ public class AStar {
 					continue;
 				
 				// - if there is an enemy, return true
-				if (gameBoard.getOccupant(neighbour) == enemyQueen.getId()) {
+				if (_getOccupant(boardMatrix, neighbour) == enemyQueen.getId()) {
 //					System.out.println("Found at " + Arrays.toString(neighbour));
 					return true;
 				}
 				
 				// - if the position is already in the queue, skip
 				if (checkIfContains(neighbour)) 
-					continue;
-					
-				// - if there is one of our queens in the position, skip
-				if (gameBoard.getOccupant(neighbour) == myQueen.getId()) 
 					continue;
 				
 				// if not yet visited add neighbor to the queue
@@ -183,7 +149,7 @@ public class AStar {
 	 * @return true:	if position is within bounds of board	
 	 */
 	public boolean isValidPosition(byte[] position) {
-		return position[0] >= 0 && position[0] < N && position[1] >= 0 && position[1] < N && gameBoard.getOccupant(position) != ARROW;
+		return position[0] >= 0 && position[0] < N && position[1] >= 0 && position[1] < N && _getOccupant(this.boardMatrix, position) != ARROW;
 	}
 
 	/**

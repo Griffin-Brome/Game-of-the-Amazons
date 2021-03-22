@@ -98,7 +98,7 @@ public class GameLogic {
         for (byte row = 0; row < N; row++) {
             for (byte col = 0; col < N; col++) {
                 if(board[row][col] == (isWhitePlayer ? WHITE_QUEEN : BLACK_QUEEN)) {
-                    Queen q = new Queen(new byte[]{row, col}, (byte) 1);
+                    Queen q = new Queen(new byte[]{row, col}, (isWhitePlayer ? WHITE_QUEEN : BLACK_QUEEN));
                     queens.add(q);
                 }
             }
@@ -117,5 +117,18 @@ public class GameLogic {
         newBoard[arrowPos[0]][arrowPos[1]] = ARROW;
 
         return newBoard;
+    }
+
+    public static byte[][] _makeTempQueenMove(byte[][] oldBoard, byte[] oldPos, byte[] newPos, boolean isWhitePlayer){
+        byte[][] tempBoard = _cloneMatrix(oldBoard);
+        tempBoard[oldPos[0]][oldPos[1]] = BLANK;
+        tempBoard[newPos[0]][newPos[1]] = isWhitePlayer ? WHITE_QUEEN : BLACK_QUEEN;
+        return tempBoard;
+    }
+
+    public static byte _getOccupant(byte[][] boardMatrix, byte[] pos) {
+        byte x = pos[0];
+        byte y = pos[1];
+        return boardMatrix[x][y];
     }
 }

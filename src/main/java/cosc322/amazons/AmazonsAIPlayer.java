@@ -161,7 +161,7 @@ public class AmazonsAIPlayer extends GamePlayer {
             String player = isWhitePlayer ? "White Player" : "Black Player";
             System.out.println("Game over for " + player);
         } else {
-            Move move = new Move();
+            Move move = possibleMoves.get(0);
             List<ArrayList<Move>> possibleMovesList = new ArrayList<>();
             for(int i = 1; i < numThreads+1; i++){
                 possibleMovesList.add(new ArrayList<>(possibleMoves.subList(possibleMoves.size()/numThreads*(i-1), possibleMoves.size()/numThreads*i)));

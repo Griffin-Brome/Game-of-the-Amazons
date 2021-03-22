@@ -178,7 +178,7 @@ public class AmazonsAIPlayer extends GamePlayer {
             }
 
             setTuningParameters(turnNumber, possibleMoves.size());
-
+            boolean waitonce = false;
             for (int i = 1; i < upper; i++) {
                 ExecutorService pool = Executors.newFixedThreadPool(numThreads);
                 List<AlphaBetaSearch> abList = new ArrayList<>();
@@ -190,7 +190,11 @@ public class AmazonsAIPlayer extends GamePlayer {
                     futureList.add(pool.submit(abList.get(j)));
 
                 }
-                pool.awaitTermination(23, TimeUnit.SECONDS);
+
+                if(!waitonce) {
+                    pool.awaitTermination(23, TimeUnit.SECONDS);
+                    waitonce = true;
+                }
                 for (int k = 0; k<numThreads;k++) {
                     bestMoves.add(futureList.get(k).get());
                 }
@@ -201,7 +205,7 @@ public class AmazonsAIPlayer extends GamePlayer {
                         move = m;
 
                 }
-                System.out.println("Check |\tUpper: " + upper + "\tTerritory Depth: " + territoryDepth);
+                System.out.println("Check |\tUpper current: " + i + "\tTerritory Depth: " + territoryDepth);
                 pool.shutdown();
             }
 

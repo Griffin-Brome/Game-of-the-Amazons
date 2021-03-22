@@ -8,7 +8,7 @@ public class AmazonsAIPlayerTest {
 	public static void main(String[] args) {
 
 		AmazonsAIPlayer p1 = new AmazonsAIPlayer(args[0], args[1], 500);
-		AmazonsAIPlayer p2 = new AmazonsAIPlayer("otherguy", "password", 500);
+		//AmazonsAIPlayer p2 = new AmazonsAIPlayer("otherguy", "password", 500);
 		//HumanPlayer p1 = new HumanPlayer();
 		//HumanPlayer p2 = new HumanPlayer();
 
@@ -19,7 +19,7 @@ public class AmazonsAIPlayerTest {
 			java.awt.EventQueue.invokeLater(new Runnable() {
 				public void run() {
 					p1.Go();
-					p2.Go();
+					//p2.Go();
 				}
 			});
 		}

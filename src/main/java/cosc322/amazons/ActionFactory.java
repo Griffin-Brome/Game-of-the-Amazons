@@ -86,7 +86,6 @@ public class ActionFactory {
         return moves;
     }
 
-
     public ArrayList<byte[]> generateArrowsHelper(byte[] oldQueenPos, byte[] newQueenPos) {
         ArrayList<byte[]> possibleArrows = new ArrayList<>();
         byte[][] tempBoard = _makeTempQueenMove(boardMatrix, oldQueenPos, newQueenPos, isWhitePlayer);

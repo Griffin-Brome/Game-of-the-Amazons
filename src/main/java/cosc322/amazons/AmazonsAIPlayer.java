@@ -1,6 +1,5 @@
 package cosc322.amazons;
 
-import java.sql.Time;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -177,14 +176,7 @@ public class AmazonsAIPlayer extends GamePlayer {
             for(int i = 1; i < numThreads+1; i++){
                 possibleMovesList.add(new ArrayList<>(possibleMoves.subList(possibleMoves.size()/numThreads*(i-1), possibleMoves.size()/numThreads*i)));
             }
-/*            possibleMovesList.add(new ArrayList<>(possibleMoves.subList(0, possibleMoves.size()/numThreads)));
-            possibleMovesList.add(new ArrayList<>(possibleMoves.subList(possibleMoves.size()/numThreads, possibleMoves.size()/numThreads*2)));
-            possibleMovesList.add(new ArrayList<>(possibleMoves.subList(possibleMoves.size()/numThreads*2, possibleMoves.size()/numThreads*3)));
-            possibleMovesList.add(new ArrayList<>(possibleMoves.subList(possibleMoves.size()/numThreads*3, possibleMoves.size()/numThreads*4)));
-            System.out.println(new ArrayList<>(possibleMoves.subList(0, possibleMoves.size()/numThreads)));
-            System.out.println(new ArrayList<>(possibleMoves.subList(possibleMoves.size()/numThreads, possibleMoves.size()/numThreads*2)));
-            System.out.println(new ArrayList<>(possibleMoves.subList(possibleMoves.size()/numThreads*2, possibleMoves.size()/numThreads*3)));
-            System.out.println(new ArrayList<>(possibleMoves.subList(possibleMoves.size()/numThreads*3, possibleMoves.size()/numThreads*4)));*/
+
             setTuningParameters(turnNumber, possibleMoves.size());
 
             for (int i = 1; i < upper; i++) {
@@ -209,8 +201,6 @@ public class AmazonsAIPlayer extends GamePlayer {
                         move = m;
 
                 }
-                //System.out.println(move.getScore() + " ekaj;eg" + move2.getScore());
-                //move = ab.getBestMove();
                 System.out.println("Check |\tUpper: " + upper + "\tTerritory Depth: " + territoryDepth);
                 pool.shutdown();
             }

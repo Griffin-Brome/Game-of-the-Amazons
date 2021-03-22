@@ -136,10 +136,10 @@ public class AmazonsAIPlayer extends GamePlayer {
      * @param msgDetails
      */
     public void handleStart(Map<String, Object> msgDetails) {
-        if (msgDetails.get(AmazonsGameMessage.PLAYER_BLACK).equals(this.userName)) {
-            this.isWhitePlayer = false;
-        } else if (msgDetails.get(AmazonsGameMessage.PLAYER_WHITE).equals(this.userName)) {
+        if (msgDetails.get(AmazonsGameMessage.PLAYER_WHITE).equals(this.userName)) {
             this.isWhitePlayer = true;
+        } else if (msgDetails.get(AmazonsGameMessage.PLAYER_BLACK).equals(this.userName)) {
+            this.isWhitePlayer = false;
             move();
         }
     }
@@ -167,7 +167,7 @@ public class AmazonsAIPlayer extends GamePlayer {
             int upper = 2;
 
             if(possibleMoves.size()<150){
-                upper = 3;
+                upper = 2;
             }
 
             byte territoryDepth = (byte) (2 + turnNumber / territoryDepthAlpha);

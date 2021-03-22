@@ -34,6 +34,8 @@ public class AmazonsAIPlayer extends GamePlayer {
 
     int iterativeDeepeningAlpha = 25;
     int territoryDepthAlpha = 15;
+    private int upper;
+    private byte territoryDepth;
 
     public AmazonsAIPlayer(String userName, String passwd) {
         setUserName(userName);
@@ -112,9 +114,6 @@ public class AmazonsAIPlayer extends GamePlayer {
                     gameBoard.updateBoard(queenPosCurr, queenPosNext, arrowPos);
                     gamegui.updateGameState(msgDetails);
 
-                    this.goHard =1 + turnNumber / 4;
-                    //if(goHard) System.out.println("🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥 GANG GANG ESKETIT SKRR 🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥");
-
                     // Now we make a move
                     start = System.currentTimeMillis();
                     move();
@@ -127,6 +126,17 @@ public class AmazonsAIPlayer extends GamePlayer {
             e.printStackTrace();
         }
         return false;
+    }
+
+    public void setTuningParameters(int turnNumber, int moveSize) {
+        this.goHard = 1 + turnNumber / 4;
+        this.upper = 2;
+
+        if (moveSize < 150) {
+            this.upper = 3;
+        }
+
+        this.territoryDepth = (byte) (2 + turnNumber / territoryDepthAlpha);
     }
 
     /**
@@ -154,29 +164,23 @@ public class AmazonsAIPlayer extends GamePlayer {
         ActionFactory af = new ActionFactory(gameBoard, isWhitePlayer);
         ArrayList<Move> possibleMoves = af.getPossibleMoves();
 
-        //TODO: is it a problem if we remove this? I don't think gao expects us to do this, + it means we generate possible moves twice
         if (possibleMoves.isEmpty()) {
             String player = isWhitePlayer ? "White Player" : "Black Player";
             System.out.println("Game over for " + player);
         } else {
-            ArrayList<Integer> oldPosList = new ArrayList<>();
-            ArrayList<Integer> newPosList = new ArrayList<>();
-            ArrayList<Integer> arrowPosList = new ArrayList<>();
-
             Move move = new Move();
-            int upper = 2;
 
-            if(possibleMoves.size()<150){
-                upper = 2;
-            }
+            setTuningParameters(turnNumber, possibleMoves.size());
 
-            byte territoryDepth = (byte) (2 + turnNumber / territoryDepthAlpha);
-
-            for(int i = 1; i < upper; i++) {
-                AlphaBetaSearch ab = new AlphaBetaSearch(gameBoard, i, isWhitePlayer, this.goHard, territoryDepth);
+            for (int i = 1; i < upper; i++) {
+                AlphaBetaSearch ab = new AlphaBetaSearch(gameBoard, i, isWhitePlayer, this.goHard, this.territoryDepth, possibleMoves);
                 move = ab.getBestMove();
                 System.out.println("Check |\tUpper: " + upper + "\tTerritory Depth: " + territoryDepth);
             }
+
+            ArrayList<Integer> oldPosList = new ArrayList<>(2);
+            ArrayList<Integer> newPosList = new ArrayList<>(2);
+            ArrayList<Integer> arrowPosList = new ArrayList<>(2);
 
             byte[] oldPos = move.getOldPos();
             byte[] newPos = move.getNewPos();
@@ -212,6 +216,7 @@ public class AmazonsAIPlayer extends GamePlayer {
 
     /**
      * Convert from matrix format (i.e. [row, col] 0 indexed) to server format
+     *
      * @param localPos
      * @return
      */
@@ -226,6 +231,7 @@ public class AmazonsAIPlayer extends GamePlayer {
 
     /**
      * Convert from server format to matrix format (i.e. [row, col] 0 indexed)
+     *
      * @param serverPos
      * @return
      */

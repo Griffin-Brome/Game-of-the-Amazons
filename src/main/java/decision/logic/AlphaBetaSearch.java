@@ -11,21 +11,22 @@ import java.util.ArrayList;
 /**
  * Adapted from fig. 5.7, pg.310 of Artificial Intelligence, A Modern Approach (4th Edition)
  */
-public class AlphaBetaSearch implements SearchStrategy {
+public class AlphaBetaSearch {
     int alpha, beta;
-    SearchTree tree;
     GameBoard gameBoard;
     int goalDepth;
     boolean isWhitePlayer;
     int goHard;
     byte territoryDepth;
+    ArrayList<Move> possibleMoves;
 
-    public AlphaBetaSearch(GameBoard gameBoard, int goalDepth, boolean isWhitePlayer, int goHard, byte territoryDepth) {
+    public AlphaBetaSearch(GameBoard gameBoard, int goalDepth, boolean isWhitePlayer, int goHard, byte territoryDepth, ArrayList<Move> possibleMoves) {
         this.gameBoard = gameBoard;
         this.goalDepth = goalDepth;
         this.isWhitePlayer = isWhitePlayer;
         this.goHard = goHard;
         this.territoryDepth = territoryDepth;
+        this.possibleMoves = possibleMoves;
         setAlpha(-Integer.MAX_VALUE);
         setBeta(Integer.MAX_VALUE);
     }
@@ -52,34 +53,31 @@ public class AlphaBetaSearch implements SearchStrategy {
      * @return
      */
     public Move getBestMove() {
-        ActionFactory af = new ActionFactory(gameBoard, isWhitePlayer);
         int score = 0;
 
-        ArrayList<Move> allMoves = new ArrayList<>(af.getPossibleMoves());
         switch(goHard){
             case 1:
-                allMoves = new ArrayList<>(allMoves.subList(0, Math.min(allMoves.size(),150)));
+                possibleMoves = new ArrayList<>(possibleMoves.subList(0, Math.min(possibleMoves.size(),150)));
                 break;
             case 2:
-                allMoves = new ArrayList<>(allMoves.subList(0, Math.min(allMoves.size(),250)));
+                possibleMoves = new ArrayList<>(possibleMoves.subList(0, Math.min(possibleMoves.size(),250)));
                 System.out.println("🔥🔥🔥🔥 Going Hard 🔥🔥🔥🔥");
                 break;
             case 3:
-                allMoves = new ArrayList<>(allMoves.subList(0, Math.min(allMoves.size(),450)));
+                possibleMoves = new ArrayList<>(possibleMoves.subList(0, Math.min(possibleMoves.size(),450)));
                 System.out.println("🔥🔥🔥🔥🔥🔥Going HardER 🔥🔥🔥🔥🔥🔥🔥");
                 break;
             case 4:
-                allMoves = new ArrayList<>(allMoves.subList(0, Math.min(allMoves.size(),750)));
+                possibleMoves = new ArrayList<>(possibleMoves.subList(0, Math.min(possibleMoves.size(),750)));
                 System.out.println("🔥🔥🔥🔥🔥🔥🔥🔥 Going HardERRR 🔥🔥🔥🔥🔥🔥🔥🔥");
                 break;
             default:
                 System.out.println("🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥 FULL POWER 🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥");
         }
 
+        Move bestMove = possibleMoves.get(0);
 
-        Move bestMove = allMoves.get(0);
-
-        for (Move move : allMoves) {
+        for (Move move : possibleMoves) {
             byte[][] tempBoard = _makeTempMove(gameBoard.getMatrix(), move);
             int tempScore = alphabeta(tempBoard, 0, -Integer.MAX_VALUE, Integer.MAX_VALUE, true);
             if (tempScore >= score) {
@@ -87,7 +85,7 @@ public class AlphaBetaSearch implements SearchStrategy {
                 score = tempScore;
             }
         }
-        System.out.println("Score: " + score + "\t" + bestMove + "\tAll Moves Size: " + allMoves.size());
+        System.out.println("Score: " + score + "\t" + bestMove + "\tAll Moves Size: " + possibleMoves.size());
         return bestMove;
     }
 
@@ -128,57 +126,5 @@ public class AlphaBetaSearch implements SearchStrategy {
             }
         }
         return value;
-    }
-
-    /**
-     * Major difference between this and the textbook's version, is that I don't return a tuple of [Move, value], and
-     * instead just return the resultant node that you would get to via performing the move. Also this is a more
-     * object-oriented approach over the textbook's functional one, where alpha and beta are not passed as parameters,
-     * but instead exist as class attributes
-     *
-     * @param node
-     * @return
-     * @deprecated
-     */
-    private SearchTreeNode max(SearchTreeNode node) {
-        if (node.isTerminal()) // || goalDepth == currentDepth
-            return node;
-
-        SearchTreeNode max = node.getFirstChild();
-        SearchTreeNode temp;
-        for (SearchTreeNode child : node.getChildren()) {
-            temp = min(child);
-            if (temp.getHeuristicValue() > max.getHeuristicValue())
-                max = temp;
-            if (temp.getHeuristicValue() > getAlpha())
-                setAlpha(temp.getHeuristicValue());
-            if (max.getHeuristicValue() >= getBeta())
-                return max;
-        }
-        return max;
-    }
-
-    /**
-     * See above method for implementation details
-     *
-     * @param node
-     * @return
-     * @deprecated
-     */
-    private SearchTreeNode min(SearchTreeNode node) {
-        if (node.isTerminal())
-            return node;
-        SearchTreeNode min = node.getFirstChild();
-        SearchTreeNode temp;
-        for (SearchTreeNode child : node.getChildren()) {
-            temp = max(child);
-            if (temp.getHeuristicValue() < min.getHeuristicValue())
-                min = temp;
-            if (temp.getHeuristicValue() < getBeta())
-                setBeta(temp.getHeuristicValue());
-            if (min.getHeuristicValue() <= getAlpha())
-                return min;
-        }
-        return min;
     }
 }

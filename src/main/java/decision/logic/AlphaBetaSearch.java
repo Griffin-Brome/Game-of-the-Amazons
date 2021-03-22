@@ -39,7 +39,6 @@ public class AlphaBetaSearch implements Callable<Move> {
         this.beta = beta;
     }
 
-
     /**
      * Returns the best move
      * @return
@@ -50,7 +49,7 @@ public class AlphaBetaSearch implements Callable<Move> {
     }
 
     public Move getBestMove() {
-        int score = 0;
+        int score = Integer.MIN_VALUE;
 
         switch(goHard){
             case 1:

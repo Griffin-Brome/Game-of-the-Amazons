@@ -188,7 +188,7 @@ public class AmazonsAIPlayer extends GamePlayer {
                     bestMoves.add(futureList.get(k).get());
                 }
 
-                int bestScore = 0;
+                int bestScore = Integer.MIN_VALUE;
                 for (Move m : bestMoves){
                     if (m.getScore() > bestScore) {
                         move = m;

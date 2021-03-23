@@ -235,6 +235,8 @@ public class AmazonsAIPlayer extends GamePlayer {
             newPosList = toServerFormat(newPosList);
             arrowPosList = toServerFormat(arrowPosList);
 
+            System.out.println(move);
+
             // IMPORTANT: update gui after converting to server format
             gamegui.updateGameState(oldPosList, newPosList, arrowPosList);
 

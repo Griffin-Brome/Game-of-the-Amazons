@@ -32,7 +32,62 @@ public class Heuristic {
     }
 
     public int getUtility() {
-        return 4 * territoryHeuristic() + mobilityHeuristic();
+        return 4 * territoryHeuristic() + mobilityHeuristic() + maxMoves * killSaveQueens();
+    }
+
+    public int killSaveQueens() {
+        int total = 0;
+        for (Queen queen : myQueenPositions) {
+            byte[] oldPos = queen.getPosition();
+            boolean free = false;
+            for (byte dir : DIRECTIONS) {
+                byte[] newPos = _generateNewPosition(oldPos, dir);
+                if (_isValidPosition(board, newPos)) {
+                    free = true;
+                    break;
+                }
+            }
+            if(free) total += 1;
+        }
+
+        for (Queen queen : myQueenPositions) {
+            byte[] oldPos = queen.getPosition();
+            boolean free = false;
+            for (byte dir : DIRECTIONS) {
+                byte[] newPos = _generateNewPosition(oldPos, dir);
+                if (_isValidPosition(board, newPos)) {
+                    free = true;
+                    break;
+                }
+            }
+            if(free) total -= 1;
+        }
+
+        return total;
+    }
+
+    public int immediateMovesHeuristic() {
+        int total = 0;
+        for (Queen queen : myQueenPositions) {
+            byte[] oldPos = queen.getPosition();
+            for (byte dir : DIRECTIONS) {
+                byte[] newPos = _generateNewPosition(oldPos, dir);
+                if (_isValidPosition(board, newPos)) {
+                    total += 1;
+                }
+            }
+        }
+
+        for (Queen queen : theirQueenPositions) {
+            byte[] oldPos = queen.getPosition();
+            for (byte dir : DIRECTIONS) {
+                byte[] newPos = _generateNewPosition(oldPos, dir);
+                if (_isValidPosition(board, newPos)) {
+                    total -= 1;
+                }
+            }
+        }
+        return total;
     }
 
     /**

@@ -152,6 +152,7 @@ public class AmazonsAIPlayer extends GamePlayer {
      * Game DecisionLogic needs to be implemented here, that class should implement AlphaBeta
      */
     public void move() throws ExecutionException, InterruptedException {
+        long start = System.currentTimeMillis();
         int numThreads = 4;
 
         ActionFactory af = new ActionFactory(gameBoard, isWhitePlayer);
@@ -243,6 +244,7 @@ public class AmazonsAIPlayer extends GamePlayer {
             gameClient.sendMoveMessage(oldPosList, newPosList, arrowPosList);
             ++turnNumber;
         }
+        System.out.println("We took: " + (System.currentTimeMillis() - start) + "ms");
     }
 
     /**

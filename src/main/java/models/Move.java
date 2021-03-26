@@ -1,6 +1,8 @@
 package models;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 
 public class Move implements Comparable<Move> {
     private byte[] oldPos;
@@ -8,11 +10,16 @@ public class Move implements Comparable<Move> {
     private byte[] arrowPos;
     private int orderingValue;
     private int score;
+    private boolean hasChildren;
     static byte[] y = {10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
     static char[] x = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j'};
+    private ArrayList<Move> childMoves;
 
     public Move(byte[] oldPos) {
         this.oldPos = oldPos;
+//        this.score = Integer.MIN_VALUE;
+        childMoves = new ArrayList<>();
+        this.hasChildren = false;
     }
 
     public Move(byte[] oldPos, byte[] newPos, byte[] arrowPos) {
@@ -53,12 +60,39 @@ public class Move implements Comparable<Move> {
         return arrowPos;
     }
 
-    public int getScore() {return score; }
+    public int getScore() { return score; }
 
-    public void setScore(int score) {this.score = score;}
+    public boolean hasChildren() {
+        return hasChildren;
+    }
 
-    public int setOrderingValue() {
+    public void setScore(int score) {
+        this.score = score;
+        setOrderingValue(score);
+    }
+
+    public void setHasChildren(boolean hasChildren) {
+        this.hasChildren = hasChildren;
+    }
+
+    public int getOrderingValue() {
         return orderingValue;
+    }
+
+    public void addChildMove(Move child) {
+        this.childMoves.add(child);
+    }
+
+    public void sortChildMoves() {
+        Collections.sort(this.childMoves);
+    }
+
+    public void addAllChildMove(ArrayList<Move> childList) {
+        this.childMoves.addAll(childList);
+    }
+
+    public ArrayList<Move> getChildMoves() {
+        return childMoves;
     }
 
     @Override
@@ -71,7 +105,7 @@ public class Move implements Comparable<Move> {
         return "Move " +
                 _printPosition(oldPos) + " -> " + _printPosition(newPos) +
                 " => " + _printPosition(arrowPos) +
-                ", score=" + orderingValue +
+                ", orderingValue=" + orderingValue +
                 "\nExquisite Move 🧐🔥\n";
     }
 

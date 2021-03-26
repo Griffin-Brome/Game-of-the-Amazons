@@ -2,12 +2,15 @@ package cosc322.amazons;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.*;
 
+import decision.logic.AlphaBetaExperiment;
 import decision.logic.AlphaBetaSearch;
 import models.Move;
+import models.RootMove;
 import ygraph.ai.smartfox.games.BaseGameGUI;
 import ygraph.ai.smartfox.games.GameClient;
 import ygraph.ai.smartfox.games.GameMessage;
@@ -133,10 +136,10 @@ public class AmazonsAIPlayer extends GamePlayer {
 
     public void setTuningParameters(int turnNumber, int moveSize) {
         this.goHard = 1 + turnNumber / 4;
-        this.upper = 2;
+        this.upper = 4;
 
         if (moveSize < 150) {
-            this.upper = 3;
+            this.upper = 8;
         }
 
         this.territoryDepth = (byte) (2 + turnNumber / territoryDepthAlpha);
@@ -174,8 +177,10 @@ public class AmazonsAIPlayer extends GamePlayer {
         } else {
             Move move = possibleMoves.get(0);
             setTuningParameters(turnNumber, possibleMoves.size());
+            RootMove root = new RootMove();
+            root.addAllChildMove(possibleMoves);
 
-            if(possibleMoves.size() < numThreads * 10) {
+            if(false) { // possibleMoves.size() < numThreads * 10
                 List<ArrayList<Move>> possibleMovesList = new ArrayList<>();
                 for (int i = 1; i < numThreads + 1; i++) {
                     possibleMovesList.add(new ArrayList<>(possibleMoves.subList(possibleMoves.size() / numThreads * (i - 1), possibleMoves.size() / numThreads * i)));
@@ -213,10 +218,19 @@ public class AmazonsAIPlayer extends GamePlayer {
                     pool.shutdown();
                 }
             } else {
-                for(int i = 1; i < 2; i++) {
-                    AlphaBetaSearch ab = new AlphaBetaSearch(gameBoard, i, isWhitePlayer, this.goHard, this.territoryDepth, possibleMoves);
-                    move = ab.getBestMove();
+                for(int i = 1; i < upper; i++) {
+//                    AlphaBetaSearch ab = new AlphaBetaSearch(gameBoard, i, isWhitePlayer, this.goHard, this.territoryDepth, possibleMoves);
+                    System.out.println("UPPER: " + i);
+                    AlphaBetaExperiment ab = new AlphaBetaExperiment(gameBoard, i, isWhitePlayer, this.goHard, this.territoryDepth, start, root);
+                    Move temp = ab.getBestMove();
+                    if(temp != null) {
+                        move = temp;
+                    }
                 }
+
+//                for (Move m: root.getChildMoves().get(0).getChildMoves()) {
+//                    System.out.println(m);
+//                }
             }
 
             byte[] oldPos = move.getOldPos();

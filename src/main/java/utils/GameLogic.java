@@ -126,6 +126,26 @@ public class GameLogic {
         return tempBoard;
     }
 
+    public static void _doTempMove(byte[][] board, Move move) {
+        byte[] oldPos = move.getOldPos();
+        byte[] newPos = move.getNewPos();
+        byte[] arrowPos = move.getArrowPos();
+
+        board[newPos[0]][newPos[1]] = board[oldPos[0]][oldPos[1]];
+        board[oldPos[0]][oldPos[1]] = BLANK;
+        board[arrowPos[0]][arrowPos[1]] = ARROW;
+    }
+
+    public static void _undoTempMove(byte[][] board, Move move) {
+        byte[] oldPos = move.getOldPos();
+        byte[] newPos = move.getNewPos();
+        byte[] arrowPos = move.getArrowPos();
+
+        board[arrowPos[0]][arrowPos[1]] = BLANK;
+        board[oldPos[0]][oldPos[1]] = board[newPos[0]][newPos[1]];
+        board[newPos[0]][newPos[1]] = BLANK;
+    }
+
     public static byte _getOccupant(byte[][] boardMatrix, byte[] pos) {
         byte x = pos[0];
         byte y = pos[1];

@@ -8,6 +8,8 @@ public class Move implements Comparable<Move> {
     private byte[] arrowPos;
     private int orderingValue;
     private int score;
+    static byte[] y = {10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
+    static char[] x = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j'};
 
     public Move(byte[] oldPos) {
         this.oldPos = oldPos;
@@ -66,11 +68,14 @@ public class Move implements Comparable<Move> {
 
     @Override
     public String toString() {
-        return "Move{" +
-                "oldPos=" + Arrays.toString(oldPos) +
-                ", newPos=" + Arrays.toString(newPos) +
-                ", arrowPos=" + Arrays.toString(arrowPos) +
-                ", orderingValue=" + orderingValue +
-                '}';
+        return "Move " +
+                _printPosition(oldPos) + " -> " + _printPosition(newPos) +
+                " => " + _printPosition(arrowPos) +
+                ", score=" + orderingValue +
+                "\nExquisite Move 🧐🔥\n";
+    }
+
+    public static String _printPosition(byte[] pos) {
+        return "" + x[pos[1]] + y[pos[0]];
     }
 }

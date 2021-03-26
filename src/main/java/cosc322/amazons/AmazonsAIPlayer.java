@@ -1,5 +1,6 @@
 package cosc322.amazons;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -109,9 +110,9 @@ public class AmazonsAIPlayer extends GamePlayer {
                     /**
                      * Now the only place conversion from server to local occurs
                      */
-                    ArrayList<Integer> queenPosCurr = toLocalFormat((ArrayList<Integer>) msgDetails.get(AmazonsGameMessage.QUEEN_POS_CURR));
-                    ArrayList<Integer> queenPosNext = toLocalFormat((ArrayList<Integer>) msgDetails.get(AmazonsGameMessage.Queen_POS_NEXT));
-                    ArrayList<Integer> arrowPos = toLocalFormat((ArrayList<Integer>) msgDetails.get(AmazonsGameMessage.ARROW_POS));
+                    byte[] queenPosCurr = toLocalFormat((ArrayList<Integer>) msgDetails.get(AmazonsGameMessage.QUEEN_POS_CURR));
+                    byte[] queenPosNext = toLocalFormat((ArrayList<Integer>) msgDetails.get(AmazonsGameMessage.Queen_POS_NEXT));
+                    byte[] arrowPos = toLocalFormat((ArrayList<Integer>) msgDetails.get(AmazonsGameMessage.ARROW_POS));
 
                     gameBoard.updateBoard(queenPosCurr, queenPosNext, arrowPos);
                     gamegui.updateGameState(msgDetails);
@@ -212,39 +213,23 @@ public class AmazonsAIPlayer extends GamePlayer {
                     pool.shutdown();
                 }
             } else {
-                for(int i = 1; i < upper; i++) {
+                for(int i = 1; i < 2; i++) {
                     AlphaBetaSearch ab = new AlphaBetaSearch(gameBoard, i, isWhitePlayer, this.goHard, this.territoryDepth, possibleMoves);
                     move = ab.getBestMove();
                 }
             }
 
-            ArrayList<Integer> oldPosList = new ArrayList<>(2);
-            ArrayList<Integer> newPosList = new ArrayList<>(2);
-            ArrayList<Integer> arrowPosList = new ArrayList<>(2);
-
             byte[] oldPos = move.getOldPos();
             byte[] newPos = move.getNewPos();
             byte[] arrowPos = move.getArrowPos();
 
-            // old position of the moving queen
-            oldPosList.add((int) oldPos[0]);
-            oldPosList.add((int) oldPos[1]);
-
-            // add to appropriate arrayList
-            newPosList.add((int) newPos[0]); // new pos
-            newPosList.add((int) newPos[1]);
-
-            // add to arraylist for server message
-            arrowPosList.add((int) arrowPos[0]); // arrow position
-            arrowPosList.add((int) arrowPos[1]);
-
             // IMPORTANT: update board before converting to server format
-            gameBoard.updateBoard(oldPosList, newPosList, arrowPosList);
+            gameBoard.updateBoard(oldPos, newPos, arrowPos);
 
             // Only place where we have to convert to server format of (y, x) and 1 indexed is now here.
-            oldPosList = toServerFormat(oldPosList);
-            newPosList = toServerFormat(newPosList);
-            arrowPosList = toServerFormat(arrowPosList);
+            ArrayList<Integer> oldPosList = toServerFormat(oldPos);
+            ArrayList<Integer> newPosList = toServerFormat(newPos);
+            ArrayList<Integer> arrowPosList = toServerFormat(arrowPos);
 
             // IMPORTANT: update gui after converting to server format
             gamegui.updateGameState(oldPosList, newPosList, arrowPosList);
@@ -260,12 +245,12 @@ public class AmazonsAIPlayer extends GamePlayer {
      * @param localPos
      * @return
      */
-    public ArrayList<Integer> toServerFormat(ArrayList<Integer> localPos) {
+    public ArrayList<Integer> toServerFormat(byte[] localPos) {
         ArrayList<Integer> serverPos = new ArrayList<>();
         // for the row, we set it to be N - localPos[0] to handle the conversion
-        serverPos.add(N - localPos.get(0));
+        serverPos.add(N - localPos[0]);
         // column just needs to have 1 added to it
-        serverPos.add(localPos.get(1) + 1);
+        serverPos.add(localPos[1] + 1);
         return serverPos;
     }
 
@@ -275,13 +260,10 @@ public class AmazonsAIPlayer extends GamePlayer {
      * @param serverPos
      * @return
      */
-    public ArrayList<Integer> toLocalFormat(ArrayList<Integer> serverPos) {
-        ArrayList<Integer> pos = new ArrayList<>();
+    public byte[] toLocalFormat(ArrayList<Integer> serverPos) {
         // for the row, we set it to be N - serverPos[0] to handle the conversion
-        pos.add(N - serverPos.get(0));
         // column just needs to have 1 subtracted from it
-        pos.add(serverPos.get(1) - 1);
-        return pos;
+        return new byte[]{(byte) (N - serverPos.get(0)), (byte) (serverPos.get(1) - 1)};
     }
 
     public String userName() {

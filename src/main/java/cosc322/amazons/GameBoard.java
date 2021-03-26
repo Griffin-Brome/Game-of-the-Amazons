@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import models.Arrow;
 import models.Queen;
 
+import static models.Move._printPosition;
 import static utils.Constant.*;
 import static utils.GameLogic.*;
 import static utils.MatrixOperations._makeMatrix;
@@ -47,9 +48,15 @@ public class GameBoard {
      * Updates the coordinates HashMap and matrix
      * Prints some debugging statements
      */
-    public void updateBoard(ArrayList<Integer> queenPosCurr, ArrayList<Integer> queenPosNext, ArrayList<Integer> arrowPos) {
+    public void updateBoard(byte[] queenPosCurr, byte[] queenPosNext, byte[] arrowPos) {
         moveQueen(queenPosCurr, queenPosNext);
         shootArrow(arrowPos);
+        System.out.println(
+                "Move " +
+                _printPosition(queenPosCurr) + " -> " + _printPosition(queenPosNext) +
+                " => " + _printPosition(arrowPos) +
+                "\nRegrettable...\n"
+        );
     }
 
     /**
@@ -58,7 +65,7 @@ public class GameBoard {
      * @param currPos TODO
      * @param endPos  TODO
      */
-    private void moveQueen(ArrayList<Integer> currPos, ArrayList<Integer> endPos) {
+    private void moveQueen(byte[] currPos, byte[] endPos) {
         // Check if new position is a valid state
         if (!_isValidPosition(boardMatrix, endPos)) {
             System.err.println("Cannot move to these coordinates");
@@ -104,14 +111,9 @@ public class GameBoard {
      * @param endPos
      * @param piece
      */
-    public void updateQueenInMatrix(ArrayList<Integer> currPos, ArrayList<Integer> endPos, byte piece) {
-        int currX = currPos.get(0);
-        int currY = currPos.get(1);
-        int endX = endPos.get(0);
-        int endY = endPos.get(1);
-
-        boardMatrix[currX][currY] = BLANK;
-        boardMatrix[endX][endY] = piece;
+    public void updateQueenInMatrix(byte[] currPos, byte[] endPos, byte piece) {
+        boardMatrix[currPos[0]][currPos[1]] = BLANK;
+        boardMatrix[endPos[0]][endPos[1]] = piece;
     }
 
     /**
@@ -122,11 +124,11 @@ public class GameBoard {
      * @param endPos
      * @param piece
      */
-    public void updateQueen(ArrayList<Integer> currPos, ArrayList<Integer> endPos, byte piece) {
+    public void updateQueen(byte[] currPos, byte[] endPos, byte piece) {
         switch (piece) {
             case BLACK_QUEEN:
                 for (Queen queen : blackQueens) {
-                    if (queen.getPosition()[0] == currPos.get(0) && queen.getPosition()[1] == currPos.get(1)) {
+                    if (queen.getPosition()[0] == currPos[0] && queen.getPosition()[1] == currPos[1]) {
                         queen.setPosition(endPos);
                     }
                 }
@@ -134,7 +136,7 @@ public class GameBoard {
 
             case WHITE_QUEEN:
                 for (Queen queen : whiteQueens) {
-                    if (queen.getPosition()[0] == currPos.get(0) && queen.getPosition()[1] == currPos.get(1)) {
+                    if (queen.getPosition()[0] == currPos[0] && queen.getPosition()[1] == currPos[1]) {
                         queen.setPosition(endPos);
                     }
                 }
@@ -148,12 +150,12 @@ public class GameBoard {
      *
      * @param arrowPos Coordinates to shoot arrow at
      */
-    private void shootArrow(ArrayList<Integer> arrowPos) {
+    private void shootArrow(byte[] arrowPos) {
         if (!_isValidPosition(boardMatrix, arrowPos)) {
             System.err.println("Selected tile is occupied");
         } else {
-            int x = arrowPos.get(0);
-            int y = arrowPos.get(1);
+            int x = arrowPos[0];
+            int y = arrowPos[1];
             boardMatrix[x][y] = ARROW;
             arrows.add(new Arrow((byte) x, (byte) y));
         }

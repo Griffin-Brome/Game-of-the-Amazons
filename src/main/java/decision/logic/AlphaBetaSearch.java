@@ -92,7 +92,7 @@ public class AlphaBetaSearch implements Callable<Move> {
                 score = tempScore;
             }
         }
-        System.out.println("Score: " + score + "\t" + bestMove + "\tAll Moves Size: " + possibleMoves.size());
+//        System.out.println("Score: " + score + "\n" + bestMove + "All Moves Size: " + possibleMoves.size() + "\n");
         return bestMove;
     }
 

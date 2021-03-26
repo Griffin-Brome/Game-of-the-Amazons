@@ -54,8 +54,7 @@ public class GameBoard {
         System.out.println(
                 "Move " +
                 _printPosition(queenPosCurr) + " -> " + _printPosition(queenPosNext) +
-                " => " + _printPosition(arrowPos) +
-                "\nRegrettable...\n"
+                " => " + _printPosition(arrowPos)
         );
     }
 

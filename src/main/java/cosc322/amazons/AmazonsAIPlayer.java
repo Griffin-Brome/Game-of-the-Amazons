@@ -136,10 +136,14 @@ public class AmazonsAIPlayer extends GamePlayer {
 
     public void setTuningParameters(int turnNumber, int moveSize) {
         this.goHard = 1 + turnNumber / 4;
-        this.upper = 4;
+        this.upper = 3;
 
         if (moveSize < 150) {
-            this.upper = 8;
+            this.upper = 5;
+        }
+
+        if (moveSize < 100) {
+            this.upper = 3;
         }
 
         this.territoryDepth = (byte) (2 + turnNumber / territoryDepthAlpha);

@@ -68,10 +68,18 @@ public class AlphaBetaExperiment implements Callable<Move> {
 
         switch(goHard){
             case 1:
-                possibleMoves = new ArrayList<>(possibleMoves.subList(0, Math.min(possibleMoves.size(), 250)));
+                possibleMoves = new ArrayList<>(possibleMoves.subList(0, Math.min(possibleMoves.size(), 120)));
                 break;
             case 2:
+                possibleMoves = new ArrayList<>(possibleMoves.subList(0, Math.min(possibleMoves.size(),250)));
+                System.out.println("🔥🔥🔥🔥 Going Hard 🔥🔥🔥🔥");
+                break;
+            case 3:
                 possibleMoves = new ArrayList<>(possibleMoves.subList(0, Math.min(possibleMoves.size(),500)));
+                System.out.println("🔥🔥🔥🔥 Going Hard 🔥🔥🔥🔥");
+                break;
+            case 4:
+                possibleMoves = new ArrayList<>(possibleMoves.subList(0, Math.min(possibleMoves.size(),800)));
                 System.out.println("🔥🔥🔥🔥 Going Hard 🔥🔥🔥🔥");
                 break;
             default:
@@ -79,15 +87,17 @@ public class AlphaBetaExperiment implements Callable<Move> {
         }
 
         Move bestMove = possibleMoves.get(0);
-        byte[][] currentBoard = gameBoard.getMatrix().clone();
+        byte[][] currentBoard = gameBoard.getMatrix();
 
+        int halfMoves = possibleMoves.size() / 2;
+        int count = 0;
         for (Move upperMove : possibleMoves) {
             int tempScore;
             if(System.currentTimeMillis() - this.startTime >= this.maxTime) {
-                return null;
+                return count >= halfMoves ? bestMove : null;
             }
             _doTempMove(currentBoard, upperMove);
-            tempScore = alphabeta(upperMove, currentBoard, 0, -Integer.MAX_VALUE, Integer.MAX_VALUE, false);
+            tempScore = alphabeta(upperMove, currentBoard, 1, -Integer.MAX_VALUE, Integer.MAX_VALUE, false);
             upperMove.setScore(tempScore);
 
             if (tempScore >= score) {
@@ -95,6 +105,7 @@ public class AlphaBetaExperiment implements Callable<Move> {
                 score = tempScore;
             }
             _undoTempMove(currentBoard, upperMove);
+            ++count;
         }
         System.out.println("Score: " + score + "\t" + bestMove + "\tAll Moves Size: " + possibleMoves.size());
         return bestMove;
@@ -108,13 +119,13 @@ public class AlphaBetaExperiment implements Callable<Move> {
             return utility;
         }
 
-//        if(System.currentTimeMillis() - this.startTime >= this.maxTime) {
-//            if(!maximizingPlayer) {
-//                return Integer.MIN_VALUE;
-//            } else {
-//                return Integer.MAX_VALUE;
-//            }
-//        }
+        if(System.currentTimeMillis() - this.startTime >= this.maxTime) {
+            if(!maximizingPlayer) {
+                return Integer.MIN_VALUE;
+            } else {
+                return Integer.MAX_VALUE;
+            }
+        }
 
         int value;
         ActionFactory af;

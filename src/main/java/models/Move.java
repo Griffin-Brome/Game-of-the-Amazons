@@ -106,7 +106,7 @@ public class Move implements Comparable<Move> {
                 _printPosition(oldPos) + " -> " + _printPosition(newPos) +
                 " => " + _printPosition(arrowPos) +
                 ", orderingValue=" + orderingValue +
-                "\nExquisite Move 🧐🔥\n";
+                "\t|\tExquisite Move 🧐🔥";
     }
 
     public static String _printPosition(byte[] pos) {

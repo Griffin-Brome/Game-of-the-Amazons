@@ -38,7 +38,6 @@ public class AmazonsAIPlayer extends GamePlayer {
     private int turnNumber;
     private int goHard = 1;
 
-    int iterativeDeepeningAlpha = 25;
     int territoryDepthAlpha = 15;
     private int upper;
     private byte territoryDepth;
@@ -53,7 +52,8 @@ public class AmazonsAIPlayer extends GamePlayer {
     // Second constructor for if we want to pass the delay parameter
     public AmazonsAIPlayer(String userName, String passwd, int delay) {
         this(userName, passwd);
-        this.delay = delay;
+        // TODO: if we want to re-enable the delay parameter, we should set this.delay = delay
+        this.delay = 0;
     }
 
     /**
@@ -117,7 +117,7 @@ public class AmazonsAIPlayer extends GamePlayer {
                     byte[] queenPosNext = toLocalFormat((ArrayList<Integer>) msgDetails.get(AmazonsGameMessage.Queen_POS_NEXT));
                     byte[] arrowPos = toLocalFormat((ArrayList<Integer>) msgDetails.get(AmazonsGameMessage.ARROW_POS));
 
-                    gameBoard.updateBoard(queenPosCurr, queenPosNext, arrowPos);
+                    gameBoard.updateBoard(queenPosCurr, queenPosNext, arrowPos, false);
                     gamegui.updateGameState(msgDetails);
 
                     // Now we make a move
@@ -226,7 +226,7 @@ public class AmazonsAIPlayer extends GamePlayer {
 //                    AlphaBetaSearch ab = new AlphaBetaSearch(gameBoard, i, isWhitePlayer, this.goHard, this.territoryDepth, possibleMoves);
                     System.out.println("UPPER: " + i);
                     AlphaBetaExperiment ab = new AlphaBetaExperiment(gameBoard, i, isWhitePlayer, this.goHard, this.territoryDepth, start, root);
-                    Move temp = ab.getBestMove();
+                    Move temp = ab.getBestMove(turnNumber);
                     if(temp != null) {
                         move = temp;
                     }
@@ -242,7 +242,7 @@ public class AmazonsAIPlayer extends GamePlayer {
             byte[] arrowPos = move.getArrowPos();
 
             // IMPORTANT: update board before converting to server format
-            gameBoard.updateBoard(oldPos, newPos, arrowPos);
+            gameBoard.updateBoard(oldPos, newPos, arrowPos, true);
 
             // Only place where we have to convert to server format of (y, x) and 1 indexed is now here.
             ArrayList<Integer> oldPosList = toServerFormat(oldPos);

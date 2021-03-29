@@ -63,33 +63,24 @@ public class AlphaBetaExperiment implements Callable<Move> {
         return getBestMove();
     }
 
+    public Move getBestMove(int turnNumber) {
+        if(turnNumber < 3) {
+//            return possibleMoves.get(0);
+//            return getFirstMove();
+            return getBestMove();
+        } else {
+            return getBestMove();
+        }
+    }
+
     public Move getBestMove() {
         int score = Integer.MIN_VALUE;
 
-        switch(goHard){
-            case 1:
-                possibleMoves = new ArrayList<>(possibleMoves.subList(0, Math.min(possibleMoves.size(), 120)));
-                break;
-            case 2:
-                possibleMoves = new ArrayList<>(possibleMoves.subList(0, Math.min(possibleMoves.size(),250)));
-                System.out.println("🔥🔥🔥🔥 Going Hard 🔥🔥🔥🔥");
-                break;
-            case 3:
-                possibleMoves = new ArrayList<>(possibleMoves.subList(0, Math.min(possibleMoves.size(),500)));
-                System.out.println("🔥🔥🔥🔥 Going Hard 🔥🔥🔥🔥");
-                break;
-            case 4:
-                possibleMoves = new ArrayList<>(possibleMoves.subList(0, Math.min(possibleMoves.size(),800)));
-                System.out.println("🔥🔥🔥🔥 Going Hard 🔥🔥🔥🔥");
-                break;
-            default:
-                System.out.println("🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥 FULL POWER 🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥");
-        }
-
+        prunePossibleMoves(); // just encapsulates the switch statement that sublists based on various tuning parameters
         Move bestMove = possibleMoves.get(0);
         byte[][] currentBoard = gameBoard.getMatrix();
 
-        int halfMoves = possibleMoves.size() / 2;
+        int halfMoves = (int) Math.floor(possibleMoves.size() / 1.5); // we must be 2/3 of the way through a layer before trusting it enough to return it's value
         int count = 0;
         for (Move upperMove : possibleMoves) {
             int tempScore;
@@ -108,6 +99,48 @@ public class AlphaBetaExperiment implements Callable<Move> {
             ++count;
         }
         System.out.println("Score: " + score + "\t" + bestMove + "\tAll Moves Size: " + possibleMoves.size());
+        return bestMove;
+    }
+
+    public void prunePossibleMoves() {
+        int movesMax = 120;
+        switch(goHard){
+            case 1:
+                movesMax = 120;
+                break;
+            case 2:
+               movesMax = 250;
+                System.out.println("🔥🔥🔥🔥 Going Hard 🔥🔥🔥🔥");
+                break;
+            case 3:
+                movesMax = 500;
+                System.out.println("🔥🔥🔥🔥 Going Hard 🔥🔥🔥🔥");
+                break;
+            case 4:
+                movesMax = 800;
+                System.out.println("🔥🔥🔥🔥 Going Hard 🔥🔥🔥🔥");
+                break;
+            default:
+                System.out.println("🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥 FULL POWER 🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥");
+                return; // don't sublist at all when at full power
+        }
+
+        possibleMoves = new ArrayList<>(possibleMoves.subList(0, Math.min(possibleMoves.size(), movesMax)));
+    }
+
+    public Move getFirstMove() {
+        int score = Integer.MIN_VALUE;
+        Move bestMove = possibleMoves.get(0);
+        byte[][] currentBoard = gameBoard.getMatrix();
+        for (Move upperMove : possibleMoves) {
+            Heuristic heuristic = new Heuristic(currentBoard, isWhitePlayer, this.territoryDepth);
+            int utility = heuristic.getUtility();
+            if(utility > score) {
+                bestMove = upperMove;
+                score = utility;
+            }
+        }
+
         return bestMove;
     }
 

@@ -48,11 +48,12 @@ public class GameBoard {
      * Updates the coordinates HashMap and matrix
      * Prints some debugging statements
      */
-    public void updateBoard(byte[] queenPosCurr, byte[] queenPosNext, byte[] arrowPos) {
+    public void updateBoard(byte[] queenPosCurr, byte[] queenPosNext, byte[] arrowPos, boolean ourMove) {
         moveQueen(queenPosCurr, queenPosNext);
         shootArrow(arrowPos);
         System.out.println(
-                "Move " +
+                "\n" + (ourMove ? "=====[US]=====" : "=====[OPPONENT]=====") +
+                "\nMove " +
                 _printPosition(queenPosCurr) + " -> " + _printPosition(queenPosNext) +
                 " => " + _printPosition(arrowPos)
         );

@@ -64,10 +64,10 @@ public class AlphaBetaExperiment implements Callable<Move> {
     }
 
     public Move getBestMove(int turnNumber) {
-        if(turnNumber < 3) {
+        if(turnNumber < 5) {
 //            return possibleMoves.get(0);
-//            return getFirstMove();
-            return getBestMove();
+            return getFirstMove();
+//            return getBestMove();
         } else {
             return getBestMove();
         }
@@ -133,9 +133,14 @@ public class AlphaBetaExperiment implements Callable<Move> {
         Move bestMove = possibleMoves.get(0);
         byte[][] currentBoard = gameBoard.getMatrix();
         for (Move upperMove : possibleMoves) {
-            Heuristic heuristic = new Heuristic(currentBoard, isWhitePlayer, this.territoryDepth);
-            int utility = heuristic.getUtility();
-            if(utility > score) {
+            if(System.currentTimeMillis() - this.startTime >= this.maxTime) {
+                return bestMove;
+            }
+            _doTempMove(currentBoard, upperMove);
+            Heuristic heuristic = new Heuristic(currentBoard, isWhitePlayer, (byte) 4);
+            int utility = heuristic.mobilityHeuristic() + heuristic.territoryHeuristic() + 5 * heuristic.immediateMovesHeuristic();
+            _undoTempMove(currentBoard, upperMove);
+            if(utility >= score) {
                 bestMove = upperMove;
                 score = utility;
             }
@@ -185,6 +190,8 @@ public class AlphaBetaExperiment implements Callable<Move> {
                     alpha = Math.max(alpha, value);
                     if (alpha >= beta) break;
                 }
+                parentMove.addAllChildMove(allMoves);
+                parentMove.setHasChildren(true);
             }
         } else {
             value = Integer.MAX_VALUE;
@@ -207,6 +214,8 @@ public class AlphaBetaExperiment implements Callable<Move> {
                     beta = Math.min(beta, value);
                     if (beta <= alpha) break;
                 }
+                parentMove.addAllChildMove(allMoves);
+                parentMove.setHasChildren(true);
             }
         }
         return value;

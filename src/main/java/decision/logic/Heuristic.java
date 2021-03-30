@@ -53,7 +53,7 @@ public class Heuristic {
             if (free) total += 1;
         }
 
-        for (Queen queen : myQueenPositions) {
+        for (Queen queen : theirQueenPositions) {
             byte[] oldPos = queen.getPosition();
             boolean free = false;
             for (byte dir : DIRECTIONS) {

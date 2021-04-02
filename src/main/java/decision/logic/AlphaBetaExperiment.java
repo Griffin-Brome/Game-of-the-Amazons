@@ -109,16 +109,12 @@ public class AlphaBetaExperiment implements Callable<Move> {
                 movesMax = 120;
                 break;
             case 2:
-               movesMax = 250;
-                System.out.println("🔥🔥🔥🔥 Going Hard 🔥🔥🔥🔥");
-                break;
-            case 3:
                 movesMax = 500;
                 System.out.println("🔥🔥🔥🔥 Going Hard 🔥🔥🔥🔥");
                 break;
-            case 4:
+            case 3:
                 movesMax = 800;
-                System.out.println("🔥🔥🔥🔥 Going Hard 🔥🔥🔥🔥");
+                System.out.println("🔥🔥🔥🔥 Going Harder 🔥🔥🔥🔥");
                 break;
             default:
                 System.out.println("🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥 FULL POWER 🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥");
@@ -176,7 +172,9 @@ public class AlphaBetaExperiment implements Callable<Move> {
                 parentMove.sortChildMoves();
                 allMoves = parentMove.getChildMoves();
                 for (Move move : allMoves) {
-                    value = Math.max(value, move.getScore());
+                    _doTempMove(board, move);
+                    value = Math.max(value, alphabeta(move, board, depth + 1, alpha, beta, false));
+                    _undoTempMove(board, move);
                     alpha = Math.max(alpha, value);
                     if (alpha >= beta) break;
                 }
@@ -200,7 +198,9 @@ public class AlphaBetaExperiment implements Callable<Move> {
                 parentMove.sortChildMoves();
                 allMoves = parentMove.getChildMoves();
                 for (Move move : allMoves) {
-                    value = Math.min(value, move.getScore());
+                    _doTempMove(board, move);
+                    value = Math.min(value, alphabeta(move, board, depth + 1, alpha, beta, true));
+                    _undoTempMove(board, move);
                     beta = Math.min(beta, value);
                     if (beta <= alpha) break;
                 }

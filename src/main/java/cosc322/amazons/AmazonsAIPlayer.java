@@ -46,7 +46,6 @@ public class AmazonsAIPlayer extends GamePlayer {
         setUserName(userName);
         setPassword(passwd);
         setGameGUI(new BaseGameGUI(this));
-        turnNumber = 1;
     }
 
     // Second constructor for if we want to pass the delay parameter
@@ -93,6 +92,7 @@ public class AmazonsAIPlayer extends GamePlayer {
     @Override
     public boolean handleGameMessage(String messageType, Map<String, Object> msgDetails) {
         try {
+            long start = System.currentTimeMillis(); // start timer
             switch (messageType) {
                 // set gui/board
                 case GameMessage.GAME_STATE_BOARD:
@@ -104,8 +104,7 @@ public class AmazonsAIPlayer extends GamePlayer {
                     break;
 
                 case GameMessage.GAME_ACTION_START:
-                    long start = System.currentTimeMillis();
-                    this.handleStart(msgDetails);
+                    this.handleStart(msgDetails, start);
                     System.out.println("Move Time: " + (System.currentTimeMillis() - start));
                     break;
 
@@ -121,8 +120,7 @@ public class AmazonsAIPlayer extends GamePlayer {
                     gamegui.updateGameState(msgDetails);
 
                     // Now we make a move
-                    start = System.currentTimeMillis();
-                    move();
+                    move(start);
                     System.out.println("Turn Number: " + turnNumber + "\tMove Time: " + (System.currentTimeMillis() - start));
                     break;
             }
@@ -136,17 +134,15 @@ public class AmazonsAIPlayer extends GamePlayer {
 
     public void setTuningParameters(int turnNumber, int moveSize) {
         this.goHard = 1 + turnNumber / 4;
-        this.upper = 3;
+        this.upper = 7;
+
+        this.upper = turnNumber < 6 ? 2 : this.upper; //NOTE: < X where X is the same as in AlphaBetaExp. getBestMove(int turnNumber)
 
         if (moveSize < 150) {
             this.upper = 5;
         }
 
-        if (moveSize < 100) {
-            this.upper = 3;
-        }
-
-        this.territoryDepth = (byte) (2 + turnNumber / territoryDepthAlpha);
+        this.territoryDepth = (byte) (3 + turnNumber / territoryDepthAlpha);
     }
 
     /**
@@ -155,86 +151,43 @@ public class AmazonsAIPlayer extends GamePlayer {
      *
      * @param msgDetails
      */
-    public void handleStart(Map<String, Object> msgDetails) throws ExecutionException, InterruptedException {
+    public void handleStart(Map<String, Object> msgDetails, long start) throws ExecutionException, InterruptedException {
         if (msgDetails.get(AmazonsGameMessage.PLAYER_WHITE).equals(this.userName)) {
             this.isWhitePlayer = true;
         } else if (msgDetails.get(AmazonsGameMessage.PLAYER_BLACK).equals(this.userName)) {
             this.isWhitePlayer = false;
-            move();
+            move(start);
         }
     }
 
     /**
      * Game DecisionLogic needs to be implemented here, that class should implement AlphaBeta
      */
-    public void move() throws ExecutionException, InterruptedException {
-        int numThreads = 4;
-        long start = System.currentTimeMillis();
+    public void move(long start) throws ExecutionException, InterruptedException {
         while (System.currentTimeMillis() < start + delay) ;
 
         ActionFactory af = new ActionFactory(gameBoard, isWhitePlayer);
         ArrayList<Move> possibleMoves = af.getPossibleMoves();
 
         if (possibleMoves.isEmpty()) {
-            String player = isWhitePlayer ? "White Player" : "Black Player";
-            System.out.println("Game over for " + player);
+            System.out.println("Game over for " + (isWhitePlayer ? "White Player" : "Black Player"));
         } else {
             Move move = possibleMoves.get(0);
             setTuningParameters(turnNumber, possibleMoves.size());
+
             RootMove root = new RootMove();
             root.addAllChildMove(possibleMoves);
 
-            if(false) { // possibleMoves.size() < numThreads * 10
-                List<ArrayList<Move>> possibleMovesList = new ArrayList<>();
-                for (int i = 1; i < numThreads + 1; i++) {
-                    possibleMovesList.add(new ArrayList<>(possibleMoves.subList(possibleMoves.size() / numThreads * (i - 1), possibleMoves.size() / numThreads * i)));
+            for (int i = 1; i < upper; i++) {
+                if (System.currentTimeMillis() - start >= 28000) { // NOTE: hard coded as 28s
+                    break;
                 }
-
-                boolean waitonce = false;
-                for (int i = 1; i < upper; i++) {
-                    ExecutorService pool = Executors.newFixedThreadPool(numThreads);
-                    List<AlphaBetaSearch> abList = new ArrayList<>();
-                    List<Future<Move>> futureList = new ArrayList<>();
-                    List<Move> bestMoves = new ArrayList<>();
-
-                    for (int j = 0; j < numThreads; j++) {
-                        abList.add(new AlphaBetaSearch(gameBoard, i, isWhitePlayer, this.goHard, this.territoryDepth, possibleMovesList.get(j)));
-                        futureList.add(pool.submit(abList.get(j)));
-
-                    }
-
-                    if (!waitonce) {
-                        pool.awaitTermination(23, TimeUnit.SECONDS);
-                        waitonce = true;
-                    }
-                    for (int k = 0; k < numThreads; k++) {
-                        bestMoves.add(futureList.get(k).get());
-                    }
-
-                    int bestScore = Integer.MIN_VALUE;
-                    for (Move m : bestMoves) {
-                        if (m.getScore() > bestScore) {
-                            move = m;
-                            bestScore = m.getScore();
-                        }
-                    }
-                    System.out.println("Check |\tUpper current: " + i + "\tTerritory Depth: " + territoryDepth);
-                    pool.shutdown();
+                System.out.println("UPPER: " + i);
+                AlphaBetaExperiment ab = new AlphaBetaExperiment(gameBoard, i, isWhitePlayer, this.goHard, this.territoryDepth, start, root);
+                Move temp = ab.getBestMove(turnNumber);
+                if (temp != null) {
+                    move = temp;
                 }
-            } else {
-                for(int i = 1; i < upper; i++) {
-//                    AlphaBetaSearch ab = new AlphaBetaSearch(gameBoard, i, isWhitePlayer, this.goHard, this.territoryDepth, possibleMoves);
-                    System.out.println("UPPER: " + i);
-                    AlphaBetaExperiment ab = new AlphaBetaExperiment(gameBoard, i, isWhitePlayer, this.goHard, this.territoryDepth, start, root);
-                    Move temp = ab.getBestMove(turnNumber);
-                    if(temp != null) {
-                        move = temp;
-                    }
-                }
-
-//                for (Move m: root.getChildMoves().get(0).getChildMoves()) {
-//                    System.out.println(m);
-//                }
             }
 
             byte[] oldPos = move.getOldPos();

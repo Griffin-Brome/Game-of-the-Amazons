@@ -32,10 +32,10 @@ public class Heuristic {
     }
 
     public int getUtility() {
-        return 4 * territoryHeuristic() + mobilityHeuristic() + maxMoves * 2 * killSaveQueens() + 5 * immediateMovesHeuristic();
+        //NOTE: top one is from elimination tourney
+//        return 4 * territoryHeuristic() + mobilityHeuristic() + maxMoves * 2 * killSaveQueens() + 5 * immediateMovesHeuristic();
+        return 4 * territoryHeuristic() + mobilityHeuristic() + maxMoves * 2 * killSaveQueens() + immediateMovesHeuristic();
 //        return mobilityHeuristic();
-        //TODO: remove this random utility thing
-//        return (int) (1 + Math.random() * 100);
     }
 
     public int killSaveQueens() {

@@ -1,14 +1,10 @@
 package cosc322.amazons;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.*;
 
-import decision.logic.AlphaBetaExperiment;
-import decision.logic.AlphaBetaSearch;
+import decision.logic.AlphaBeta;
 import models.Move;
 import models.RootMove;
 import ygraph.ai.smartfox.games.BaseGameGUI;
@@ -34,18 +30,17 @@ public class AmazonsAIPlayer extends GamePlayer {
 
     private String userName = null;
     private String passwd = null;
-    private int delay = 0;
+    private int delay;
     private int turnNumber;
-    private int goHard = 1;
-
-    int territoryDepthAlpha = 15;
-    private int upper;
+    private int searchLevel;
+    private int IDSUpper;
     private byte territoryDepth;
 
     public AmazonsAIPlayer(String userName, String passwd) {
         setUserName(userName);
         setPassword(passwd);
         setGameGUI(new BaseGameGUI(this));
+        searchLevel = 1;
     }
 
     // Second constructor for if we want to pass the delay parameter
@@ -68,7 +63,6 @@ public class AmazonsAIPlayer extends GamePlayer {
             this.getGameGUI().setRoomInformation(this.getGameClient().getRoomList());
         } else {
             System.err.println("Error: Could not load game UI");
-            // Will break out of program since this method is void
         }
     }
 
@@ -105,7 +99,7 @@ public class AmazonsAIPlayer extends GamePlayer {
 
                 case GameMessage.GAME_ACTION_START:
                     this.handleStart(msgDetails, start);
-                    System.out.println("Move Time: " + (System.currentTimeMillis() - start));
+                    System.out.println("Turn Number: " + turnNumber + "\tMove Time: " + (System.currentTimeMillis() - start));
                     break;
 
                 case GameMessage.GAME_ACTION_MOVE:
@@ -118,6 +112,7 @@ public class AmazonsAIPlayer extends GamePlayer {
 
                     gameBoard.updateBoard(queenPosCurr, queenPosNext, arrowPos, false);
                     gamegui.updateGameState(msgDetails);
+                    System.out.println(); // just to make the print out more readable
 
                     // Now we make a move
                     move(start);
@@ -130,19 +125,6 @@ public class AmazonsAIPlayer extends GamePlayer {
             e.printStackTrace();
         }
         return false;
-    }
-
-    public void setTuningParameters(int turnNumber, int moveSize) {
-        this.goHard = 1 + turnNumber / 4;
-        this.upper = 7;
-
-        this.upper = turnNumber < 6 ? 2 : this.upper; //NOTE: < X where X is the same as in AlphaBetaExp. getBestMove(int turnNumber)
-
-        if (moveSize < 150) {
-            this.upper = 5;
-        }
-
-        this.territoryDepth = (byte) (3 + turnNumber / territoryDepthAlpha);
     }
 
     /**
@@ -160,6 +142,19 @@ public class AmazonsAIPlayer extends GamePlayer {
         }
     }
 
+    public void setTuningParameters(int turnNumber, int moveSize) {
+        this.searchLevel = 1 + turnNumber / 4;
+        this.IDSUpper = 7;
+
+        this.IDSUpper = turnNumber < 5 ? 2 : this.IDSUpper; //NOTE: < X where X is the same as in AlphaBetaExp. getBestMove(int turnNumber)
+
+        if (moveSize < 150) {
+            this.IDSUpper = 5;
+        }
+
+        this.territoryDepth = (byte) (5 + turnNumber / 10);
+    }
+
     /**
      * Game DecisionLogic needs to be implemented here, that class should implement AlphaBeta
      */
@@ -168,23 +163,22 @@ public class AmazonsAIPlayer extends GamePlayer {
 
         ActionFactory af = new ActionFactory(gameBoard, isWhitePlayer);
         ArrayList<Move> possibleMoves = af.getPossibleMoves();
+        setTuningParameters(turnNumber, possibleMoves.size());
 
         if (possibleMoves.isEmpty()) {
             System.out.println("Game over for " + (isWhitePlayer ? "White Player" : "Black Player"));
         } else {
             Move move = possibleMoves.get(0);
-            setTuningParameters(turnNumber, possibleMoves.size());
-
             RootMove root = new RootMove();
-            root.addAllChildMove(possibleMoves);
+            root.addAllChildMove(possibleMoves); // in order to store move trees persistently through IDS steps
 
-            for (int i = 1; i < upper; i++) {
+            for (int i = 1; i < IDSUpper; i++) {
                 if (System.currentTimeMillis() - start >= 28000) { // NOTE: hard coded as 28s
                     break;
                 }
                 System.out.println("UPPER: " + i);
-                AlphaBetaExperiment ab = new AlphaBetaExperiment(gameBoard, i, isWhitePlayer, this.goHard, this.territoryDepth, start, root);
-                Move temp = ab.getBestMove(turnNumber);
+                AlphaBeta ab = new AlphaBeta(gameBoard, i, isWhitePlayer, this.searchLevel, this.territoryDepth, start, root);
+                Move temp = ab.getBestMove(i, turnNumber);
                 if (temp != null) {
                     move = temp;
                 }

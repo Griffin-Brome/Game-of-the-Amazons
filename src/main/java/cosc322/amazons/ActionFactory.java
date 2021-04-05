@@ -65,17 +65,18 @@ public class ActionFactory {
         ArrayList<Move> moves = new ArrayList<>();
         for (byte dir : DIRECTIONS) {
             byte[] newPos = _generateNewPosition(oldPos.clone(), dir);
-            while (_isValidPosition(boardMatrix, newPos)){
+            while (_isValidPosition(boardMatrix, newPos)) {
                 ArrayList<byte[]> possibleArrows = generateArrowsHelper(oldPos.clone(), newPos.clone());
-                for(byte[] arrowPos : possibleArrows){
+                for (byte[] arrowPos : possibleArrows) {
                     Move move = new Move(oldPos);
                     move.setNewPos(newPos);
                     move.setArrowPos(arrowPos);
 
                     // this code calculates the mobility heuristic of this move's future board state and stores it in the move so we can order it
-                    byte[][] tempBoard = _makeTempMove(boardMatrix, move);
-                    Heuristic h = new Heuristic(tempBoard, isWhitePlayer);
+                    _doTempMove(boardMatrix, move);
+                    Heuristic h = new Heuristic(boardMatrix, isWhitePlayer);
                     move.setOrderingValue(h.mobilityHeuristic());
+                    _undoTempMove(boardMatrix, move);
                     // okay, back to the generating moves ✨
 
                     moves.add(move);
@@ -92,10 +93,10 @@ public class ActionFactory {
 
         for (byte dir : DIRECTIONS) {
             byte[] newPos = _generateNewPosition(newQueenPos, dir);
-          while(_isValidPosition(tempBoard, newPos)){
-              possibleArrows.add(newPos);
-              newPos = _generateNewPosition(newPos, dir);
-          }
+            while (_isValidPosition(tempBoard, newPos)) {
+                possibleArrows.add(newPos);
+                newPos = _generateNewPosition(newPos, dir);
+            }
         }
         return possibleArrows;
     }

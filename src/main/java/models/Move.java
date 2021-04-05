@@ -1,7 +1,6 @@
 package models;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 
 public class Move implements Comparable<Move> {
@@ -60,7 +59,9 @@ public class Move implements Comparable<Move> {
         return arrowPos;
     }
 
-    public int getScore() { return score; }
+    public int getScore() {
+        return score;
+    }
 
     public boolean hasChildren() {
         return hasChildren;
@@ -87,6 +88,14 @@ public class Move implements Comparable<Move> {
         Collections.sort(this.childMoves);
     }
 
+    public void sortChildMoves(boolean desc) {
+        if (desc)
+            this.childMoves.sort((m1, m2) -> m2.orderingValue - m1.orderingValue);
+        else {
+            this.childMoves.sort((m1, m2) -> m1.orderingValue - m2.orderingValue);
+        }
+    }
+
     public void addAllChildMove(ArrayList<Move> childList) {
         this.childMoves.addAll(childList);
     }
@@ -97,6 +106,7 @@ public class Move implements Comparable<Move> {
 
     @Override
     public int compareTo(Move m) {
+        // default comparison with Collections.sort() -> only used in ActionFactory, otherwise see line 91.
         return m.orderingValue - this.orderingValue;
     }
 

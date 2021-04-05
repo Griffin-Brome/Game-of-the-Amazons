@@ -19,6 +19,7 @@ public class RootMove {
     }
 
     public ArrayList<Move> getChildMoves() {
+        sortChildMoves(); // implicitly sort moves before returning them
         return childMoves;
     }
 

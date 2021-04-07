@@ -6,14 +6,14 @@ import models.Move;
 import models.RootMove;
 
 import java.util.ArrayList;
-import java.util.concurrent.Callable;
 
-import static utils.GameLogic.*;
+import static utils.GameLogic._doTempMove;
+import static utils.GameLogic._undoTempMove;
 
 /**
  * Adapted from fig. 5.7, pg.310 of Artificial Intelligence, A Modern Approach (4th Edition)
  */
-public class AlphaBeta {
+public class AlphaBetaAlt {
     int alpha, beta;
     byte[][] currentBoard;
     int goalDepth;
@@ -24,7 +24,7 @@ public class AlphaBeta {
     long startTime;
     long maxTime = 28000;
 
-    public AlphaBeta(GameBoard gameBoard, int goalDepth, boolean isWhitePlayer, int level, byte territoryDepth, long startTime, RootMove root) {
+    public AlphaBetaAlt(GameBoard gameBoard, int goalDepth, boolean isWhitePlayer, int level, byte territoryDepth, long startTime, RootMove root) {
         this.currentBoard = gameBoard.getMatrix();
         this.goalDepth = goalDepth;
         this.isWhitePlayer = isWhitePlayer;
@@ -37,7 +37,7 @@ public class AlphaBeta {
     }
 
     public Move getBestMove(int turnNumber) {
-        if (turnNumber < 4) {
+        if (turnNumber < 6) {
             return getEarlyMove();
         } else {
             return getBestMove();
@@ -49,9 +49,10 @@ public class AlphaBeta {
 
         // just encapsulates the switch statement that sublist based on various tuning parameters
         // at UPPER 1 find the objective best move from all moves, only sublist if we're going deeper than that
-        Move bestMove = possibleMoves.get(0);
+        ArrayList<Move> allMoves = possibleMoves;
+        Move bestMove = allMoves.get(0);
 
-        for (Move upperMove : possibleMoves) {
+        for (Move upperMove : allMoves) {
             if (System.currentTimeMillis() - this.startTime >= this.maxTime) {
                 return null;
             }
@@ -66,7 +67,7 @@ public class AlphaBeta {
                 score = tempScore;
             }
         }
-        System.out.println("Score: " + score + "\t" + bestMove + "\tAll Moves Size: " + possibleMoves.size());
+        System.out.println("Score: " + score + "\t" + bestMove + "\tAll Moves Size: " + allMoves.size());
         return bestMove;
     }
 
@@ -79,7 +80,7 @@ public class AlphaBeta {
             }
             _doTempMove(currentBoard, upperMove);
             Heuristic heuristic = new Heuristic(currentBoard, isWhitePlayer, (byte) 5);
-            int utility = heuristic.getUtility();
+            int utility = heuristic.getAltUtility();
             _undoTempMove(currentBoard, upperMove);
             if (utility >= score) {
                 bestMove = upperMove;

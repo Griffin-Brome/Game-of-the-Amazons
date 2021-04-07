@@ -1,10 +1,6 @@
 package cosc322.amazons;
 
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.concurrent.*;
-
-import decision.logic.AlphaBeta;
+import decision.logic.AlphaBetaAlt;
 import models.Move;
 import models.RootMove;
 import ygraph.ai.smartfox.games.BaseGameGUI;
@@ -12,6 +8,10 @@ import ygraph.ai.smartfox.games.GameClient;
 import ygraph.ai.smartfox.games.GameMessage;
 import ygraph.ai.smartfox.games.GamePlayer;
 import ygraph.ai.smartfox.games.amazons.AmazonsGameMessage;
+
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 import static utils.Constant.N;
 
@@ -21,7 +21,7 @@ import static utils.Constant.N;
  *
  * @author Group 21
  */
-public class AmazonsAIPlayer extends GamePlayer {
+public class AmazonsAIPlayerAlt extends GamePlayer {
 
     private boolean isWhitePlayer = false;
     private GameClient gameClient = null;
@@ -36,7 +36,7 @@ public class AmazonsAIPlayer extends GamePlayer {
     private int IDSUpper;
     private byte territoryDepth;
 
-    public AmazonsAIPlayer(String userName, String passwd) {
+    public AmazonsAIPlayerAlt(String userName, String passwd) {
         setUserName(userName);
         setPassword(passwd);
         setGameGUI(new BaseGameGUI(this));
@@ -44,7 +44,7 @@ public class AmazonsAIPlayer extends GamePlayer {
     }
 
     // Second constructor for if we want to pass the delay parameter
-    public AmazonsAIPlayer(String userName, String passwd, int delay) {
+    public AmazonsAIPlayerAlt(String userName, String passwd, int delay) {
         this(userName, passwd);
         // TODO: if we want to re-enable the delay parameter, we should set this.delay = delay
         this.delay = 0;
@@ -146,7 +146,7 @@ public class AmazonsAIPlayer extends GamePlayer {
         this.searchLevel = 1 + turnNumber / 4;
         this.IDSUpper = 10;
 
-        this.IDSUpper = turnNumber < 4 ? 2 : this.IDSUpper; //NOTE: < X where X is the same as in AlphaBetaExp. getBestMove(int turnNumber)
+        this.IDSUpper = turnNumber < 4 ? 2 : this.IDSUpper; //NOTE: < X where X is the same as in AlphaBetaAlt. getBestMove(int turnNumber)
 
         if (moveSize < 150) {
             this.IDSUpper = 5;
@@ -156,7 +156,7 @@ public class AmazonsAIPlayer extends GamePlayer {
     }
 
     /**
-     * Game DecisionLogic needs to be implemented here, that class should implement AlphaBeta
+     * Game DecisionLogic needs to be implemented here, that class should implement AlphaBetaAlt
      */
     public void move(long start) throws ExecutionException, InterruptedException {
         while (System.currentTimeMillis() < start + delay) ;
@@ -177,7 +177,7 @@ public class AmazonsAIPlayer extends GamePlayer {
                     break;
                 }
                 System.out.println("UPPER: " + i);
-                AlphaBeta ab = new AlphaBeta(gameBoard, i, isWhitePlayer, this.searchLevel, this.territoryDepth, start, root);
+                AlphaBetaAlt ab = new AlphaBetaAlt(gameBoard, i, isWhitePlayer, this.searchLevel, this.territoryDepth, start, root);
                 Move temp = ab.getBestMove(turnNumber);
                 if (temp != null) {
                     move = temp;

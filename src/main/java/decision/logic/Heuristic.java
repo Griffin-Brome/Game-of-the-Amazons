@@ -31,7 +31,11 @@ public class Heuristic {
     }
 
     public int getUtility() {
-        return 4 * territoryHeuristic() + mobilityHeuristic() + 2 * killSaveQueens() + 2 * immediateMovesHeuristic();
+        return 8 * territoryHeuristic() + 2 * mobilityHeuristic() + 10 * killSaveQueens();
+    }
+
+    public int getAltUtility() {
+        return 8 * territoryHeuristic() + 2 * mobilityHeuristic() + 10 * killSaveQueens() + 2 * immediateMovesHeuristic();
     }
 
     public int killSaveQueens() {

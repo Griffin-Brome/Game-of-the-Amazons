@@ -9,7 +9,6 @@ public class AmazonsAIPlayerTest {
 
 		// NOTE: the Alt class has a slightly different utility function ONLY at the start + makes 2 more naive moves @ the beginning
 		AmazonsAIPlayer p1 = new AmazonsAIPlayer(args[0], args[1], 0);
-//		AmazonsAIPlayerAlt p1 = new AmazonsAIPlayerAlt(args[0], args[1], 0);
 
 
 //		AmazonsAIPlayer p2 = new AmazonsAIPlayer("otherguy", "password", 1000);

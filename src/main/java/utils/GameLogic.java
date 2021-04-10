@@ -106,24 +106,31 @@ public class GameLogic {
         return queens;
     }
 
-    public static byte[][] _makeTempMove(byte[][] oldBoard, Move move) {
-        byte[][] newBoard = _cloneMatrix(oldBoard);
-        byte[] oldPos = move.getOldPos();
-        byte[] newPos = move.getNewPos();
-        byte[] arrowPos = move.getArrowPos();
-
-        newBoard[oldPos[0]][oldPos[1]] = BLANK;
-        newBoard[newPos[0]][newPos[1]] = oldBoard[oldPos[0]][oldPos[1]];
-        newBoard[arrowPos[0]][arrowPos[1]] = ARROW;
-
-        return newBoard;
-    }
-
     public static byte[][] _makeTempQueenMove(byte[][] oldBoard, byte[] oldPos, byte[] newPos, boolean isWhitePlayer){
         byte[][] tempBoard = _cloneMatrix(oldBoard);
         tempBoard[oldPos[0]][oldPos[1]] = BLANK;
         tempBoard[newPos[0]][newPos[1]] = isWhitePlayer ? WHITE_QUEEN : BLACK_QUEEN;
         return tempBoard;
+    }
+
+    public static void _doTempMove(byte[][] board, Move move) {
+        byte[] oldPos = move.getOldPos();
+        byte[] newPos = move.getNewPos();
+        byte[] arrowPos = move.getArrowPos();
+
+        board[newPos[0]][newPos[1]] = board[oldPos[0]][oldPos[1]];
+        board[oldPos[0]][oldPos[1]] = BLANK;
+        board[arrowPos[0]][arrowPos[1]] = ARROW;
+    }
+
+    public static void _undoTempMove(byte[][] board, Move move) {
+        byte[] oldPos = move.getOldPos();
+        byte[] newPos = move.getNewPos();
+        byte[] arrowPos = move.getArrowPos();
+
+        board[arrowPos[0]][arrowPos[1]] = BLANK;
+        board[oldPos[0]][oldPos[1]] = board[newPos[0]][newPos[1]];
+        board[newPos[0]][newPos[1]] = BLANK;
     }
 
     public static byte _getOccupant(byte[][] boardMatrix, byte[] pos) {

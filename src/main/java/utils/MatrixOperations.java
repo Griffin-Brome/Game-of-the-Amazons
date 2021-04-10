@@ -95,4 +95,17 @@ public class MatrixOperations {
 
         return newMatrix;
     }
+
+    /**
+     * Initializes every cell in a matrix to equal a provided value. Will overwrite every cell in the matrix to make them = to 'value'
+     * @param matrix the matrix
+     * @param value the value to initialize the matrix with
+     */
+    public static void _initializeMatrix(byte[][] matrix, byte value) {
+        for (byte row = 0; row < N; row++) {
+            for (byte col = 0; col < N; col++) {
+                matrix[row][col] = value;
+            }
+        }
+    }
 }

@@ -7,10 +7,13 @@ public class AmazonsAIPlayerTest {
 
 	public static void main(String[] args) {
 
-		AmazonsAIPlayer p1 = new AmazonsAIPlayer(args[0], args[1], 500);
-		//AmazonsAIPlayer p2 = new AmazonsAIPlayer("otherguy", "password", 500);
-		//HumanPlayer p1 = new HumanPlayer();
-		//HumanPlayer p2 = new HumanPlayer();
+		// NOTE: the Alt class has a slightly different utility function ONLY at the start + makes 2 more naive moves @ the beginning
+		AmazonsAIPlayer p1 = new AmazonsAIPlayer(args[0], args[1], 0);
+
+
+//		AmazonsAIPlayer p2 = new AmazonsAIPlayer("otherguy", "password", 1000);
+//		HumanPlayer p1 = new HumanPlayer();
+//		HumanPlayer p2 = new HumanPlayer();
 
 		if (p1.getGameGUI() == null) {
 			p1.Go();
@@ -19,7 +22,7 @@ public class AmazonsAIPlayerTest {
 			java.awt.EventQueue.invokeLater(new Runnable() {
 				public void run() {
 					p1.Go();
-					//p2.Go();
+//					p2.Go();
 				}
 			});
 		}

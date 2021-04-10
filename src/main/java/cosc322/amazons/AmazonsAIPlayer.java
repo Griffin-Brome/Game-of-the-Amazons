@@ -1,12 +1,12 @@
 package cosc322.amazons;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.*;
 
-import decision.logic.AlphaBetaSearch;
+import decision.logic.AlphaBeta;
 import models.Move;
+import models.RootMove;
 import ygraph.ai.smartfox.games.BaseGameGUI;
 import ygraph.ai.smartfox.games.GameClient;
 import ygraph.ai.smartfox.games.GameMessage;
@@ -30,26 +30,24 @@ public class AmazonsAIPlayer extends GamePlayer {
 
     private String userName = null;
     private String passwd = null;
-    private int delay = 0;
+    private int delay;
     private int turnNumber;
-    private int goHard = 1;
-
-    int iterativeDeepeningAlpha = 25;
-    int territoryDepthAlpha = 15;
-    private int upper;
+    private int searchLevel;
+    private int IDSUpper;
     private byte territoryDepth;
 
     public AmazonsAIPlayer(String userName, String passwd) {
         setUserName(userName);
         setPassword(passwd);
         setGameGUI(new BaseGameGUI(this));
-        turnNumber = 1;
+        searchLevel = 1;
     }
 
     // Second constructor for if we want to pass the delay parameter
     public AmazonsAIPlayer(String userName, String passwd, int delay) {
         this(userName, passwd);
-        this.delay = delay;
+        // TODO: if we want to re-enable the delay parameter, we should set this.delay = delay
+        this.delay = 0;
     }
 
     /**
@@ -65,7 +63,6 @@ public class AmazonsAIPlayer extends GamePlayer {
             this.getGameGUI().setRoomInformation(this.getGameClient().getRoomList());
         } else {
             System.err.println("Error: Could not load game UI");
-            // Will break out of program since this method is void
         }
     }
 
@@ -89,6 +86,7 @@ public class AmazonsAIPlayer extends GamePlayer {
     @Override
     public boolean handleGameMessage(String messageType, Map<String, Object> msgDetails) {
         try {
+            long start = System.currentTimeMillis(); // start timer
             switch (messageType) {
                 // set gui/board
                 case GameMessage.GAME_STATE_BOARD:
@@ -100,25 +98,24 @@ public class AmazonsAIPlayer extends GamePlayer {
                     break;
 
                 case GameMessage.GAME_ACTION_START:
-                    long start = System.currentTimeMillis();
-                    this.handleStart(msgDetails);
-                    System.out.println("Move Time: " + (System.currentTimeMillis() - start));
+                    this.handleStart(msgDetails, start);
+                    System.out.println("Turn Number: " + turnNumber + "\tMove Time: " + (System.currentTimeMillis() - start));
                     break;
 
                 case GameMessage.GAME_ACTION_MOVE:
                     /**
                      * Now the only place conversion from server to local occurs
                      */
-                    ArrayList<Integer> queenPosCurr = toLocalFormat((ArrayList<Integer>) msgDetails.get(AmazonsGameMessage.QUEEN_POS_CURR));
-                    ArrayList<Integer> queenPosNext = toLocalFormat((ArrayList<Integer>) msgDetails.get(AmazonsGameMessage.Queen_POS_NEXT));
-                    ArrayList<Integer> arrowPos = toLocalFormat((ArrayList<Integer>) msgDetails.get(AmazonsGameMessage.ARROW_POS));
+                    byte[] queenPosCurr = toLocalFormat((ArrayList<Integer>) msgDetails.get(AmazonsGameMessage.QUEEN_POS_CURR));
+                    byte[] queenPosNext = toLocalFormat((ArrayList<Integer>) msgDetails.get(AmazonsGameMessage.Queen_POS_NEXT));
+                    byte[] arrowPos = toLocalFormat((ArrayList<Integer>) msgDetails.get(AmazonsGameMessage.ARROW_POS));
 
-                    gameBoard.updateBoard(queenPosCurr, queenPosNext, arrowPos);
+                    gameBoard.updateBoard(queenPosCurr, queenPosNext, arrowPos, false);
                     gamegui.updateGameState(msgDetails);
+                    System.out.println(); // just to make the print out more readable
 
                     // Now we make a move
-                    start = System.currentTimeMillis();
-                    move();
+                    move(start);
                     System.out.println("Turn Number: " + turnNumber + "\tMove Time: " + (System.currentTimeMillis() - start));
                     break;
             }
@@ -130,121 +127,74 @@ public class AmazonsAIPlayer extends GamePlayer {
         return false;
     }
 
-    public void setTuningParameters(int turnNumber, int moveSize) {
-        this.goHard = 1 + turnNumber / 4;
-        this.upper = 2;
-
-        if (moveSize < 150) {
-            this.upper = 3;
-        }
-
-        this.territoryDepth = (byte) (2 + turnNumber / territoryDepthAlpha);
-    }
-
     /**
      * Handles game start message and sets the isWhitePlayer flag.
      * If so, perform move.
      *
      * @param msgDetails
      */
-    public void handleStart(Map<String, Object> msgDetails) throws ExecutionException, InterruptedException {
+    public void handleStart(Map<String, Object> msgDetails, long start) throws ExecutionException, InterruptedException {
         if (msgDetails.get(AmazonsGameMessage.PLAYER_WHITE).equals(this.userName)) {
             this.isWhitePlayer = true;
         } else if (msgDetails.get(AmazonsGameMessage.PLAYER_BLACK).equals(this.userName)) {
             this.isWhitePlayer = false;
-            move();
+            move(start);
         }
+    }
+
+    public void setTuningParameters(int turnNumber, int moveSize) {
+        this.searchLevel = 1 + turnNumber / 4;
+        this.IDSUpper = 10;
+
+        this.IDSUpper = turnNumber < 4 ? 2 : this.IDSUpper; //NOTE: < X where X is the same as in AlphaBetaExp. getBestMove(int turnNumber)
+
+        if (moveSize < 150) {
+            this.IDSUpper = 5;
+        }
+
+        this.territoryDepth = (byte) (6 + turnNumber / 10);
     }
 
     /**
      * Game DecisionLogic needs to be implemented here, that class should implement AlphaBeta
      */
-    public void move() throws ExecutionException, InterruptedException {
-        int numThreads = 4;
-        long start = System.currentTimeMillis();
+    public void move(long start) throws ExecutionException, InterruptedException {
         while (System.currentTimeMillis() < start + delay) ;
 
         ActionFactory af = new ActionFactory(gameBoard, isWhitePlayer);
         ArrayList<Move> possibleMoves = af.getPossibleMoves();
+        setTuningParameters(turnNumber, possibleMoves.size());
 
         if (possibleMoves.isEmpty()) {
-            String player = isWhitePlayer ? "White Player" : "Black Player";
-            System.out.println("Game over for " + player);
+            System.out.println("Game over for " + (isWhitePlayer ? "White Player" : "Black Player"));
         } else {
             Move move = possibleMoves.get(0);
-            setTuningParameters(turnNumber, possibleMoves.size());
+            RootMove root = new RootMove();
+            root.addAllChildMove(possibleMoves); // in order to store move trees persistently through IDS steps
 
-            if(possibleMoves.size() < numThreads * 10) {
-                List<ArrayList<Move>> possibleMovesList = new ArrayList<>();
-                for (int i = 1; i < numThreads + 1; i++) {
-                    possibleMovesList.add(new ArrayList<>(possibleMoves.subList(possibleMoves.size() / numThreads * (i - 1), possibleMoves.size() / numThreads * i)));
+            for (int i = 1; i < IDSUpper; i++) {
+                if (System.currentTimeMillis() - start >= 28000) { // NOTE: hard coded as 28s
+                    break;
                 }
-
-                boolean waitonce = false;
-                for (int i = 1; i < upper; i++) {
-                    ExecutorService pool = Executors.newFixedThreadPool(numThreads);
-                    List<AlphaBetaSearch> abList = new ArrayList<>();
-                    List<Future<Move>> futureList = new ArrayList<>();
-                    List<Move> bestMoves = new ArrayList<>();
-
-                    for (int j = 0; j < numThreads; j++) {
-                        abList.add(new AlphaBetaSearch(gameBoard, i, isWhitePlayer, this.goHard, this.territoryDepth, possibleMovesList.get(j)));
-                        futureList.add(pool.submit(abList.get(j)));
-
-                    }
-
-                    if (!waitonce) {
-                        pool.awaitTermination(23, TimeUnit.SECONDS);
-                        waitonce = true;
-                    }
-                    for (int k = 0; k < numThreads; k++) {
-                        bestMoves.add(futureList.get(k).get());
-                    }
-
-                    int bestScore = Integer.MIN_VALUE;
-                    for (Move m : bestMoves) {
-                        if (m.getScore() > bestScore) {
-                            move = m;
-                            bestScore = m.getScore();
-                        }
-                    }
-                    System.out.println("Check |\tUpper current: " + i + "\tTerritory Depth: " + territoryDepth);
-                    pool.shutdown();
-                }
-            } else {
-                for(int i = 1; i < upper; i++) {
-                    AlphaBetaSearch ab = new AlphaBetaSearch(gameBoard, i, isWhitePlayer, this.goHard, this.territoryDepth, possibleMoves);
-                    move = ab.getBestMove();
+                System.out.println("UPPER: " + i);
+                AlphaBeta ab = new AlphaBeta(gameBoard, i, isWhitePlayer, this.searchLevel, this.territoryDepth, start, root);
+                Move temp = ab.getBestMove(turnNumber);
+                if (temp != null) {
+                    move = temp;
                 }
             }
-
-            ArrayList<Integer> oldPosList = new ArrayList<>(2);
-            ArrayList<Integer> newPosList = new ArrayList<>(2);
-            ArrayList<Integer> arrowPosList = new ArrayList<>(2);
 
             byte[] oldPos = move.getOldPos();
             byte[] newPos = move.getNewPos();
             byte[] arrowPos = move.getArrowPos();
 
-            // old position of the moving queen
-            oldPosList.add((int) oldPos[0]);
-            oldPosList.add((int) oldPos[1]);
-
-            // add to appropriate arrayList
-            newPosList.add((int) newPos[0]); // new pos
-            newPosList.add((int) newPos[1]);
-
-            // add to arraylist for server message
-            arrowPosList.add((int) arrowPos[0]); // arrow position
-            arrowPosList.add((int) arrowPos[1]);
-
             // IMPORTANT: update board before converting to server format
-            gameBoard.updateBoard(oldPosList, newPosList, arrowPosList);
+            gameBoard.updateBoard(oldPos, newPos, arrowPos, true);
 
             // Only place where we have to convert to server format of (y, x) and 1 indexed is now here.
-            oldPosList = toServerFormat(oldPosList);
-            newPosList = toServerFormat(newPosList);
-            arrowPosList = toServerFormat(arrowPosList);
+            ArrayList<Integer> oldPosList = toServerFormat(oldPos);
+            ArrayList<Integer> newPosList = toServerFormat(newPos);
+            ArrayList<Integer> arrowPosList = toServerFormat(arrowPos);
 
             // IMPORTANT: update gui after converting to server format
             gamegui.updateGameState(oldPosList, newPosList, arrowPosList);
@@ -260,12 +210,12 @@ public class AmazonsAIPlayer extends GamePlayer {
      * @param localPos
      * @return
      */
-    public ArrayList<Integer> toServerFormat(ArrayList<Integer> localPos) {
+    public ArrayList<Integer> toServerFormat(byte[] localPos) {
         ArrayList<Integer> serverPos = new ArrayList<>();
         // for the row, we set it to be N - localPos[0] to handle the conversion
-        serverPos.add(N - localPos.get(0));
+        serverPos.add(N - localPos[0]);
         // column just needs to have 1 added to it
-        serverPos.add(localPos.get(1) + 1);
+        serverPos.add(localPos[1] + 1);
         return serverPos;
     }
 
@@ -275,13 +225,10 @@ public class AmazonsAIPlayer extends GamePlayer {
      * @param serverPos
      * @return
      */
-    public ArrayList<Integer> toLocalFormat(ArrayList<Integer> serverPos) {
-        ArrayList<Integer> pos = new ArrayList<>();
+    public byte[] toLocalFormat(ArrayList<Integer> serverPos) {
         // for the row, we set it to be N - serverPos[0] to handle the conversion
-        pos.add(N - serverPos.get(0));
         // column just needs to have 1 subtracted from it
-        pos.add(serverPos.get(1) - 1);
-        return pos;
+        return new byte[]{(byte) (N - serverPos.get(0)), (byte) (serverPos.get(1) - 1)};
     }
 
     public String userName() {
